@@ -1,0 +1,4 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: llama-3-3-70b-instruct-fp8-dynamic

@@ -45,7 +45,9 @@ ARG NIXL_VERSION="0.8.0"
 ARG INFINISTORE_REPO="https://github.com/bytedance/InfiniStore.git"
 ARG INFINISTORE_VERSION="0.2.33"
 ARG LMCACHE_REPO="https://github.com/LMCache/LMCache.git"
+# included SHA1: cad4db10592e8487d1e0bbd02d1a6f92c37d0581
 ARG LMCACHE_VERSION="v0.3.8"
+
 
 # Kernels
 ARG DEEPEP_REPO="https://github.com/smarterclayton/DeepEP"
@@ -142,7 +144,7 @@ ENV NVSHMEM_DIR="/opt/nvshmem-${NVSHMEM_VERSION}" \
     EFA_PREFIX="/opt/amazon/efa" \
     UCX_PREFIX="/opt/ucx" \
     NIXL_PREFIX="/opt/nixl"
-    
+
 ENV PATH="${NVSHMEM_DIR}/bin:${VIRTUAL_ENV}/bin:${PATH}" \
     LIBRARY_PATH="${EFA_PREFIX}/lib:${EFA_PREFIX}/lib64:${UCX_PREFIX}/lib:${UCX_PREFIX}/lib64:${NVSHMEM_DIR}/lib:${NVSHMEM_DIR}/lib64:${CUDA_HOME}/lib64:/usr/local/lib:/usr/local/lib64" \
     CPATH="${NVSHMEM_DIR}/include:/usr/include:/usr/local/include:${CUDA_HOME}/include:${CPATH}" \
@@ -420,6 +422,10 @@ RUN --mount=type=cache,target=/var/cache/git \
     chmod +x /tmp/install-vllm.sh && \
     /tmp/install-vllm.sh && \
     rm /tmp/install-vllm.sh
+
+# Copy GDS cufile probe script for GPU Direct Storage readiness checks
+COPY docker/scripts/cuda/runtime/gds-cufile-probe.sh /usr/local/bin/gds-cufile-probe.sh
+RUN chmod +x /usr/local/bin/gds-cufile-probe.sh
 
 # Cleanup packages
 COPY docker/scripts/cuda/common/package-utils.sh /tmp/package-utils.sh
