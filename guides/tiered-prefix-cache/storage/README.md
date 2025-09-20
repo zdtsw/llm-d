@@ -98,6 +98,20 @@ export STORAGE_CLASS=lustre
 
 To provision a managed GCP Lustre instance on GKE and configure the corresponding `StorageClass`, follow the [GCP Lustre guide](./manifests/backends/lustre/README.md).
 
+<!-- TAB:WEKA -->
+
+#### WEKA
+
+Set your storage class which will be used later to provision the PVC.
+
+```bash
+export STORAGE_CLASS=weka-csi-sc
+```
+
+To configure WEKA CSI driver and StorageClass, follow the [WEKA backend guide](./manifests/backends/weka/README.md).
+
+**Note:** For a complete WEKA setup with GPU Direct Storage (GDS), prefill/decode disaggregation, and RDMA networking optimizations, refer to the [WEKA tiered prefix cache guide](../weka/README.md).
+
 <!-- TABS:END -->
 
 #### 2.2. Create the PVC

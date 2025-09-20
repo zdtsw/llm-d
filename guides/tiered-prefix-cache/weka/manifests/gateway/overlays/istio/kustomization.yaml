@@ -1,0 +1,59 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: weka
+
+resources:
+  - ../../../../../../recipes/gateway/istio
+
+patches:
+  # Update HTTPRoute to add timeouts and reference InferencePool
+  - target:
+      kind: HTTPRoute
+    patch: |-
+      - op: add
+        path: /spec/rules/0/timeouts
+        value:
+          backendRequest: 0s
+          request: 0s
+      - op: replace
+        path: /spec/rules/0/backendRefs/0/name
+        value: weka-vllm
+
+  # Customize Istio proxy settings in ConfigMap
+  - target:
+      kind: ConfigMap
+      name: llm-d-inference-gateway
+    patch: |-
+      - op: replace
+        path: /data/deployment
+        value: |
+          spec:
+            template:
+              spec:
+                containers:
+                - name: istio-proxy
+                  args:
+                    - proxy
+                    - router
+                    - --domain
+                    - $(POD_NAMESPACE).svc.cluster.local
+                    - --proxyLogLevel
+                    - error
+                    - --proxyComponentLogLevel
+                    - misc:error
+                    - --log_output_level
+                    - default:error
+                  resources:
+                    limits:
+                      cpu: "4"
+                      memory: 4Gi
+                    requests:
+                      cpu: "1"
+                      memory: 1Gi
+
+labels:
+  - pairs:
+      app.kubernetes.io/instance: weka
+      app.kubernetes.io/gateway: llm-d-inference-gateway
+      app.kubernetes.io/component: inference-gateway

@@ -51,8 +51,8 @@ ARG NIXL_VERSION="0.10.0"
 ARG INFINISTORE_REPO="https://github.com/bytedance/InfiniStore.git"
 ARG INFINISTORE_VERSION="0.2.33"
 
-ARG LMCACHE_REPO="https://github.com/LMCache/LMCache.git"
-ARG LMCACHE_VERSION="v0.3.14"
+ARG LMCACHE_REPO="https://github.com/vinaychannagiri23/LMCache.git"
+ARG LMCACHE_VERSION="operation-timeout-error-handling"
 
 # Kernels
 # ARG DEEPEP_REPO="https://github.com/deepseek-ai/DeepEP"
@@ -483,6 +483,12 @@ RUN --mount=type=cache,target=/var/cache/git \
 COPY docker/packages/common/runtime-otel-package-requirements.txt /workspace/runtime-otel-package-requirements.txt
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install -r /workspace/runtime-otel-package-requirements.txt
+
+# Copy GDS scripts for Weka
+COPY docker/scripts/cuda/runtime/enable-nvidia-gds.sh /usr/local/bin/enable-nvidia-gds.sh
+COPY docker/scripts/cuda/runtime/gds-startup-probe.sh /usr/local/bin/gds-startup-probe.sh
+RUN chmod +x /usr/local/bin/enable-nvidia-gds.sh \
+    /usr/local/bin/gds-startup-probe.sh
 
 # Cleanup packages
 COPY docker/scripts/cuda/common/package-utils.sh /tmp/package-utils.sh

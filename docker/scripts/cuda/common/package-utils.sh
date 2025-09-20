@@ -143,6 +143,13 @@ load_packages_from_json() {
         while IFS= read -r pkg; do
             packages+=("$pkg")
         done < <(echo "$manifest" | jq -r ".${section} | keys[]")
+
+        # add rhel-only packages if they exist
+        if echo "$manifest" | jq -e '.rhel_only' > /dev/null 2>&1; then
+            while IFS= read -r pkg; do
+                packages+=("$pkg")
+            done < <(echo "$manifest" | jq -r '.rhel_only[]')
+        fi
     fi
 
     printf '%s\n' "${packages[@]}"
