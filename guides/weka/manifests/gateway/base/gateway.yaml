@@ -1,0 +1,17 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: infra-pd-inference-gateway
+  labels:
+    app.kubernetes.io/instance: infra-pd
+    app.kubernetes.io/gateway: infra-pd-inference-gateway
+    app.kubernetes.io/component: inference-gateway
+spec:
+  listeners:
+    - port: 80
+      protocol: HTTP
+      name: default
+      path: /
+      allowedRoutes:
+        namespaces:
+          from: All

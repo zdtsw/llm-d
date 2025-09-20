@@ -47,7 +47,9 @@ ARG NIXL_VERSION="0.8.0"
 ARG INFINISTORE_REPO="https://github.com/bytedance/InfiniStore.git"
 ARG INFINISTORE_VERSION="0.2.33"
 ARG LMCACHE_REPO="https://github.com/LMCache/LMCache.git"
+# included SHA1: cad4db10592e8487d1e0bbd02d1a6f92c37d0581
 ARG LMCACHE_VERSION="v0.3.8"
+
 
 # Kernels
 ARG DEEPEP_REPO="https://github.com/smarterclayton/DeepEP"
@@ -438,6 +440,10 @@ RUN --mount=type=cache,target=/var/cache/git \
 COPY docker/packages/common/runtime-otel-package-requirements.txt /workspace/runtime-otel-package-requirements.txt
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install -r /workspace/runtime-otel-package-requirements.txt
+
+# Copy GDS cufile probe script for GPU Direct Storage readiness checks
+COPY docker/scripts/cuda/runtime/gds-cufile-probe.sh /usr/local/bin/gds-cufile-probe.sh
+RUN chmod +x /usr/local/bin/gds-cufile-probe.sh
 
 # Cleanup packages
 COPY docker/scripts/cuda/common/package-utils.sh /tmp/package-utils.sh
