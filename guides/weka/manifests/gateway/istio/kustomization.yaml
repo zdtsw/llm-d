@@ -1,0 +1,23 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../base
+  - destinationrule.yaml
+  - configmap.yaml
+patches:
+  - path: gateway.yaml
+    target:
+      kind: Gateway
+  - target:
+      kind: HTTPRoute
+    patch: |-
+      - op: add
+        path: /spec/rules/0/timeouts
+        value:
+          backendRequest: 0s
+          request: 0s
+labels:
+  - pairs:
+    app.kubernetes.io/instance: infra-pd
+    app.kubernetes.io/gateway: infra-pd-inference-gateway
+    app.kubernetes.io/component: inference-gateway

@@ -1,0 +1,15 @@
+piVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: infra-pd-inference-gateway
+  labels:
+    istio.io/enable-inference-extproc: "true"
+  annotations:
+    networking.istio.io/service-type: ClusterIP
+spec:
+  gatewayClassName: "istio"
+  infrastructure:
+    parametersRef:
+      name: infra-pd-inference-gateway
+      group: ""
+      kind: ConfigMap
