@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Install shellcheck
         run: |
@@ -61,14 +61,14 @@ jobs:
       - name: Install hadolint
         run: |
           wget -O /usr/local/bin/hadolint \
-            https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+            https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-Linux-x86_64
           chmod +x /usr/local/bin/hadolint
         shell: bash
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.1.0
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
       - name: Run pre-commit
         uses: j178/prek-action@v1
@@ -82,7 +82,7 @@ jobs:
       xpu: ${{ steps.filter.outputs.xpu || steps.dispatch.outputs.xpu }}
       cpu: ${{ steps.filter.outputs.cpu || steps.dispatch.outputs.cpu }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.1
       - uses: dorny/paths-filter@v3
         if: github.event_name != 'workflow_dispatch'
         id: filter
@@ -150,13 +150,13 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3.12.0
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
@@ -164,7 +164,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v5.10.0
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-cuda-dev${{ matrix.image_suffix }}
           tags: |
@@ -180,7 +180,7 @@ jobs:
 
       - name: Build the builder image layer
         id: build-image-build-layer
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: ./docker/Dockerfile.cuda
@@ -210,7 +210,7 @@ jobs:
 
       - name: Build the final image layer
         id: build-image-final-layer
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: ./docker/Dockerfile.cuda
@@ -302,7 +302,7 @@ jobs:
           ls -la /tmp/digests/ubuntu/ || echo "No Ubuntu digests"
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Export Git Sha
         id: export-sha
@@ -382,11 +382,11 @@ jobs:
 
       - name: Set up Docker Buildx
         if: ${{ steps.should-run.outputs.os_succeeded == 'true' }}
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3.12.0
 
       - name: Log in to Container Registry
         if: ${{ steps.should-run.outputs.os_succeeded == 'true' }}
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
@@ -395,7 +395,7 @@ jobs:
       - name: Extract metadata
         if: ${{ steps.should-run.outputs.os_succeeded == 'true' }}
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v5.10.0
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-cuda-dev${{ matrix.image_suffix }}
           tags: |
@@ -434,7 +434,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         if: ${{ steps.should-run.outputs.os_succeeded == 'true' }}
         continue-on-error: true
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: >-
             ${{ env.REGISTRY }}/${{ github.repository }}-cuda-dev${{ matrix.image_suffix }}@${{
@@ -452,7 +452,7 @@ jobs:
       - name: Upload Trivy scan results to GitHub Security tab
         if: ${{ steps.should-run.outputs.os_succeeded == 'true' }}
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -475,11 +475,11 @@ jobs:
     steps:
       - name: Checkout push ref
         if: github.event_name == 'push'
-        uses: Actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Checkout PR branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -487,7 +487,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
@@ -530,7 +530,7 @@ jobs:
           BUILDKIT_PROGRESS: "plain"
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}-xpu-dev:${{ steps.set-tag.outputs.tag }}
           format: 'sarif'
@@ -545,7 +545,7 @@ jobs:
 
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -565,11 +565,11 @@ jobs:
     steps:
       - name: Checkout push ref
         if: github.event_name == 'push'
-        uses: Actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Checkout PR branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
@@ -577,7 +577,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
@@ -620,7 +620,7 @@ jobs:
           BUILDKIT_PROGRESS: "plain"
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}-cpu-dev:${{ steps.set-tag.outputs.tag }}
           format: 'sarif'
@@ -634,7 +634,7 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GHCR_TOKEN }}
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 

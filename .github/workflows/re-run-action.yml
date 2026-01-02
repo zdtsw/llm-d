@@ -8,9 +8,10 @@ jobs:
   rerun_pr_tests:
     name: rerun_pr_tests
     if: ${{ github.event.issue.pull_request }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: estroz/rerun-actions@main
+      - name: Re-run PR tests
+        uses: estroz/rerun-actions@v0.3.0  # current latest commit on main has no function change since 0.3.0
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           comment_id: ${{ github.event.comment.id }}
