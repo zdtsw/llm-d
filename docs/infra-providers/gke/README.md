@@ -6,8 +6,8 @@ This document covers configuring GKE clusters for running high performance LLM i
 
 llm-d on GKE is tested with the following configurations:
 
-  * Machine types: A3, A4, ct5p, ct5lp, ct6e
-  * Versions: GKE 1.33.4+
+* Machine types: A3, A4, ct5p, ct5lp, ct6e
+* Versions: GKE 1.33.4+
 
 For the well lit paths, we specifically recommend the following machine types:
 
@@ -16,8 +16,7 @@ For the well lit paths, we specifically recommend the following machine types:
 | [Inference Scheduling](../../../guides/inference-scheduling/README.md) | Large models (13B+) with Hopper or newer (A3 or newer)<br>Small or highly quantized models (1-7B) with Ampere, L4, or newer (A2, G2, or newer) | ct5e (v5e) or newer |
 | [Prefill / Decode Disaggregation](../../../guides/pd-disaggregation/README.md) | RDMA-enabled machine types (A3U, A4, or newer) | ct6e (v6e) or newer |
 | [Wide Expert Parallelism](../../../guides/wide-ep-lws/README.md) | RDMA-enabled machine types (A3U, A4, or newer) | coming soon |
-| [Tiered Prefix Cache](../../../guides/tiered-prefix-cache/README.md) | Tiered Prefix Cache can be combined with other well-lit paths above.<br>If running Prefill/Decode Disaggregation, or Wide Expert Parallelism, follow their guidance respectively.<br>Otherwise, follow the guidance on Inference Scheduling.  | coming soon |
-
+| [Tiered Prefix Cache](../../../guides/tiered-prefix-cache/README.md) | Tiered Prefix Cache can be combined with other well-lit paths above.<br>If running Prefill/Decode Disaggregation, or Wide Expert Parallelism, follow their guidance respectively.<br>Otherwise, follow the guidance on Inference Scheduling. | coming soon |
 
 ## Cluster Configuration
 
@@ -57,7 +56,7 @@ GKE recommends using [Topology Aware Scheduling with Kueue and LeaderWorkerSet](
 
 For smaller scale expert parallel deployments (2 or 4 node replicas) we have not observed significant wins in requiring all nodes in the replica to be within the same `cloud.google.com/gce-topology-subblock`. We do recommend setting a pod affinity rule to place all pods within the same `cloud.google.com/gce-topology-block`:
 
-```
+```shell
   affinity:
     podAffinity:
       # Subblock affinity cannot guarantee all pods in the replica
@@ -89,7 +88,7 @@ The GKE managed GPU driver automatically mounts the configured node CUDA driver 
 
 In vLLM, this causes startup to fail with the following logging:
 
-```
+```shell
 INFO 05-28 14:02:21 [__init__.py:247] No platform detected, vLLM is running on UnspecifiedPlatform
 ...
 INFO 05-28 14:02:26 [config.py:1909] Disabled the custom all-reduce kernel because it is not supported on current platform.
@@ -118,7 +117,7 @@ A workaround exists in llm-d container images and vLLM after commit [5546acb4632
 
 #### Google InfiniBand 1.10 required for vLLM 0.11.0 (gIB)
 
-vLLM v0.11.0 and newer require NCCL 2.27, which is supported in gIB 1.10+. See the appropriate section in cluster configuration for installing the RDMA binary and configuring NCCL (e.g. [for A3 Ultra / A4](https://cloud.google.com/ai-hypercomputer/docs/create/gke-ai-hypercompute-custom#install-rdma-configure-nccl)).  To get 1.10, use at least the version of the RDMA installer DaemonSet described in this [1.10 pull request](https://github.com/GoogleCloudPlatform/container-engine-accelerators/pull/511).
+vLLM v0.11.0 and newer require NCCL 2.27, which is supported in gIB 1.10+. See the appropriate section in cluster configuration for installing the RDMA binary and configuring NCCL (e.g. [for A3 Ultra / A4](https://cloud.google.com/ai-hypercomputer/docs/create/gke-ai-hypercompute-custom#install-rdma-configure-nccl)). To get 1.10, use at least the version of the RDMA installer DaemonSet described in this [1.10 pull request](https://github.com/GoogleCloudPlatform/container-engine-accelerators/pull/511).
 
 #### NVSHMEM reports `Unable to create ah.` on initialization for DeepEP
 
@@ -130,7 +129,7 @@ To work around this issue llm-d applies a [patch to NVSHMEM](https://github.com/
 
 When starting wide expert parallel deployments using the DeepEP kernels, container images (especially Ubuntu) that are not compiled against the Mellanox OFED drivers as recommended by NVIDIA may fail to start with the following error:
 
-```
+```shell
 /tmp/nvshmem_src/src/modules/transport/ibgda/ibgda.cpp 3888 no active IB device that supports GPU-initiated communication is found, exiting...
 
 /tmp/nvshmem_src/src/host/transport/transport.cpp:nvshmemi_transport_init:282: init failed for transport: IBGDA
@@ -140,9 +139,9 @@ The default llm-d images based on RHEL UBI are not impacted. [Issue 412](https:/
 
 To resolve this issue in custom built images add the Mellanox OFED apt repository
 
-```
+```shell
 wget -qO - https://www.mellanox.com/downloads/ofed/RPM-GPG-KEY-Mellanox | apt-key add -
-cd /etc/apt/sources.list.d/ && wget https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-0.7.0.0/ubuntu22.04/mellanox_mlnx_ofed.list
+cd /etc/apt/sources.list.d/ && wget https://linux.mellanox.com/public/repo/mlnx_ofed/24.10-0.7.0.0/ubuntu24.04/mellanox_mlnx_ofed.list
 ```
 
 before installing `libibverbs-dev` or other `rdma-core-devel` packages.

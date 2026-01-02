@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Install shellcheck
         run: |
@@ -20,14 +20,14 @@ jobs:
       - name: Install hadolint
         run: |
           wget -O /usr/local/bin/hadolint \
-            https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+            https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-Linux-x86_64
           chmod +x /usr/local/bin/hadolint
         shell: bash
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.1.0
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
       - name: Run pre-commit
         uses: j178/prek-action@v1
@@ -38,16 +38,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: warning about ignored paths
         run: |
           echo "Warning! Some paths are ignored in the markdown link checker config.
           This is because those websites have strong anti-scraping behaviours. For
-          the full list of ignored paths, see the .markdownlinkcheck.json file:"
-          cat .markdownlinkcheck.json
+          the full list of ignored paths, see the lychee.toml file:"
+          cat lychee.toml
 
       - name: Run markdown link checker
-        uses: ./.github/actions/markdown-link-checker
+        uses: lycheeverse/lychee-action@v2.7.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          args: --verbose --no-progress --format markdown '**/*.md'
+          fail: true

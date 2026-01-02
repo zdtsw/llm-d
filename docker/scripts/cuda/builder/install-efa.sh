@@ -1,5 +1,6 @@
 #!/bin/bash
-set -Eeu
+set -Eeuo pipefail
+
 
 # purpose: Install EFA
 # -------------------------------
@@ -27,6 +28,8 @@ if [ ! -f "$UTILS_SCRIPT" ]; then
     echo "ERROR: package-utils.sh not found" >&2
     exit 1
 fi
+
+# shellcheck source=docker/scripts/cuda/common/package-utils.sh
 . "$UTILS_SCRIPT"
 
 if [ "$TARGETOS" = "ubuntu" ]; then
@@ -35,8 +38,8 @@ if [ "$TARGETOS" = "ubuntu" ]; then
 fi
 
 mkdir -p /tmp/efa && cd /tmp/efa
-curl -O https://efa-installer.amazonaws.com/aws-efa-installer-1.43.3.tar.gz
-tar -xf aws-efa-installer-1.43.3.tar.gz && cd aws-efa-installer
+curl -O https://efa-installer.amazonaws.com/aws-efa-installer-${EFA_VERSION}.tar.gz
+tar -xf aws-efa-installer-${EFA_VERSION}.tar.gz && cd aws-efa-installer
 ./efa_installer.sh --skip-kmod --no-verify -y
 mkdir -p /etc/ld.so.conf.d/
 ldconfig
@@ -52,4 +55,3 @@ else
     echo "ERROR: Unsupported TARGETOS='$TARGETOS'. Must be 'ubuntu' or 'rhel'." >&2
     exit 1
 fi
-

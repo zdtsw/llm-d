@@ -49,7 +49,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
 
@@ -389,7 +389,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           persist-credentials: false
 
@@ -454,7 +454,7 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@$INSTANCE_IP << EOF
             set -euo pipefail
             set -x
-            BACKUP_NAMESPACE="llm-d-pd" /bin/sh llm-d/.github/scripts/e2e/helm-get-all.sh \
+            BACKUP_NAMESPACE="llm-d-pd" llm-d/.github/scripts/e2e/helm-get-all.sh \
               ~/pd-disaggregation-deployment.log \
               llm-d/guides/pd-disaggregation/helmfile.yaml
           EOF

@@ -1,4 +1,6 @@
 #!/bin/bash
+set -Eeuo pipefail
+
 
 # runtime script, requires kubectl, jq
 
@@ -17,7 +19,7 @@ Notes:
   • You can pass -- to stop option parsing and treat the rest as positional args.
   • Verbose mode is off by default. Use -v/--verbose to turn it on.
 Examples:
-  prepare-inference.sh -v 
+  prepare-inference.sh -v
 EOF
 }
 
@@ -96,4 +98,3 @@ echo "GATEWAY_NAME: ${GATEWAY_NAME}"
 echo "GATEWAY_ADDRESS: ${GATEWAY_ADDRESS}"
 echo "GATEWAY_SERVICE_ENDPOINT: ${GATEWAY_SERVICE_ENDPOINT}"
 echo "MODEL_NAME: ${MODEL_NAME}"
-

@@ -51,7 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Install shellcheck
         run: |
@@ -61,14 +61,14 @@ jobs:
       - name: Install hadolint
         run: |
           wget -O /usr/local/bin/hadolint \
-            https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64
+            https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-Linux-x86_64
           chmod +x /usr/local/bin/hadolint
         shell: bash
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6.1.0
         with:
-          python-version: '3.x'
+          python-version: '3.12'
 
       - name: Run pre-commit
         uses: j178/prek-action@v1
@@ -82,7 +82,7 @@ jobs:
       xpu: ${{ steps.filter.outputs.xpu || steps.dispatch.outputs.xpu }}
       cpu: ${{ steps.filter.outputs.cpu || steps.dispatch.outputs.cpu }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6.0.1
       - uses: dorny/paths-filter@v3
         if: github.event_name != 'workflow_dispatch'
         id: filter
@@ -93,14 +93,16 @@ jobs:
               - 'docker/scripts/**'
               - 'docker/packages/common/**'
               - 'docker/packages/cuda/**'
+              - 'docker/packages/rpms/**'
               - 'patches/cks_nvshmem3.3.20.patch'
               - 'patches/cks_nvshmem3.3.9.patch'
+              - 'patches/nvshmem_zero_ibv_ah_attr_3.3.20.patch'
+              - 'patches/nvshmem_zero_ibv_ah_attr_v3.4.5-0.patch'
             xpu:
               - 'docker/Dockerfile.xpu'
-              - 'docker/scripts/**'
             cpu:
               - 'docker/Dockerfile.cpu'
-              - 'docker/scripts/**'
+              - 'docker/scripts/cpu/**'
       # shim to convert comma-separated platforms input into same boolean outputs as path filter
       - name: Parse dispatch platforms
         if: github.event_name == 'workflow_dispatch'
@@ -146,13 +148,13 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v3.12.0
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
@@ -160,7 +162,7 @@ jobs:
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v5.10.0
         with:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-cuda-dev${{ matrix.image_suffix }}
           tags: |
@@ -171,7 +173,7 @@ jobs:
 
       - name: Build the builder image layer
         id: build-image-build-layer
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: ./docker/Dockerfile.cuda
@@ -186,7 +188,7 @@ jobs:
           build-args: |
             TARGETOS=${{ matrix.os }}
             TARGETPLATFORM=${{ matrix.platform }}
-            BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu20.04' || matrix.base_image_suffix }}
+            BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu24.04' || matrix.base_image_suffix }}
             FINAL_BASE_IMAGE_SUFFIX=${{ matrix.base_image_suffix }}
           github-token: ${{ secrets.GHCR_TOKEN }}
           secrets: |
@@ -200,7 +202,7 @@ jobs:
 
       - name: Build the final image layer
         id: build-image-final-layer
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6.18.0
         with:
           context: .
           file: ./docker/Dockerfile.cuda
@@ -211,18 +213,16 @@ jobs:
           build-args: |
             TARGETOS=${{ matrix.os }}
             TARGETPLATFORM=${{ matrix.platform }}
-            BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu20.04' || matrix.base_image_suffix }}
+            BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu24.04' || matrix.base_image_suffix }}
             FINAL_BASE_IMAGE_SUFFIX=${{ matrix.base_image_suffix }}
             ${{ inputs.vllm_repo != '' && format('VLLM_REPO={0}', inputs.vllm_repo) || '' }}
             ${{ inputs.vllm_commit_sha != '' && format('VLLM_COMMIT_SHA={0}', inputs.vllm_commit_sha) || '' }}
             ${{ inputs.vllm_precompiled_wheel_commit != '' &&
               format('VLLM_PRECOMPILED_WHEEL_COMMIT={0}', inputs.vllm_precompiled_wheel_commit) || '' }}
-          cache-from: >-
-            type=gha,scope=cuda-dev-${{ matrix.os }}-${{
-            matrix.platform == 'linux/arm64' && 'arm64' || 'amd64' }}
-          cache-to: >-
-            type=gha,mode=max,scope=cuda-dev-${{ matrix.os }}-${{
-            matrix.platform == 'linux/arm64' && 'arm64' || 'amd64' }}
+          cache-from: |
+            type=gha,scope=cuda-dev-${{ matrix.os }}-${{ matrix.platform == 'linux/arm64' && 'arm64' || 'amd64' }}
+          cache-to: |
+            type=gha,mode=max,scope=cuda-dev-${{ matrix.os }}-${{ matrix.platform == 'linux/arm64' && 'arm64' || 'amd64' }}
           labels: ${{ steps.meta.outputs.labels }}
           outputs: >-
             type=image,name=${{ env.REGISTRY }}/${{ github.repository }}-cuda-dev${{ matrix.image_suffix }},
@@ -263,9 +263,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       any_succeeded: ${{ steps.check.outputs.any_succeeded }}
-      rhel_ok:       ${{ steps.check.outputs.rhel_ok }}
-      ubuntu_ok:     ${{ steps.check.outputs.ubuntu_ok }}
-      shortsha:      ${{ steps.export-sha.outputs.shortsha }}
+      rhel_ok: ${{ steps.check.outputs.rhel_ok }}
+      ubuntu_ok: ${{ steps.check.outputs.ubuntu_ok }}
+      shortsha: ${{ steps.export-sha.outputs.shortsha }}
     steps:
       - name: Download all digests (best-effort)
         uses: actions/download-artifact@v4
@@ -291,7 +291,7 @@ jobs:
           ls -la /tmp/digests/ubuntu/ || echo "No Ubuntu digests"
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Export Git Sha
         id: export-sha
@@ -375,7 +375,7 @@ jobs:
 
       - name: Log in to Container Registry
         if: ${{ steps.should-run.outputs.os_succeeded == 'true' }}
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
@@ -423,7 +423,7 @@ jobs:
       - name: Run Trivy vulnerability scanner
         if: ${{ steps.should-run.outputs.os_succeeded == 'true' }}
         continue-on-error: true
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: >-
             ${{ env.REGISTRY }}/${{ github.repository }}-cuda-dev${{ matrix.image_suffix }}@${{
@@ -441,7 +441,7 @@ jobs:
       - name: Upload Trivy scan results to GitHub Security tab
         if: ${{ steps.should-run.outputs.os_succeeded == 'true' }}
         continue-on-error: true
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -458,22 +458,20 @@ jobs:
   xpu-build-llm-d:
     needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.xpu == 'true' }}
-    strategy:
-      fail-fast: false
     runs-on: vllm-runner
     steps:
       - name: Checkout push ref
         if: github.event_name == 'push'
-        uses: Actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Checkout PR branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
@@ -498,7 +496,7 @@ jobs:
           fi;
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}-xpu-dev:${{ steps.build-and-push.outputs.tag }}
           format: 'sarif'
@@ -513,7 +511,7 @@ jobs:
 
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -529,22 +527,20 @@ jobs:
   cpu-build-llm-d:
     needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.cpu == 'true' }}
-    strategy:
-      fail-fast: false
     runs-on: vllm-runner
     steps:
       - name: Checkout push ref
         if: github.event_name == 'push'
-        uses: Actions/checkout@v4
+        uses: actions/checkout@v6.0.1
 
       - name: Checkout PR branch
         if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Log in to Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.GHCR_USER }}
@@ -569,7 +565,7 @@ jobs:
           fi;
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}-cpu-dev:${{ steps.build-and-push.outputs.tag }}
           format: 'sarif'
@@ -583,7 +579,7 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GHCR_TOKEN }}
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 

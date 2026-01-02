@@ -1,4 +1,6 @@
 #!/bin/bash
+set -Eeuo pipefail
+
 # -*- indent-tabs-mode: nil; tab-width: 2; sh-indentation: 2; -*-
 
 # This is a script to automate installation and removal of the Gateway API and Gateway API Inference Extension CRDs

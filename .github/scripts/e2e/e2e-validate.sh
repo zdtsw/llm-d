@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+
 
 # -----------------------------------------------------------------------------
 # e2e-validate.sh — CI e2e Gateway smoke-test (chat + completion, 10 iterations)
@@ -102,7 +103,6 @@ for i in {1..10}; do
         -H 'accept: application/json' \\
         -H 'Content-Type: application/json' \\
         -d '${chat_payload//\'/\'}'
-
 CMD
   fi
   ret=0
@@ -120,7 +120,10 @@ CMD
 
   # 2) POST /v1/completions
   echo "2) POST /v1/completions at ${SVC_HOST}"
-  payload='{"model":"'"$MODEL_ID"'","prompt":"You are a helpful AI assistant."}'
+  payload='{
+    "model":"'"$MODEL_ID"'",
+    "prompt":"You are a helpful AI assistant."
+  }'
   ID=$(gen_id)
   if $VERBOSE; then cat <<CMD
   - Running command:

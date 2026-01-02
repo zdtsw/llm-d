@@ -1,4 +1,7 @@
 #!/bin/bash
+set -Eeuo pipefail
+
+
 # shared package management utilities for multi-os support
 #
 # Required environment variables:

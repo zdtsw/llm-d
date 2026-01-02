@@ -48,38 +48,41 @@
         chdir: /home/ubuntu
 
     - name: Start sccache backed by S3
-      shell: |
-        mkdir -p $HOME/.local/share/sccache/logs
-        touch $HOME/.local/share/sccache/logs/sccache_log.txt
-        mkdir -p $HOME/.config/sccache
-        touch $HOME/.config/sccache/config.toml
-        cat > $HOME/.config/sccache/config.toml <<EOF
-        [cache.s3]
-        bucket = "vllm-nightly-sccache"
-        key_prefix = "vllm-cache/"
-        region = "us-west-2"
-        endpoint = "s3.us-west-2.amazonaws.com"
-        use_ssl = true
-        no_credentials = false
-        EOF
+      block:
+        - name: Create empty sccache log file
+          file:
+            path: $HOME/.local/share/sccache/logs/sccache_log.txt
+            state: touch
+            mode: '0644'
 
-        mkdir -p $HOME/.aws
-        touch $HOME/.aws/credentials
-        cat > $HOME/.aws/credentials <<EOF
-        [default]
-        region = us-west-2
-        aws_access_key_id = {{ AWS_ACCESS_KEY_ID_S3_BUCKET_ONLY }}
-        aws_secret_access_key = {{ AWS_SECRET_ACCESS_KEY_S3_BUCKET_ONLY }}
-        EOF
+        - name: Create required directories
+          file:
+            path: "{{ item }}"
+            state: directory
+            mode: '0755'
+          loop:
+            - $HOME/.config/sccache
+            - $HOME/.aws
 
-        SCCACHE_IDLE_TIMEOUT=0 \
-        SCCACHE_ERROR_LOG=$HOME/.local/share/sccache/logs/sccache_log.txt \
-        SCCACHE_LOG=debug \
-        SCCACHE_CONF=$HOME/.config/sccache/config.toml \
-        AWS_PROFILE=default \
-        /usr/local/bin/sccache --start-server
-      args:
-        executable: /bin/bash
+        - name: Copy template configuration files
+          template:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            mode: "{{ item.mode | default('0644') }}"
+          loop:
+            - {src: 'sccache_config.toml.j2', dest: '$HOME/.config/sccache/config.toml'}
+            - {src: 'aws_credentials.j2', dest: '$HOME/.aws/credentials', mode: '0600'}
+
+        - name: Start sccache server
+          shell: |
+            SCCACHE_IDLE_TIMEOUT=0 \
+            SCCACHE_ERROR_LOG=$HOME/.local/share/sccache/logs/sccache_log.txt \
+            SCCACHE_LOG=debug \
+            SCCACHE_CONF=$HOME/.config/sccache/config.toml \
+            AWS_PROFILE=default \
+            /usr/local/bin/sccache --start-server
+          args:
+            executable: /bin/bash
 
     - name: Install cuda deps
       shell: |
@@ -128,15 +131,13 @@
     - name: Install Python dependencies
       shell: |
         /home/ubuntu/vllm/venv/bin/pip install --upgrade pip setuptools setuptools_scm wheel
-        /home/ubuntu/vllm/venv/bin/pip install -r /home/ubuntu/vllm/requirements/build.txt \
-          --extra-index-url {{ PYTORCH_CUDA_INDEX_BASE_URL }}/{{ CUDA_SHORT }}
-        /home/ubuntu/vllm/venv/bin/pip install -r /home/ubuntu/vllm/requirements/cuda.txt \
+        /home/ubuntu/vllm/venv/bin/pip install -r /home/ubuntu/vllm/requirements/build.txt -r /home/ubuntu/vllm/requirements/cuda.txt \
           --extra-index-url {{ PYTORCH_CUDA_INDEX_BASE_URL }}/{{ CUDA_SHORT }}
 
         if [[ "$(uname -m)" == "arm64" || "$(uname -m)" == "aarch64" ]]; then
           /home/ubuntu/vllm/venv/bin/pip install \
             --index-url {{ PYTORCH_CUDA_NIGHTLY_INDEX_BASE_URL }}/{{ CUDA_SHORT }} \
-            "torch==2.8.0.dev20250318+cu128" "torchvision==0.22.0.dev20250319"
+            "torch==2.8.0.dev20250318+cu128" "torchvision==0.22.0.dev20250319"  # TODO: are these correct to override the ones in cuda.txt?
           /home/ubuntu/vllm/venv/bin/pip install \
             --index-url {{ PYTORCH_CUDA_NIGHTLY_INDEX_BASE_URL }}/{{ CUDA_SHORT }} \
             --pre pytorch_triton==3.3.0+gitab727c40
@@ -163,7 +164,7 @@
         export CC="gcc"
         export CXX="g++"
         export SCCACHE_BUCKET="vllm-nightly-sccache"
-        export SCCACHE_REGION="us-west-2"
+        export SCCACHE_REGION=${AWS_REGION}
         export SCCACHE_IDLE_TIMEOUT=0
         export SCCACHE_S3_KEY_PREFIX="vllm-cache/"
         export VLLM_TARGET_DEVICE="cuda"
@@ -192,21 +193,10 @@
         chdir: /home/ubuntu/vllm
 
     - name: Build PYPIRC
-      shell: |
-        touch $HOME/.pypirc
-        cat > $HOME/.pypirc <<EOF
-        [distutils]
-        index-servers =
-            llm-d-vllm
-
-        [llm-d-vllm]
-        repository: https://gitlab.com/api/v4/projects/72716844/packages/pypi
-        username: {{ PYPIRC_USER }}
-        password: {{ PYPIRC_TOKEN }}
-        EOF
-        chmod 600 $HOME/.pypirc
-      args:
-        executable: /bin/bash
+      template:
+        src: ".pypirc.j2"
+        dest: "$HOME/.pypirc"
+        mode: "0600"
 
     - name: Twine Upload and S3 upload
       shell: |

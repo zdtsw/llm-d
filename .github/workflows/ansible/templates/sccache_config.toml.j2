@@ -1,0 +1,7 @@
+[cache.s3]
+bucket = "vllm-nightly-sccache"
+key_prefix = "vllm-cache/"
+region = {{ AWS_REGION }}
+endpoint = "s3.{{ AWS_REGION }}.amazonaws.com"
+use_ssl = true
+no_credentials = false

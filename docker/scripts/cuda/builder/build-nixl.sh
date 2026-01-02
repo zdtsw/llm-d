@@ -1,5 +1,6 @@
 #!/bin/bash
-set -Eeu
+set -Eeuo pipefail
+
 
 # purpose: builds NIXL from source, gated by `BUILD_NIXL_FROM_SOURCE`
 #
@@ -55,5 +56,4 @@ cp build/src/bindings/python/nixl-meta/nixl-*-py3-none-any.whl /wheels/
 
 rm -rf build
 
-cd /tmp && rm -rf /tmp/nixl 
-
+cd /tmp && rm -rf /tmp/nixl

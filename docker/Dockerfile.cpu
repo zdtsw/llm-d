@@ -3,12 +3,12 @@ FROM ubuntu:22.04 AS base-common
 ARG PYTHON_VERSION=3.12
 ARG PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu"
 
-RUN apt clean && apt-get update -y && \
+RUN apt-get clean && apt-get update -y && \
     apt-get install -y --no-install-recommends --fix-missing \
     curl \
     git \
     wget \
-    vim 
+    vim
 
 RUN apt-get install -y ca-certificates && update-ca-certificates && \
     git config --global http.sslVerify false
@@ -25,6 +25,7 @@ RUN --mount=type=cache,target=/var/cache/git \
 WORKDIR /workspace/vllm
 
 # Install minimal dependencies and uv
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update -y \
@@ -67,6 +68,7 @@ FROM base-common AS base-arm64
 ENV LD_PRELOAD="/usr/lib/aarch64-linux-gnu/libtcmalloc_minimal.so.4"
 
 ######################### BASE IMAGE #########################
+# hadolint ignore=DL3006
 FROM base-${TARGETARCH} AS base
 
 RUN echo 'ulimit -c 0' >> ~/.bashrc
@@ -122,4 +124,3 @@ RUN python3 /workspace/install_nixl.py
 
 WORKDIR /workspace
 ENTRYPOINT ["/bin/bash"]
-

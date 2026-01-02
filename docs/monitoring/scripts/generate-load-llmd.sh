@@ -1,4 +1,6 @@
 #!/bin/bash
+set -Eeuo pipefail
+
 
 # Load generation script with malformed requests to trigger error metrics
 # Usage: ./generate-load-llmd.sh [duration_minutes]

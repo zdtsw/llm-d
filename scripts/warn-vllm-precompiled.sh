@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -Eeuo pipefail
+
 
 # Use env var if present; otherwise allow passing as $1
 VLLM_COMMIT_SHA="${VLLM_COMMIT_SHA:-unknown}"

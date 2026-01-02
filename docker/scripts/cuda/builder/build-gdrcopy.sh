@@ -1,5 +1,6 @@
 #!/bin/bash
-set -Eeu
+set -Eeuo pipefail
+
 
 # builds and installs gdrcopy from source
 #

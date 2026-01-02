@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -Eeuo pipefail
+
 # -*- indent-tabs-mode: nil; tab-width: 4; sh-indentation: 4; -*-
 
 set -euo pipefail

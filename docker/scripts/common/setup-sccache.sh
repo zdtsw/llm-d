@@ -1,4 +1,7 @@
 #!/bin/bash
+set -Eeuo pipefail
+
+
 # sets up sccache environment variables and starts the server
 #
 # Required environment variables:
@@ -12,7 +15,7 @@ if [ "${USE_SCCACHE}" = "true" ]; then
         export AWS_ACCESS_KEY_ID
         AWS_SECRET_ACCESS_KEY="$(cat /run/secrets/aws_secret_access_key)"
         export AWS_SECRET_ACCESS_KEY
-        export AWS_DEFAULT_REGION="us-west-2"
+        export AWS_DEFAULT_REGION="us-west-2" # TODO: is this needed to set here as fallback? is SCCACHE_REGION enough?
         export AWS_EC2_METADATA_DISABLED=true
     fi
 

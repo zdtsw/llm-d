@@ -1,4 +1,6 @@
 #!/bin/bash
+set -Eeuo pipefail
+
 # test the dockerfile env var linter
 set -Eeuo pipefail
 

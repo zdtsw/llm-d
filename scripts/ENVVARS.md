@@ -91,3 +91,40 @@ To set up pre-commit locally:
 pip install pre-commit
 pre-commit install
 ```
+
+## Required Tools for Pre-commit
+
+The pre-commit hooks require the following tools to be installed on your system:
+
+### Python-based tools (installed automatically by pre-commit)
+
+- **yamllint** - YAML linting
+- **markdownlint-cli** - Markdown linting
+
+### System tools (must be installed manually)
+
+- **shellcheck** - Shell script linting
+
+  ```bash
+  # Fedora/RHEL
+  sudo dnf install shellcheck
+
+  # Ubuntu/Debian
+  sudo apt install shellcheck
+
+  # macOS
+  brew install shellcheck
+  ```
+
+- **hadolint** - Dockerfile linting
+
+  ```bash
+  # Download and install
+  wget -O /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/download/v2.14.0/hadolint-Linux-x86_64
+  chmod +x /usr/local/bin/hadolint
+  ```
+
+### Optional but recommended
+
+- **Python 3.12+** - For custom linting scripts
+- **yq v4** - For YAML processing (used in some scripts)

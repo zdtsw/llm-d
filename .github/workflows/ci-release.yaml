@@ -46,7 +46,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           ref: ${{ env.TAG }}
           fetch-depth: 0
@@ -82,7 +82,7 @@ jobs:
           provenance: false
           build-args: |
             TARGETOS=${{ matrix.os }}
-            BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu20.04' || matrix.base_image_suffix }}
+            BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu24.04' || matrix.base_image_suffix }}
             FINAL_BASE_IMAGE_SUFFIX=${{ matrix.base_image_suffix }}
             CACHE_BUSTER=${{ github.ref_name }}-${{ github.run_id }}
           cache-from: >-
@@ -193,7 +193,7 @@ jobs:
           echo "digest=${MANIFEST_DIGEST}" >> $GITHUB_OUTPUT
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: >-
             ${{ env.REGISTRY }}/${{ github.repository }}-cuda${{ matrix.image_suffix }}@${{
@@ -209,7 +209,7 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GHCR_TOKEN }}
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -222,13 +222,11 @@ jobs:
             echo "No vulnerabilities found or scan failed."
           fi
 
-  release-aws-llm-d:
-    strategy:
-      fail-fast: false
+  release-aws-llm-d:  # TODO: why we need this job, we dont even have Dockerfile.aws
     runs-on: vllm-runner
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           ref: ${{ env.TAG }}
           fetch-depth: 0
@@ -276,7 +274,7 @@ jobs:
             aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_S3_BUCKET_ONLY }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}-aws@${{ steps.build-and-push.outputs.digest }}
           format: 'sarif'
@@ -290,7 +288,7 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GHCR_TOKEN }}
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -309,7 +307,7 @@ jobs:
     runs-on: vllm-runner
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           # fetch tags for docker/metadata semver handling (if you use git describe etc.)
           fetch-depth: 0
@@ -326,21 +324,27 @@ jobs:
           username: ${{ secrets.GHCR_USER }}
           password: ${{ secrets.GHCR_TOKEN }}
 
-      - name: Build and push the image
+      - name: Build & Push
         id: build-and-push
-        run: |
-          export DEVICE=cpu
-          export DOCKERFILE=Dockerfile.cpu
-          export BUILD_TYPE=prod
-          export VERSION="${{ env.TAG }}"
-          make image-build
-          make image-push
-          export NEW_TAG="latest"
-          make image-retag
-          VERSION="${NEW_TAG}" make image-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/Dockerfile.cpu
+          platforms: linux/amd64
+          push: true
+          provenance: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: latest
+          labels: ${{ steps.meta.outputs.labels }}
+          github-token: ${{ secrets.GHCR_TOKEN }}
+
+        env:
+          DOCKER_BUILDKIT: "1"
+          BUILDKIT_PROGRESS: "plain"
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}-cpu:${{ env.TAG }}
           format: 'sarif'
@@ -354,7 +358,7 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GHCR_TOKEN }}
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 
@@ -368,12 +372,10 @@ jobs:
           fi
 
   release-xpu-llm-d:
-    strategy:
-      fail-fast: false
     runs-on: vllm-runner
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.1
         with:
           # fetch tags for docker/metadata semver handling (if you use git describe etc.)
           fetch-depth: 0
@@ -392,19 +394,24 @@ jobs:
 
       - name: Build and push the image
         id: build-and-push
-        run: |
-          export DEVICE=xpu
-          export BUILD_TYPE=prod
-          export DOCKERFILE=Dockerfile.xpu
-          export VERSION="${{ env.TAG }}"
-          make image-build
-          make image-push
-          export NEW_TAG="latest"
-          make image-retag
-          VERSION="${NEW_TAG}" make image-push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./docker/Dockerfile.xpu
+          platforms: linux/amd64
+          push: true
+          provenance: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          tags: latest
+          labels: ${{ steps.meta.outputs.labels }}
+          github-token: ${{ secrets.GHCR_TOKEN }}
+        env:
+          DOCKER_BUILDKIT: "1"
+          BUILDKIT_PROGRESS: "plain"
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@v0.33.1
         with:
           image-ref: ${{ env.REGISTRY }}/${{ github.repository }}-xpu:${{ env.TAG }}
           format: 'sarif'
@@ -418,7 +425,7 @@ jobs:
           TRIVY_PASSWORD: ${{ secrets.GHCR_TOKEN }}
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: 'trivy-results.sarif'
 

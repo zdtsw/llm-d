@@ -1,4 +1,6 @@
 #!/bin/bash
+set -Eeuo pipefail
+
 
 # DigitalOcean-Specific Prerequisites Setup
 # Only handles DigitalOcean-specific configurations before standard Helm deployment
