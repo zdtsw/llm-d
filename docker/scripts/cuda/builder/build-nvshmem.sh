@@ -1,5 +1,5 @@
 #!/bin/bash
-set -Eeux
+set -Eeuo pipefail
 
 # builds and installs NVSHMEM from source with coreweave patch
 #
@@ -72,7 +72,7 @@ cmake \
     -DNVSHMEM_USE_NCCL=0 \
     -DNVSHMEM_BUILD_TESTS=0 \
     -DNVSHMEM_BUILD_EXAMPLES=0 \
-    ${EFA_FLAGS[@]} \
+    "${EFA_FLAGS[@]}" \
     ..
 
 ninja -j"$(nproc)"

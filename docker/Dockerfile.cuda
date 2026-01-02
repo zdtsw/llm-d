@@ -1,17 +1,3 @@
-ARG CUDA_MAJOR=12
-ARG CUDA_MINOR=9
-ARG CUDA_PATCH=1
-ARG TARGETOS=rhel
-ARG BASE_IMAGE_SUFFIX=ubi9
-
-# Important: For Ubuntu builds, we use an older version (20.04) in the build stage
-# to maintain broad glibc compatibility. Binaries built with newer glibc versions
-# are not backwards compatible with OSes using earlier glibc versions.
-# Runtime stage can use newer Ubuntu (22.04) for updated dependencies.
-# See: https://github.com/vllm-project/vllm/blob/main/docker/Dockerfile#L18-L24
-ARG BUILD_BASE_IMAGE_SUFFIX=${BASE_IMAGE_SUFFIX}
-ARG FINAL_BASE_IMAGE_SUFFIX=${BASE_IMAGE_SUFFIX}
-
 ######################## SYSTEM CONFIGURATION ########################
 
 ARG CUDA_MAJOR=12
@@ -22,11 +8,24 @@ ARG TARGETPLATFORM=linux/amd64
 ARG BASE_IMAGE_SUFFIX=ubi9
 ARG PYTHON_VERSION=3.12
 
+# Important: For Ubuntu builds, we use an older version (20.04) in the build stage
+# to maintain broad glibc compatibility. Binaries built with newer glibc versions
+# are not backwards compatible with OSes using earlier glibc versions.
+# Runtime stage can use newer Ubuntu (22.04) for updated dependencies.
+# See: https://github.com/vllm-project/vllm/blob/main/docker/Dockerfile#L18-L24
+ARG BUILD_BASE_IMAGE_SUFFIX=${BASE_IMAGE_SUFFIX}
+ARG FINAL_BASE_IMAGE_SUFFIX=${BASE_IMAGE_SUFFIX}
+
 ARG USE_SCCACHE=true
 
 ######################## COMPONENT VERSIONS ########################
 
 # Note: Components are listed in build order.
+ARG CMAKE_VERSION="3.22.0"
+
+ARG SCCACHE_VERSION="v0.11.0"
+
+ARG EFA_VERSION="1.43.3"
 
 ARG GDRCOPY_REPO="https://github.com/NVIDIA/gdrcopy.git"
 ARG GDRCOPY_VERSION="v2.5.1"
@@ -48,7 +47,7 @@ ARG LMCACHE_REPO="https://github.com/LMCache/LMCache.git"
 ARG LMCACHE_VERSION="v0.3.8"
 
 # Kernels
-ARG DEEPEP_REPO="https://github.com/smarterclayton/DeepEP"
+ARG DEEPEP_REPO="https://github.com/smarterclayton/DeepEP"  # TODO: consider push the changes to upstream
 ARG DEEPEP_VERSION="nic_pe_alignment"
 ARG DEEPGEMM_REPO="https://github.com/deepseek-ai/DeepGEMM"
 ARG DEEPGEMM_VERSION="v2.1.0"
@@ -142,13 +141,14 @@ ENV NVSHMEM_DIR="/opt/nvshmem-${NVSHMEM_VERSION}" \
     EFA_PREFIX="/opt/amazon/efa" \
     UCX_PREFIX="/opt/ucx" \
     NIXL_PREFIX="/opt/nixl"
-    
+
 ENV PATH="${NVSHMEM_DIR}/bin:${VIRTUAL_ENV}/bin:${PATH}" \
     LIBRARY_PATH="${EFA_PREFIX}/lib:${EFA_PREFIX}/lib64:${UCX_PREFIX}/lib:${UCX_PREFIX}/lib64:${NVSHMEM_DIR}/lib:${NVSHMEM_DIR}/lib64:${CUDA_HOME}/lib64:/usr/local/lib:/usr/local/lib64" \
     CPATH="${NVSHMEM_DIR}/include:/usr/include:/usr/local/include:${CUDA_HOME}/include:${CPATH}" \
     PKG_CONFIG_PATH="${UCX_PREFIX}/lib/pkgconfig:${UCX_PREFIX}/lib64/pkgconfig:${EFA_PREFIX}/lib/pkgconfig:${EFA_PREFIX}/lib64/pkgconfig:/usr/local/lib/pkgconfig:/usr/local/lib/x86_64-linux-gnu/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig:/usr/lib64/pkgconfig:/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/share/pkgconfig:${PKG_CONFIG_PATH}"
 
 # Install EFA
+ARG EFA_VERSION
 COPY docker/scripts/cuda/common/package-utils.sh /tmp/package-utils.sh
 COPY docker/scripts/cuda/builder/install-efa.sh /tmp/install-efa.sh
 RUN --mount=type=secret,id=subman_org \
