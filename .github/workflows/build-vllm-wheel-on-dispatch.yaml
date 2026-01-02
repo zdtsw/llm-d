@@ -17,14 +17,19 @@ on:
         required: false
         default: "12.8"
         type: choice
-        options: ["11.8", "12.6", "12.8"]  # TODO: do we still support old cuda version, do we support 13.x
+        options: ["11.8", "12.6", "12.8", "12.9", "13.0"]
+      AWS_REGION:
+        description: "AWS region for deployment, default is us-west-2"
+        required: false
+        default: "us-west-2"
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
 env:
-  TF_VAR_aws_region: "us-west-2"
+  TF_VAR_aws_region: ${{ inputs.AWS_REGION }}
   TF_VAR_aws_ami_name: '["*ubuntu-noble-24.04*"]'
   TF_VAR_aws_ami_owners: '["099720109477"]'  # TODO: should this be move to 'secrets'?
   TF_VAR_aws_volume_size: 300
@@ -94,7 +99,7 @@ jobs:
         timeout-minutes: 360
         run: |
           export CUDA_SHORT="cu$(echo ${{ inputs.CUDA_VERSION }} | cut -d. -f1,2 | tr -d '.')"
-          ansible-playbook ./main/.github/workflows/playbooks/build-vllm-nvidia.yml \
+          ansible-playbook ./main/.github/workflows/ansible/build-vllm-nvidia.yml \
             -i terraform-test-environment-module/hosts.ini \
             --private-key=terraform-test-environment-module/${{ steps.terraform-output.outputs.pem_filename }} \
             --extra-vars "ssh_public_key='${{ steps.terraform-output.outputs.ssh_public_key }}'" \
@@ -106,6 +111,7 @@ jobs:
             --extra-vars "ARCH='${{ matrix.AWS_AMI_ARCHITECTURE }}'" \
             --extra-vars "PYPIRC_USER='${{ secrets.LLMD_GITLAB_USER }}'" \
             --extra-vars "PYPIRC_TOKEN='${{ secrets.LLMD_GITLAB_PAT }}'" \
+            --extra-vars "AWS_REGION='${{ inputs.AWS_REGION }}'" \
             --extra-vars "AWS_ACCESS_KEY_ID_S3_BUCKET_ONLY='${{ secrets.AWS_ACCESS_KEY_ID_S3_BUCKET_ONLY }}'" \
             --extra-vars "AWS_SECRET_ACCESS_KEY_S3_BUCKET_ONLY='${{ secrets.AWS_SECRET_ACCESS_KEY_S3_BUCKET_ONLY }}'" \
             --extra-vars "PYTORCH_CUDA_NIGHTLY_INDEX_BASE_URL='${{ env.PYTORCH_CUDA_NIGHTLY_INDEX_BASE_URL }}'" \
