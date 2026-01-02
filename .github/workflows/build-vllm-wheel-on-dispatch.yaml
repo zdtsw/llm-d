@@ -47,16 +47,16 @@ jobs:
             MAX_JOBS: 28
           # - ARCH: arm64
           #   AWS_AMI_ARCHITECTURE: arm64
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v6.0.1
         with:
           path: main
 
       - name: Checkout terraform module
         id: checkout-module
-        uses: actions/checkout@v4.1.7
+        uses: actions/checkout@v6.0.1
         with:
           repository: containers/terraform-test-environment-module
           path: terraform-test-environment-module

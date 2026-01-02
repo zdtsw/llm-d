@@ -12,7 +12,7 @@ body:
     attributes:
       label: Contact Details
       description: How can we get in touch with you if we need more info?
-      placeholder: ex. email@ibm.com
+      placeholder: ex. email@company.com
     validations:
       required: false
   - type: textarea
@@ -36,7 +36,7 @@ body:
         - v0.3.0
         - v0.3.1
         - v0.4.0
-      default: v0.3.0
+      default: v0.4.0
     validations:
       required: true
   - type: textarea
