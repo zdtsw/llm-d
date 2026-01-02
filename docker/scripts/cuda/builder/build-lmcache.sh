@@ -1,7 +1,7 @@
 #!/bin/bash
-set -Eeu
+set -Eeuo pipefail
 
-# builds and installs gdrcopy from source
+# builds and installs Infinistore and LMCache from source purpose:
 #
 # Required environment variables:
 # - USE_SCCACHE: whether to use sccache (true/false)

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -Eeu
+set -Eeuo pipefail
 
 # installs base packages, EPEL/universe repos, and CUDA repository
 #
@@ -18,6 +18,8 @@ if [ ! -f "$UTILS_SCRIPT" ]; then
     echo "ERROR: package-utils.sh not found" >&2
     exit 1
 fi
+
+# shellcheck source=docker/scripts/cuda/common/package-utils.sh
 . "$UTILS_SCRIPT"
 
 DOWNLOAD_ARCH=$(get_download_arch)

@@ -1,5 +1,5 @@
 #!/bin/bash
-set -Eeu
+set -Eeuo pipefail
 
 # installs runtime packages for CUDA image
 #
@@ -28,23 +28,18 @@ fi
 
 DOWNLOAD_ARCH=$(get_download_arch)
 
-# install jq first (required to parse package mappings)
+# install jq first (required to parse package mappings) then main installation logic
 if [ "$TARGETOS" = "ubuntu" ]; then
     apt-get update -qq
     apt-get install -y jq
-elif [ "$TARGETOS" = "rhel" ]; then
-    dnf -q update -y
-    dnf -q install -y jq
-fi
-
-# main installation logic
-if [ "$TARGETOS" = "ubuntu" ]; then
     setup_ubuntu_repos
     mapfile -t INSTALL_PKGS < <(load_layered_packages ubuntu "runtime-packages.json" "cuda")
     install_packages ubuntu "${INSTALL_PKGS[@]}"
     cleanup_packages ubuntu
 
 elif [ "$TARGETOS" = "rhel" ]; then
+    dnf -q update -y
+    dnf -q install -y jq
     setup_rhel_repos "$DOWNLOAD_ARCH"
     mapfile -t INSTALL_PKGS < <(load_layered_packages rhel "runtime-packages.json" "cuda")
     install_packages rhel "${INSTALL_PKGS[@]}"
@@ -52,9 +47,9 @@ elif [ "$TARGETOS" = "rhel" ]; then
     # The system glibc already provides all required symbols (verified: GLIBC_2.2.5 through 2.34)
     # but dnf fails to recognize this when installing from local RPM files
     if [ "${TARGETPLATFORM}" = "linux/amd64" ]; then
-        rpm -ivh --nodeps /tmp/packages/rpms/amd64/hwloc-libs*.rpm
+        rpm -ivh --nodeps /tmp/packages/rpms/amd64/hwloc-libs-2.4.1-5.el9.rpm
     elif [ "${TARGETPLATFORM}" = "linux/arm64" ]; then
-        rpm -ivh --nodeps /tmp/packages/rpms/arm64/hwloc-libs*.rpm
+        rpm -ivh --nodeps /tmp/packages/rpms/arm64/hwloc-libs-2.4.1-5.el9.rpm
     fi
     cleanup_packages rhel
 else
