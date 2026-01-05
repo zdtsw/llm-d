@@ -29,6 +29,9 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set SHORT_SHA
+        run: echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
+
       - name: Determine if pr_or_branch is a PR number
         id: check_pr
         env:
@@ -172,11 +175,27 @@ jobs:
             mv ~/install-deps.log . || true
 
       - name: Upload pod logs as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         if: always()
         with:
-          name: llmd-pod-logs-inference-scheduling-xpu
+          name: pr-${{ env.PR_OR_BRANCH }}-${{ env.SHORT_SHA }}-logs-inference-scheduling-xpu
           path: pod-logs-inference-scheduling-xpu
+
+      - name: Configure AWS credentials
+        if: always() && vars.S3_TEST_RESULTS_BUCKET != ''
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload pod logs to S3
+        if: always() && vars.S3_TEST_RESULTS_BUCKET != ''
+        run: |
+          S3_PATH="s3://${{ vars.S3_TEST_RESULTS_BUCKET }}/pr-${PR_OR_BRANCH}/${SHORT_SHA}/logs/inference-scheduling-xpu"
+          echo "Uploading logs to ${S3_PATH}"
+          aws s3 sync pod-logs-inference-scheduling-xpu "${S3_PATH}" --no-progress
+          echo "Logs uploaded to S3: ${S3_PATH}"
 
       - name: Cleanup deployment
         if: always()
