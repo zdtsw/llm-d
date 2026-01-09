@@ -72,7 +72,7 @@ helmfile apply -e cpu -n ${NAMESPACE}
 <!-- TAB:Gateway Option -->
 ##### Gateway Option
 
-**_NOTE:_** This uses Istio as the default gateway provider, see [Gateway Options](./README.md#gateway-options) for installing with a specific provider.
+**_NOTE:_** This uses Istio as the default gateway provider, see [Gateway Option](#gateway-option) for installing with a specific provider.
 
 To specify your gateway choice you can use the `-e <gateway option>` flag, ex:
 

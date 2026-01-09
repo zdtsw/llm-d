@@ -34,6 +34,8 @@ By integrating with a Gateway -- instead of developing an llm-d specific proxy l
 
 llm-d requires you select a [Gateway implementation that supports the inference-scheduler](https://gateway-api-inference-extension.sigs.k8s.io/implementations/gateways/). Your infrastructure may provide a default compatible implementation, or you may choose to deploy a gateway implementation onto your cluster. Pick the guidance that matches your environment:
 
+## Supported providers
+
 <!-- TABS:START -->
 
 <!-- TAB:Cloud-managed (GKE):default -->

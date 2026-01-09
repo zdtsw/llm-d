@@ -9,6 +9,10 @@ exclude = [
   "^(https?://)?(www\\.)?(old\\.)?reddit\\.com/",
   # OpenAI API docs can have rate limiting
   "^https://platform\\.openai\\.com/docs/api-reference/",
+  # Google Docs headings/fragments are dynamically generated and not reliably checkable
+  "^https://docs\\.google\\.com/document/.*#",
+  # GitHub blob line anchors (#L123 / #L123-L130) aren’t reliably checkable by lychee (HTML-only anchors)
+  "^https://github\\.com/.*/blob/.*#L[0-9]",
 ]
 
 # Accept status codes like 200 (OK), 204 (No Content), etc.
