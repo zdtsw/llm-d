@@ -33,7 +33,7 @@ Deploy the Gateway and HTTPRoute using the [gateway recipe](../../recipes/gatewa
 
 <!-- TABS:START -->
 
-<!-- TAB:Offloading Connector -->
+<!-- TAB:Offloading Connector:default -->
 #### Offloading Connector
 
 Deploy the vLLM model server with the `OffloadingConnector` enabled.
@@ -42,7 +42,7 @@ Deploy the vLLM model server with the `OffloadingConnector` enabled.
 kubectl apply -k ./manifests/vllm/offloading-connector -n ${NAMESPACE}
 ```
 
-<!-- TAB:LMCache Connector:default -->
+<!-- TAB:LMCache Connector -->
 #### LMCache Connector
 
 Deploy the vLLM model server with the `LMCache` connector enabled.
