@@ -3,4 +3,9 @@ kind: Kustomization
 resources:
   - decode.yaml
   - prefill.yaml
-  - sa.yaml
+  - serviceAccount.yaml
+
+labels:
+  - pairs:
+      llm-d.ai/inferenceServing: "true"
+      llm-d.ai/model: Llama-33-70B-Instruct

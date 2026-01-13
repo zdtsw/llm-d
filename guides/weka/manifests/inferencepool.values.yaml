@@ -4,7 +4,7 @@ inferenceExtension:
     # upstream GIE epp image does NOT support PD, have to use `llm-d-inference-scheduler`
     name: llm-d-inference-scheduler
     hub: ghcr.io/llm-d
-    tag: v0.2.1
+    tag: v0.4.0
     pullPolicy: Always
   extProcPort: 9002
   pluginsConfigFile: "pd-config.yaml"
@@ -40,9 +40,28 @@ inferenceExtension:
         - pluginRef: queue-scorer
           weight: 1.0
         - pluginRef: max-score-picker
+
 inferencePool:
   targetPortNumber: 8000
   modelServerType: vllm
   modelServers:
     matchLabels:
       llm-d.ai/inferenceServing: "true"
+  provider:
+    name: istio
+    istio:
+      destinationRule:
+        trafficPolicy:
+          connectionPool:
+            http:
+              http1MaxPendingRequests: 256000
+              http2MaxRequests: 256000
+              idleTimeout: 900s
+              maxRequestsPerConnection: 256000
+            tcp:
+              connectTimeout: 900s
+              maxConnectionDuration: 1800s
+              maxConnections: 256000
+          tls:
+            insecureSkipVerify: true
+            mode: SIMPLE

@@ -29,7 +29,4 @@ data:
                 memory: 1Gi
   service: |
     spec:
-      # -- Gateway's service type. Ingress is only available if the
-      # service type is set to LoadBalancer.
-      # Accepted values: ["LoadBalancer", "ClusterIP", "NodePort"]
       type: "LoadBalancer"

@@ -1,33 +1,88 @@
 # Well-lit Path: WEKA GPU Direct
 
-Full doc coming soon, this is just meant to track the changes in this PR for now.
+This guide demonstrates how to deploy llm-d with WEKA storage using GPU
+Direct Storage (GDS) for high-performance data transfer between GPUs and
+storage. It covers both PVC and host-path storage configurations.
 
-1. Add a readiness prob script to the `llm-d` image to detect if the
-   cufile exists on the node and is properly formatted
-2. InitContainer added to run `amgctl` to create the cufile on the node
+## Overview
+
+The WEKA GDS integration includes:
+
+1. InitContainer added to run `amgctl` to create the cufile.json on the node
    (only implemented for decode so far, will need to add this for prefill too)
-3. Mount the cufile.json from ~/amg_stable/cufile.json on the host to
-   ~/amg_stable/cufile.json on the container
+2. Mount the cufile.json from ~/amg_stable/cufile.json on the host to
+   /etc/cufile.json in the main container
 
-## Usage
+## Prerequisites
+
+- Have the [proper client tools installed on your local system](
+  ../prereq/client-setup/README.md) to use this guide.
+- Configure and deploy your [Gateway control plane](
+  ../prereq/gateway-provider/README.md) to create resources
+- Create Installation Namespace:
+
+  ```bash
+  export NAMESPACE=weka
+  kubectl create namespace ${NAMESPACE}
+  ```
+
+- [Create the `llm-d-hf-token` secret in your target namespace with the key
+  `HF_TOKEN` matching a valid HuggingFace token](
+  ../prereq/client-setup/README.md#huggingface-token) to pull models.
+- [Choose an llm-d version](../prereq/client-setup/README.md#llm-d-version)
+
+## Installation
+
+### Deploy Model Servers
+
+#### PVC
+
+Before deploying, update the PVC configuration:
+
+1. In `./manifests/modelserver/overlays/pvc-storage/pvc.yaml` replace
+`SOME_STORAGE_CLASS_NAME` to match your WEKA CSI storage class
+   name (e.g., `weka-csi-sc`)
+
+```bash
+kubectl apply -k ./manifests/modelserver/overlays/pvc-storage -n ${NAMESPACE}
+```
+
+#### Host
+
+Before deploying, must update the host path configuration:
+
+1. In `./manifests/modelserver/overlays/host-storage/kustomization.yaml` replace
+ `/SOME/PATH/GOES/HERE` with the valid host path where WEKA
+   storage is mounted (e.g., `/mnt/weka`) or will cause main container fail to start.
+
+```bash
+kubectl apply -k ./manifests/modelserver/overlays/host-storage -n ${NAMESPACE}
+```
+
+### Deploy InferencePool
+
+This will create the InferencePool resource and automatically create an Istio
+DestinationRule.
 
 ```bash
 export NAMESPACE=weka
 helm install llama-3-3-70b-instruct-fp8-dynamic \
     -n ${NAMESPACE} \
-    -f inferencepool.values.yaml \
+    -f ./manifests/inferencepool.values.yaml \
     oci://us-central1-docker.pkg.dev/k8s-staging-images/\
-gateway-api-inference-extension/charts/inferencepool --version v0.5.1
+gateway-api-inference-extension/charts/inferencepool \
+    --version v1.2.0-rc.1
+```
+
+### Deploy Gateway
+
+Deploy the Gateway and HTTPRoute resources:
+
+```bash
+kubectl apply -k ./manifests/gateway/overlays/istio -n ${NAMESPACE}
 ```
 
 ## Refactors in Progress
 
-- needs to add in nvidia GDS packages to dockerfile
 - needs to refactor this into the PD example with overlays but for dev work
-  we are keeping it in its own directory
-
-## How the kustomize bits work
-
-Navigate to an overlay and build from there, which will replace the volume
-for `weka-storage` with either `pvc` or `hostStorage` based on which dir
-you use.
+  we are keeping it in its own directory (# TODO : double check this?)

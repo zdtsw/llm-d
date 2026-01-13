@@ -45,7 +45,6 @@ ARG NIXL_VERSION="0.8.0"
 ARG INFINISTORE_REPO="https://github.com/bytedance/InfiniStore.git"
 ARG INFINISTORE_VERSION="0.2.33"
 ARG LMCACHE_REPO="https://github.com/LMCache/LMCache.git"
-# included SHA1: cad4db10592e8487d1e0bbd02d1a6f92c37d0581
 ARG LMCACHE_VERSION="v0.3.8"
 
 
