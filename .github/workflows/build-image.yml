@@ -123,26 +123,28 @@ jobs:
       # resulting manifests: cuda-dev (rhel) and cuda-dev-ubuntu
       matrix:
         include:
+          # - platform: linux/amd64  # Fork: disabled RHEL build (requires subscription secrets)
+          #   runner: ubuntu-latest
+          #   # runner: vllm-runner
+          #   os: rhel
+          #   base_image_suffix: ubi9
+          #   image_suffix: ""
+          # - platform: linux/arm64
+          #   runner: vllm-runner-arm
+          #   os: rhel
+          #   base_image_suffix: ubi9
+          #   image_suffix: ""
           - platform: linux/amd64
-            runner: vllm-runner
-            os: rhel
-            base_image_suffix: ubi9
-            image_suffix: ""
-          - platform: linux/arm64
-            runner: vllm-runner-arm
-            os: rhel
-            base_image_suffix: ubi9
-            image_suffix: ""
-          - platform: linux/amd64
-            runner: vllm-runner
+            runner: ubuntu-latest
+            # runner: vllm-runner
             os: ubuntu
             base_image_suffix: ubuntu24.04
             image_suffix: "-ubuntu"
-          - platform: linux/arm64
-            runner: vllm-runner-arm
-            os: ubuntu
-            base_image_suffix: ubuntu24.04
-            image_suffix: "-ubuntu"
+          # - platform: linux/arm64  # Fork: disabled ARM build
+          #   runner: vllm-runner-arm
+          #   os: ubuntu
+          #   base_image_suffix: ubuntu24.04
+          #   image_suffix: "-ubuntu"
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout code
