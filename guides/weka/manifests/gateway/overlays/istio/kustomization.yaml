@@ -1,9 +1,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ../base
-  - destinationrule.yaml
-  - configmap.yaml
+  - ../../base
+  - gw-configmap.yaml
 patches:
   - path: gateway.yaml
     target:
@@ -18,6 +17,6 @@ patches:
           request: 0s
 labels:
   - pairs:
-    app.kubernetes.io/instance: infra-pd
-    app.kubernetes.io/gateway: infra-pd-inference-gateway
-    app.kubernetes.io/component: inference-gateway
+      app.kubernetes.io/instance: infra-pd
+      app.kubernetes.io/gateway: infra-pd-inference-gateway
+      app.kubernetes.io/component: inference-gateway
