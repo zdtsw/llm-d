@@ -1,0 +1,12 @@
+{
+  "rhel_to_ubuntu": {
+    "gds-tools-${CUDA_MAJOR}-${CUDA_MINOR}": "gds-tools-${CUDA_MAJOR}-${CUDA_MINOR}",
+    "libcufile-${CUDA_MAJOR}-${CUDA_MINOR}": "libcufile-${CUDA_MAJOR}-${CUDA_MINOR}",
+    "libcufile-devel-${CUDA_MAJOR}-${CUDA_MINOR}": "libcufile-dev-${CUDA_MAJOR}-${CUDA_MINOR}",
+    "infiniband-diags": "infiniband-diags",
+    "libffi-devel": "libffi-dev",
+    "kmod": "kmod",
+    "iproute": "iproute2"
+  },
+  "ubuntu_only": []
+}
