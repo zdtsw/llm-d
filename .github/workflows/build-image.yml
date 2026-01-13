@@ -2,7 +2,7 @@ name: Dev LLM-D Image Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, weka_*]
     paths:
       - .github/workflows/build-image.yml
       - docker/**
