@@ -5,9 +5,9 @@ metadata:
   labels:
     istio.io/enable-inference-extproc: "true"
   annotations:
-    networking.istio.io/service-type: ClusterIP
+    networking.istio.io/service-type: ClusterIP # TODO: should we use clusterIP of lob(as set in CM)
 spec:
-  gatewayClassName: "istio"
+  gatewayClassName: "istio" # refer to the GWC created in 'prereq' stage
   infrastructure:
     parametersRef:
       name: infra-pd-inference-gateway
