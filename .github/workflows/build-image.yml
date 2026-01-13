@@ -190,6 +190,7 @@ jobs:
             TARGETPLATFORM=${{ matrix.platform }}
             BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu20.04' || matrix.base_image_suffix }}
             FINAL_BASE_IMAGE_SUFFIX=${{ matrix.base_image_suffix }}
+            USE_SCCACHE=false
           github-token: ${{ secrets.GHCR_TOKEN }}
           secrets: |
             aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_S3_BUCKET_ONLY }}
@@ -215,6 +216,7 @@ jobs:
             TARGETPLATFORM=${{ matrix.platform }}
             BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu20.04' || matrix.base_image_suffix }}
             FINAL_BASE_IMAGE_SUFFIX=${{ matrix.base_image_suffix }}
+            USE_SCCACHE=false
             ${{ inputs.vllm_repo != '' && format('VLLM_REPO={0}', inputs.vllm_repo) || '' }}
             ${{ inputs.vllm_commit_sha != '' && format('VLLM_COMMIT_SHA={0}', inputs.vllm_commit_sha) || '' }}
             ${{ inputs.vllm_precompiled_wheel_commit != '' &&
