@@ -14,12 +14,18 @@ ensure_registered() {
   install -d -m0755 /etc/pki/consumer /etc/pki/entitlement /etc/rhsm
   subscription-manager clean || true
   if [ ! -f /etc/pki/consumer/cert.pem ]; then
-    test -f /run/secrets/subman_org && test -f /run/secrets/subman_activation_key
-    subscription-manager register \
-      --org "$(cat /run/secrets/subman_org)" \
-      --activationkey "$(cat /run/secrets/subman_activation_key)" \
-      --force
-    subscription-manager refresh || true
+    # Only register if subscription secrets are available
+    if [ -f /run/secrets/subman_org ] && [ -f /run/secrets/subman_activation_key ]; then
+      subscription-manager register \
+        --org "$(cat /run/secrets/subman_org)" \
+        --activationkey "$(cat /run/secrets/subman_activation_key)" \
+        --force
+      subscription-manager refresh || true
+      echo "System registered with Red Hat Subscription Manager"
+    else
+      echo "Warning: Red Hat subscription secrets not found. Continuing with available repos only."
+      echo "This may work for UBI images if packages are available in free repos."
+    fi
   fi
 }
 

@@ -123,12 +123,12 @@ jobs:
       # resulting manifests: cuda-dev (rhel) and cuda-dev-ubuntu
       matrix:
         include:
-          # - platform: linux/amd64  # Fork: disabled RHEL build (requires subscription secrets)
-          #   runner: ubuntu-latest
-          #   # runner: vllm-runner
-          #   os: rhel
-          #   base_image_suffix: ubi9
-          #   image_suffix: ""
+          - platform: linux/amd64
+            runner: ubuntu-latest
+            # runner: vllm-runner
+            os: rhel
+            base_image_suffix: ubi9
+            image_suffix: ""
           # - platform: linux/arm64
           #   runner: vllm-runner-arm
           #   os: rhel
@@ -140,7 +140,7 @@ jobs:
             os: ubuntu
             base_image_suffix: ubuntu24.04
             image_suffix: "-ubuntu"
-          # - platform: linux/arm64  # Fork: disabled ARM build
+          # - platform: linux/arm64
           #   runner: vllm-runner-arm
           #   os: ubuntu
           #   base_image_suffix: ubuntu24.04
@@ -190,6 +190,7 @@ jobs:
             TARGETPLATFORM=${{ matrix.platform }}
             BUILD_BASE_IMAGE_SUFFIX=${{ matrix.os == 'ubuntu' && 'ubuntu20.04' || matrix.base_image_suffix }}
             FINAL_BASE_IMAGE_SUFFIX=${{ matrix.base_image_suffix }}
+            USE_SCCACHE=false
           github-token: ${{ secrets.GHCR_TOKEN }}
           secrets: |
             aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_S3_BUCKET_ONLY }}
