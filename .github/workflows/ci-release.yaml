@@ -44,6 +44,7 @@ jobs:
             base_image_suffix: ubuntu24.04
             image_suffix: "-ubuntu"
     runs-on: ${{ matrix.runner }}
+    timeout-minutes: 120
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -120,6 +121,7 @@ jobs:
   release-cuda-manifest:
     needs: release-cuda-llm-d
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       matrix:
         os: [rhel, ubuntu]
@@ -202,7 +204,7 @@ jobs:
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
           scanners: vuln
-          timeout: 30m
+          timeout: 10m
           skip-dirs: /root/.cache/uv
         env:
           TRIVY_USERNAME: ${{ secrets.GHCR_USER }}
@@ -224,6 +226,7 @@ jobs:
 
   release-cpu-llm-d:
     runs-on: vllm-runner
+    timeout-minutes: 60
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -270,7 +273,7 @@ jobs:
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
           scanners: vuln
-          timeout: 30m
+          timeout: 10m
           skip-dirs: /root/.cache/uv
         env:
           TRIVY_USERNAME: ${{ secrets.GHCR_USER }}
@@ -291,9 +294,8 @@ jobs:
           fi
 
   release-xpu-llm-d:
-    strategy:
-      fail-fast: false
     runs-on: vllm-runner
+    timeout-minutes: 60
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -340,7 +342,7 @@ jobs:
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH,MEDIUM'
           scanners: vuln
-          timeout: 30m
+          timeout: 10m
           skip-dirs: /root/.cache/uv
         env:
           TRIVY_USERNAME: ${{ secrets.GHCR_USER }}
