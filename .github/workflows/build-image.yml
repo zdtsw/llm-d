@@ -472,8 +472,6 @@ jobs:
   xpu-build-llm-d:
     needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.xpu == 'true' }}
-    strategy:
-      fail-fast: false
     runs-on: vllm-runner
     steps:
       - name: Checkout push ref
@@ -543,8 +541,6 @@ jobs:
   cpu-build-llm-d:
     needs: [detect-changes]
     if: ${{ needs.detect-changes.outputs.cpu == 'true' }}
-    strategy:
-      fail-fast: false
     runs-on: vllm-runner
     steps:
       - name: Checkout push ref
