@@ -10,6 +10,7 @@ set -Eeu
 # Required environment variables:
 # - TARGETOS: Target OS - either 'ubuntu' or 'rhel' (default: rhel)
 # - EFA_PREFIX: Path to include ld linkers to ensure that UCX and NVSHMEM can build against EFA and Libfacbric successfully
+# - EFA_INSTALLER_VERSION: Version of AWS EFA installer to download (default: 1.46.0 is the current latest release)
 
 if [ "$TARGETOS" = "ubuntu" ]; then
     echo "Ubuntu image needs to be built against Ubuntu 20.04 and EFA only supports 22.04 and 24.04."
@@ -18,6 +19,7 @@ if [ "$TARGETOS" = "ubuntu" ]; then
 fi
 
 TARGETOS="${TARGETOS:-rhel}"
+EFA_INSTALLER_VERSION="${EFA_INSTALLER_VERSION:-1.46.0}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # source shared utilities (check script dir first, fallback to /tmp for docker builds)
@@ -27,6 +29,7 @@ if [ ! -f "$UTILS_SCRIPT" ]; then
     echo "ERROR: package-utils.sh not found" >&2
     exit 1
 fi
+# shellcheck source=/dev/null
 . "$UTILS_SCRIPT"
 
 if [ "$TARGETOS" = "ubuntu" ]; then
@@ -34,14 +37,20 @@ if [ "$TARGETOS" = "ubuntu" ]; then
     apt update -y
 fi
 
-mkdir -p /tmp/efa && cd /tmp/efa
-curl -O https://efa-installer.amazonaws.com/aws-efa-installer-1.43.3.tar.gz
-tar -xf aws-efa-installer-1.43.3.tar.gz && cd aws-efa-installer
-./efa_installer.sh --skip-kmod --no-verify -y
-mkdir -p /etc/ld.so.conf.d/
+EFA_INSTALLER_URL="https://efa-installer.amazonaws.com"
+EFA_TARBALL="aws-efa-installer-${EFA_INSTALLER_VERSION}.tar.gz"
+EFA_WORKDIR="/tmp/efa"
+
+echo "Installing AWS EFA (Elastic Fabric Adapter) ${EFA_INSTALLER_VERSION}"
+
+mkdir -p "${EFA_WORKDIR}" /etc/ld.so.conf.d/
+curl -fsSL "${EFA_INSTALLER_URL}/${EFA_TARBALL}" -o "${EFA_WORKDIR}/${EFA_TARBALL}"
+tar -xzf "${EFA_WORKDIR}/${EFA_TARBALL}" -C "${EFA_WORKDIR}"
+
+cd "${EFA_WORKDIR}/aws-efa-installer" && ./efa_installer.sh --skip-kmod --no-verify -y
+
 ldconfig
-cd /tmp
-rm -rf /tmp/efa
+rm -rf "${EFA_WORKDIR}"
 
 if [ "$TARGETOS" = "ubuntu" ]; then
     cleanup_packages ubuntu
@@ -52,4 +61,3 @@ else
     echo "ERROR: Unsupported TARGETOS='$TARGETOS'. Must be 'ubuntu' or 'rhel'." >&2
     exit 1
 fi
-
