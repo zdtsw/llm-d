@@ -14,17 +14,22 @@ if [ "${USE_SCCACHE}" = "true" ]; then
         export AWS_SECRET_ACCESS_KEY
         export AWS_DEFAULT_REGION="us-west-2"
         export AWS_EC2_METADATA_DISABLED=true
+        # configure sccache via environment variables to use s3
+        export SCCACHE_BUCKET="vllm-nightly-sccache"
+        export SCCACHE_REGION="us-west-2"
+        export SCCACHE_S3_KEY_PREFIX="llm-d-cache/"
+        export SCCACHE_IDLE_TIMEOUT=0
+    else
+        # Local disk backend
+        export SCCACHE_DIR="/tmp/sccache-cache"
+        export SCCACHE_CACHE_SIZE="10G"
+        mkdir -p /tmp/sccache-cache
+        echo "Using local disk backend for sccache at /tmp/sccache-cache"
     fi
 
     export CMAKE_C_COMPILER_LAUNCHER=sccache
     export CMAKE_CXX_COMPILER_LAUNCHER=sccache
     export CMAKE_CUDA_COMPILER_LAUNCHER=sccache
-
-    # configure sccache via environment variables
-    export SCCACHE_BUCKET="vllm-nightly-sccache"
-    export SCCACHE_REGION="us-west-2"
-    export SCCACHE_S3_KEY_PREFIX="llm-d-cache/"
-    export SCCACHE_IDLE_TIMEOUT=0
 
     # use platform-specific unix socket to avoid port conflicts in multi-platform builds
     case "${TARGETPLATFORM:-linux/amd64}" in
@@ -46,5 +51,9 @@ if [ "${USE_SCCACHE}" = "true" ]; then
         return 1
     fi
 
-    echo "sccache successfully configured with cache prefix: ${SCCACHE_S3_KEY_PREFIX}"
+    if [ -n "${SCCACHE_S3_KEY_PREFIX:-}" ]; then
+        echo "sccache successfully configured with S3 cache prefix: ${SCCACHE_S3_KEY_PREFIX}"
+    else
+        echo "sccache successfully configured with local disk cache"
+    fi
 fi

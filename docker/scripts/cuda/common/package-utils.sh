@@ -14,12 +14,19 @@ ensure_registered() {
   install -d -m0755 /etc/pki/consumer /etc/pki/entitlement /etc/rhsm
   subscription-manager clean || true
   if [ ! -f /etc/pki/consumer/cert.pem ]; then
-    test -f /run/secrets/subman_org && test -f /run/secrets/subman_activation_key
-    subscription-manager register \
-      --org "$(cat /run/secrets/subman_org)" \
-      --activationkey "$(cat /run/secrets/subman_activation_key)" \
-      --force
-    subscription-manager refresh || true
+    # Only register if subscription secrets are available
+    if [ -f /run/secrets/subman_org ] && [ -f /run/secrets/subman_activation_key ]; then
+      subscription-manager register \
+        --org "$(cat /run/secrets/subman_org)" \
+        --activationkey "$(cat /run/secrets/subman_activation_key)" \
+        --force
+      subscription-manager refresh || true
+      echo "System registered with Red Hat Subscription Manager"
+    else
+      echo "ERROR: Red Hat subscription secrets not found." >&2
+      echo "RHEL/UBI builder requires subscription for packages: hwloc-devel, libaio-devel, libibverbs-devel" >&2
+      exit 1
+    fi
   fi
 }
 
