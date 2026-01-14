@@ -123,12 +123,12 @@ jobs:
       # resulting manifests: cuda-dev (rhel) and cuda-dev-ubuntu
       matrix:
         include:
-          - platform: linux/amd64
-            runner: ubuntu-latest
-            # runner: vllm-runner
-            os: rhel
-            base_image_suffix: ubi9
-            image_suffix: ""
+          # - platform: linux/amd64
+          #   runner: ubuntu-latest
+          #   # runner: vllm-runner
+          #   os: rhel
+          #   base_image_suffix: ubi9
+          #   image_suffix: ""
           # - platform: linux/arm64
           #   runner: vllm-runner-arm
           #   os: rhel
@@ -147,6 +147,17 @@ jobs:
           #   image_suffix: "-ubuntu"
     runs-on: ${{ matrix.runner }}
     steps:
+      - name: Free up disk space on the runner
+        run: |
+          echo "Disk space before cleanup:"
+          df -h
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+          echo "Disk space after cleanup:"
+          df -h
+
       - name: Checkout code
         uses: actions/checkout@v4
 
