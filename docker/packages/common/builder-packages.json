@@ -47,7 +47,6 @@
     "iproute2",
     "dmidecode",
     "udev",
-    "hwloc",
     "libhwloc-dev",
     "libaio-dev"
   ]

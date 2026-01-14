@@ -23,8 +23,9 @@ ensure_registered() {
       subscription-manager refresh || true
       echo "System registered with Red Hat Subscription Manager"
     else
-      echo "Warning: Red Hat subscription secrets not found. Continuing with available repos only."
-      echo "This may work for UBI images if packages are available in free repos."
+      echo "ERROR: Red Hat subscription secrets not found." >&2
+      echo "UBI builder requires subscription for packages: hwloc-devel, libaio-devel, libibverbs-devel" >&2
+      exit 1
     fi
   fi
 }
