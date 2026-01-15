@@ -111,9 +111,9 @@ WORKDIR /workspace
 RUN mkdir -p /wheels
 
 # Create UV constraint files
-COPY docker/build-constraints.txt /tmp/build-constraints.txt
-COPY docker/constraints.txt /tmp/constraints.txt
-COPY patches/ /tmp/patches/
+COPY docker/cuda-build-constraints.txt /tmp/build-constraints.txt
+COPY docker/cuda-constraints.txt /tmp/constraints.txt
+COPY patches/cuda/ /tmp/patches/
 
 ENV LANG="C.UTF-8" \
     LC_ALL="C.UTF-8" \
@@ -153,7 +153,7 @@ RUN --mount=type=cache,target=/var/cache/git \
     rm -f /tmp/install-cmake.sh
 
 # Install sccache (after base packages which include curl and openssl-devel)
-COPY docker/scripts/common/setup-sccache.sh /usr/local/bin/setup-sccache
+COPY docker/scripts/cuda/builder/setup-sccache.sh /usr/local/bin/setup-sccache
 COPY docker/scripts/cuda/builder/install-sccache.sh /tmp/install-sccache.sh
 RUN --mount=type=secret,id=aws_access_key_id \
     --mount=type=secret,id=aws_secret_access_key \
@@ -319,7 +319,7 @@ ARG FLASHINFER_VERSION
 ARG ENABLE_EFA
 ARG EFA_INSTALLER_VERSION
 
-COPY docker/constraints.txt /tmp/constraints.txt
+COPY docker/cuda-constraints.txt /tmp/constraints.txt
 
 ENV LANG="C.UTF-8" \
     LC_ALL="C.UTF-8" \
@@ -465,8 +465,8 @@ ARG SUPPRESS_PYTHON_OUTPUT
 
 # A script that starts if users exec into the image with bash. It warns that vLLM is built with precompiled by default,
 # and so if they change the vLLM version or use their fork, it may no longer work due to the precompiled shared libraries
-# pulled from the vLLM wheel index.
-COPY scripts/warn-vllm-precompiled.sh /opt/
+# pulled from teh vLLM wheel index.
+COPY docker/scripts/cuda/runtime/warn-vllm-precompiled.sh /opt/
 
 # Install cuda-python, nvshmem python bindings, xet
 # Install all compiled wheels (DeepEP, DeepGEMM, pplx-kernels, LMCache, nixl)
