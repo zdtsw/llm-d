@@ -421,9 +421,14 @@ RUN --mount=type=cache,target=/var/cache/git \
     /tmp/install-vllm.sh && \
     rm /tmp/install-vllm.sh
 
-# Cleanup packages
+# Cleanup packages and remove git
 COPY docker/scripts/cuda/common/package-utils.sh /tmp/package-utils.sh
 RUN bash -c ". /tmp/package-utils.sh && \
+    if [ \"\${TARGETOS:-rhel}\" = \"ubuntu\" ]; then \
+        apt-get purge -y git; \
+    else \
+        dnf remove -y git; \
+    fi && \
     autoremove_packages \${TARGETOS} && \
     cleanup_packages \${TARGETOS} && \
     rm /tmp/package-utils.sh"

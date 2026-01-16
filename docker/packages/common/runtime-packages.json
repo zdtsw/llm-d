@@ -5,6 +5,8 @@
     "rdma-core-devel": "librdmacm-dev",
     "numactl-libs": "libnuma1",
     "procps-ng": "procps",
+    "curl": "curl",
+    "git": "git",
     "libatomic": "libatomic1",
     "libaio": null
   },
