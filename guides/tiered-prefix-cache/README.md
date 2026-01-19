@@ -53,6 +53,12 @@ Consider a shared storage option when at least one of the following applies:
 * Long input size (>10k) and high cache hits.
 * Frequent cache migration needs (e.g., model or engine rollouts).
 
+#### WEKA GPU Direct Storage
+
+WEKA provides high-performance shared storage with GPU Direct Storage (GDS) support, enabling direct data transfer between GPUs and storage, bypassing CPU and system memory for reduced latency.
+
+See the [WEKA GPU Direct guide](./weka/README.md) to learn how to enable WEKA storage with llm-d.
+
 ### P2P Cache Sharing
 
 A P2P network can be formed between the inference engine instances to share caches in HBMs or CPU memory. It enables more cache sharing without needing additional storage resources. However this strategy adds operational overhead, and potential contention between model parallelism traffic such as tensor parallelism. We will add more recommendations in the following releases.
