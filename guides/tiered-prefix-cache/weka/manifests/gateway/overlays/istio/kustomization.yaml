@@ -1,0 +1,87 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: weka
+
+resources:
+  - ../../../../../../recipes/gateway/istio
+
+patches:
+  # Rename gateway to infra-pd-inference-gateway
+  - target:
+      kind: Gateway
+      name: llm-d-inference-gateway
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: infra-pd-inference-gateway
+      - op: add
+        path: /metadata/annotations
+        value:
+          networking.istio.io/service-type: ClusterIP # TODO: check if we need change to clusterIP
+      - op: replace
+        path: /spec/infrastructure/parametersRef/name
+        value: infra-pd-inference-gateway
+
+  # Update HTTPRoute to reference renamed gateway and add timeouts
+  - target:
+      kind: HTTPRoute
+    patch: |-
+      - op: replace
+        path: /spec/parentRefs/0/name
+        value: infra-pd-inference-gateway
+      - op: add
+        path: /spec/rules/0/timeouts
+        value:
+          backendRequest: 0s
+          request: 0s
+      - op: replace
+        path: /spec/rules/0/backendRefs/0/name
+        value: weka-vllm
+
+  # Update ConfigMap name
+  - target:
+      kind: ConfigMap
+      name: llm-d-inference-gateway
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: infra-pd-inference-gateway
+
+  # Customize Istio proxy settings in ConfigMap
+  - target:
+      kind: ConfigMap
+      name: infra-pd-inference-gateway
+    patch: |-
+      - op: replace
+        path: /data/deployment
+        value: |
+          spec:
+            template:
+              spec:
+                containers:
+                - name: istio-proxy
+                  args:
+                    - proxy
+                    - router
+                    - --domain
+                    - $(POD_NAMESPACE).svc.cluster.local
+                    - --proxyLogLevel
+                    - error
+                    - --proxyComponentLogLevel
+                    - misc:error
+                    - --log_output_level
+                    - default:error
+                  resources:
+                    limits:
+                      cpu: "4"
+                      memory: 4Gi
+                    requests:
+                      cpu: "1"
+                      memory: 1Gi
+
+labels:
+  - pairs:
+      app.kubernetes.io/instance: infra-pd
+      app.kubernetes.io/gateway: infra-pd-inference-gateway
+      app.kubernetes.io/component: inference-gateway

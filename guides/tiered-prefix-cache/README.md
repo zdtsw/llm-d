@@ -62,6 +62,12 @@ Any storage connector that is compatible with vLLM can be used **transparently w
 
 To enable shared storage offloading, refer to the [**Storage Offloading Guide**](./storage/README.md).
 
+#### WEKA GPU Direct Storage
+
+WEKA provides high-performance shared storage with GPU Direct Storage (GDS) support, enabling direct data transfer between GPUs and storage, bypassing CPU and system memory for reduced latency.
+
+See the [WEKA GPU Direct guide](./weka/README.md) to learn how to enable WEKA storage with llm-d.
+
 ### P2P Cache Sharing
 
 A P2P network can be formed between the inference engine instances to share caches in HBMs or CPU memory. It enables more cache sharing without needing additional storage resources. However this strategy adds operational overhead, and potential contention between model parallelism traffic such as tensor parallelism. We will add more recommendations in the following releases.
