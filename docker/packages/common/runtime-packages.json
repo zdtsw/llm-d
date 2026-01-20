@@ -10,7 +10,11 @@
     "git": "git",
     "curl": "curl",
     "libatomic": "libatomic1",
-    "libaio": null
+    "libaio": null,
+    "libffi": "libffi-dev",
+    "iproute": "iproute2",
+    "infiniband-diags": "infiniband-diags",
+    "libibverbs": "libibverbs1"
   },
   "ubuntu_only": [
     "gcc",
