@@ -28,7 +28,7 @@ The manifests use a layered kustomize structure for Prefill/Decode disaggregatio
 
 ## Prerequisites
 
-- Have the [proper client tools installed on your local system](../prereq/client-setup/README.md) to use this guide
+- Have the [proper client tools installed on your local system](../../prereq/client-setup/README.md) to use this guide
 - WEKA storage system configured with:
   - WEKA CSI driver installed (for PVC storage option) - see [WEKA CSI Plugin documentation](https://docs.weka.io/appendices/weka-csi-plugin)
   - WEKA filesystem mounted at `/mnt/weka` on nodes (for hostPath storage option)
@@ -51,7 +51,7 @@ The manifests use a layered kustomize structure for Prefill/Decode disaggregatio
   - `./manifests/vllm/overlays/pvc/kustomization.yaml`
   - `./manifests/gateway/overlays/istio/kustomization.yaml`
 
-- Gateway API implementation deployed (Istio) - see [Gateway control plane setup](../prereq/gateway-provider/README.md) if needed
+- Gateway API implementation deployed (Istio) - see [Gateway control plane setup](../../prereq/gateway-provider/README.md) if needed
 
 ## Installation
 
@@ -74,11 +74,13 @@ Choose either PVC or host-path storage based on your WEKA setup.
    ```
 
    This creates:
-   - ServiceAccount (`weka-vllm`)
-   - PersistentVolumeClaim (`wekafs-amg`)
-   - Decode deployment (`decode`): 1 replica with 4 GPUs (tensor-parallel), 16 CPUs, port 8200
+   - ServiceAccount: `weka-vllm`
+   - PersistentVolumeClaim: `wekafs-amg`
+   - Deployment `decode`:
+     - 1 replica with 4 GPUs (tensor-parallel), 16 CPUs, port 8200
      - InitContainers: `routing-proxy`, `create-cufile-on-node` (amg-utils)
-   - Prefill deployment (`prefill`): 4 replicas, each with 1 GPU, 8 CPUs, port 8000
+   - Deployment `prefill`:
+     - 4 replicas, each with 1 GPU, 8 CPUs, port 8000
      - InitContainers: `create-cufile-on-node` (amg-utils)
 
 #### Option 2: Host-Path Storage
@@ -100,15 +102,17 @@ Choose either PVC or host-path storage based on your WEKA setup.
    ```
 
    This creates:
-   - ServiceAccount (`weka-vllm`)
-   - Decode deployment (`decode`): 1 replica with 4 GPUs (tensor-parallel), 16 CPUs, port 8200
+   - ServiceAccount: `weka-vllm`
+   - Deployment `decode`: 1 replica with 4 GPUs (tensor-parallel), 16 CPUs, port 8200
      - InitContainers: `routing-proxy`, `create-cufile-on-node` (amg-utils)
-   - Prefill deployment (`prefill`): 4 replicas, each with 1 GPU, 8 CPUs, port 8000
+   - Deployment `prefill`: 4 replicas, each with 1 GPU, 8 CPUs, port 8000
      - InitContainers: `create-cufile-on-node` (amg-utils)
 
 ### Deploy InferencePool
 
-This will create the InferencePool resource (named `weka-vllm`) and automatically create an Istio DestinationRule.
+Deploy the InferencePool and inference scheduler:
+
+**Note:** You can customize the InferencePool or EndpointPickerConfig by editing `./manifests/inferencepool.values.yaml`.
 
 ```bash
 helm install weka-vllm \
@@ -118,12 +122,50 @@ helm install weka-vllm \
     --version v1.2.0-rc.1
 ```
 
-This creates an InferencePool named `weka-vllm` that the HTTPRoute will reference.
+This creates:
+
+- InferencePool: `weka-vllm`
+- ServiceAccount: `weka-vllm-epp`
+- Deployment: `weka-vllm-epp` (runs `llm-d-inference-scheduler` image)
+- Service: `weka-vllm-epp`
+- ConfigMap: `weka-vllm-epp` (contains EndpointPickerConfig)
+- DestinationRule: `weka-vllm-epp` (controller traffic for connection limits and TLS for service `weka-vllm-epp`)
+- Role: `weka-vllm-epp`
+- RoleBinding: `weka-vllm-epp`
 
 ### Deploy Gateway
+
+**Important:** Deploy the Gateway after the InferencePool, as the HTTPRoute references the InferencePool backend (`weka-vllm`).
+
+**Note:** By default, the Gateway service type is `LoadBalancer`. If you want to use `ClusterIP` instead, add the following patch to `./manifests/gateway/overlays/istio/kustomization.yaml` in the `patches:` section before deploying:
+
+```yaml
+  - target:
+      kind: Gateway
+      name: llm-d-inference-gateway
+    patch: |-
+      - op: add
+        path: /metadata/annotations
+        value:
+          networking.istio.io/service-type: ClusterIP
+```
 
 Deploy the Gateway and HTTPRoute resources:
 
 ```bash
 kubectl apply -k ./manifests/gateway/overlays/istio
+```
+
+This creates:
+
+- Gateway: `llm-d-inference-gateway`
+- HTTPRoute: `llm-d-route`
+- ConfigMap: `llm-d-inference-gateway`
+
+Alternatively, you can manually add the annotation after deployment to change to `ClusterIP`:
+
+```bash
+kubectl annotate gateway llm-d-inference-gateway \
+  -n ${NAMESPACE} \
+  networking.istio.io/service-type=ClusterIP
 ```
