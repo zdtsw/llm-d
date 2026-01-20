@@ -7,29 +7,10 @@ resources:
   - ../../../../../../recipes/gateway/istio
 
 patches:
-  # Rename gateway to infra-pd-inference-gateway
-  - target:
-      kind: Gateway
-      name: llm-d-inference-gateway
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: infra-pd-inference-gateway
-      - op: add
-        path: /metadata/annotations
-        value:
-          networking.istio.io/service-type: ClusterIP # TODO: check if we need change to clusterIP
-      - op: replace
-        path: /spec/infrastructure/parametersRef/name
-        value: infra-pd-inference-gateway
-
-  # Update HTTPRoute to reference renamed gateway and add timeouts
+  # Update HTTPRoute to add timeouts and reference InferencePool
   - target:
       kind: HTTPRoute
     patch: |-
-      - op: replace
-        path: /spec/parentRefs/0/name
-        value: infra-pd-inference-gateway
       - op: add
         path: /spec/rules/0/timeouts
         value:
@@ -39,19 +20,10 @@ patches:
         path: /spec/rules/0/backendRefs/0/name
         value: weka-vllm
 
-  # Update ConfigMap name
-  - target:
-      kind: ConfigMap
-      name: llm-d-inference-gateway
-    patch: |-
-      - op: replace
-        path: /metadata/name
-        value: infra-pd-inference-gateway
-
   # Customize Istio proxy settings in ConfigMap
   - target:
       kind: ConfigMap
-      name: infra-pd-inference-gateway
+      name: llm-d-inference-gateway
     patch: |-
       - op: replace
         path: /data/deployment
@@ -82,6 +54,6 @@ patches:
 
 labels:
   - pairs:
-      app.kubernetes.io/instance: infra-pd
-      app.kubernetes.io/gateway: infra-pd-inference-gateway
+      app.kubernetes.io/instance: weka
+      app.kubernetes.io/gateway: llm-d-inference-gateway
       app.kubernetes.io/component: inference-gateway
