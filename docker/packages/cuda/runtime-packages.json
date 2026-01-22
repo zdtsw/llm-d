@@ -3,7 +3,6 @@
     "cuda-nvcc-${CUDA_MAJOR}-${CUDA_MINOR}": "cuda-nvcc-${CUDA_MAJOR}-${CUDA_MINOR}",
     "cuda-cuobjdump-${CUDA_MAJOR}-${CUDA_MINOR}": "cuda-cuobjdump-${CUDA_MAJOR}-${CUDA_MINOR}",
     "cuda-nvrtc-${CUDA_MAJOR}-${CUDA_MINOR}": "cuda-nvrtc-${CUDA_MAJOR}-${CUDA_MINOR}",
-    "gds-tools-${CUDA_MAJOR}-${CUDA_MINOR}": "gds-tools-${CUDA_MAJOR}-${CUDA_MINOR}",
-    "libcufile-${CUDA_MAJOR}-${CUDA_MINOR}": "libcufile-${CUDA_MAJOR}-${CUDA_MINOR}"
+    "nvidia-gds": "nvidia-gds"
   }
 }

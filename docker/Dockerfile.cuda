@@ -440,9 +440,11 @@ COPY docker/packages/common/runtime-otel-package-requirements.txt /workspace/run
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install -r /workspace/runtime-otel-package-requirements.txt
 
-# Copy GDS cufile probe script for GPU Direct Storage readiness checks
-COPY docker/scripts/cuda/runtime/gds-cufile-probe.sh /usr/local/bin/gds-cufile-probe.sh
-RUN chmod +x /usr/local/bin/gds-cufile-probe.sh
+# Copy GDS scripts for Weka
+COPY docker/scripts/cuda/runtime/enable-nvidia-gds.sh /usr/local/bin/enable-nvidia-gds.sh
+COPY docker/scripts/cuda/runtime/gds-startup-probe.sh /usr/local/bin/gds-startup-probe.sh
+RUN chmod +x /usr/local/bin/enable-nvidia-gds.sh \
+             /usr/local/bin/gds-startup-probe.sh
 
 # Cleanup packages
 COPY docker/scripts/cuda/common/package-utils.sh /tmp/package-utils.sh
