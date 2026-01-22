@@ -10,10 +10,10 @@ WEKA provides high-performance shared storage with GPU Direct Storage (GDS) supp
 
 The WEKA GDS integration includes:
 
-1. **InitContainer** - Both decode and prefill deployments run an `amg-utils` initContainer that executes `amgctl` to create the cufile.json configuration on each node
+1. **InitContainers** - Automated setup that loads GDS kernel modules (`nvidia_fs` and `nvidia_peermem`) and creates cufile.json configuration
 2. **Volume Mounts** - Mounts cufile.json from `~/amg_stable/cufile.json` on the host to `/etc/cufile.json` in the container
 3. **Storage Options** - Supports both PersistentVolumeClaim (PVC) and host-path storage configurations
-4. **GDS Probe** - Custom startup probe (`/usr/local/bin/gds-cufile-probe.sh`) to verify GPU Direct Storage readiness
+4. **Startup Probe** - Verifies GDS readiness (kernel modules loaded + cufile.json valid) before starting the container
 
 ## Architecture
 
@@ -31,10 +31,11 @@ The manifests use a layered kustomize structure for Prefill/Decode disaggregatio
 - Have the [proper client tools installed on your local system](../../prereq/client-setup/README.md) to use this guide
 - WEKA storage system configured with:
   - WEKA CSI driver installed (for PVC storage option) - see [WEKA CSI Plugin documentation](https://docs.weka.io/appendices/weka-csi-plugin)
-  - WEKA filesystem mounted at `/mnt/weka` on nodes (for hostPath storage option)
-  - GPU Direct Storage (GDS) enabled - WEKA must be configured with GDS support and nodes must have:
+  - WEKA filesystem mounted on nodes (for hostPath storage option)
+  - GPU Direct Storage (GDS) enabled:
     - NVIDIA GPUs with GPUDirect Storage capability
-    - NVIDIA GDS kernel modules loaded (`nvidia-fs`)
+    - NVIDIA driver version 450.80.02 or later
+    - kernel modules: `nvidia-fs` and `nvidia_peermem` must be loaded on host
     - WEKA client with GDS support installed
 - AMG Utils for GDS configuration:
   - The `amgctl` tool will be run via initContainer to create `~/amg_stable/cufile.json` on each node
@@ -54,6 +55,8 @@ The manifests use a layered kustomize structure for Prefill/Decode disaggregatio
 - Gateway API implementation deployed (Istio) - see [Gateway control plane setup](../../prereq/gateway-provider/README.md) if needed
 
 ## Installation
+
+**Note:** The example deployment manifests use the `RedHatAI/Llama-3.3-70B-Instruct-FP8-dynamic` model.
 
 ### Deploy vLLM Model Servers
 

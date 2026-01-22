@@ -120,7 +120,7 @@ patches:
             nvidia.com/gpu: "1"
             rdma/ib: 1
 
-  # Add initContainer for creating cufile.json (WEKA GDS requirement)
+  # Add initContainers for WEKA GDS setup
   - target:
       kind: Deployment
       name: llm-d-model-server
@@ -128,6 +128,12 @@ patches:
       - op: add
         path: /spec/template/spec/initContainers
         value:
+          - name: enable-nvidia-gds
+            image: "ghcr.io/llm-d/llm-d:latest"
+            command:
+              - /usr/local/bin/enable-nvidia-gds.sh
+            securityContext:
+              privileged: true
           - name: create-cufile-on-node
             image: quay.io/grpereir/amg-utils:latest
             command:
@@ -147,7 +153,7 @@ patches:
         value:
           exec:
             command:
-              - "/usr/local/bin/gds-cufile-probe.sh"
+              - "/usr/local/bin/gds-startup-probe.sh"
           initialDelaySeconds: 5
           periodSeconds: 5
           failureThreshold: 12
