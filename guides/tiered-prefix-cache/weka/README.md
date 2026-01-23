@@ -35,8 +35,9 @@ The manifests use a layered kustomize structure for Prefill/Decode disaggregatio
   - GPU Direct Storage (GDS) enabled:
     - NVIDIA GPUs with GPUDirect Storage capability
     - NVIDIA driver version 450.80.02 or later
-    - kernel modules: `nvidia-fs` and `nvidia_peermem` must be loaded on host
+    - kernel modules: `nvidia-fs` and `nvidia_peermem` must be available on host
     - WEKA client with GDS support installed
+    - **RHEL nodes only**: Install `nvidia-gds` package on the host (`dnf install nvidia-gds-12-9`)
 - AMG Utils for GDS configuration:
   - The `amgctl` tool will be run via initContainer to create `~/amg_stable/cufile.json` on each node
   - The file is then mounted into the container at `/etc/cufile.json`
