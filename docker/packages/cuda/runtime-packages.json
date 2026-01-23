@@ -6,5 +6,9 @@
   },
   "ubuntu_only": [
     "nvidia-gds-${CUDA_MAJOR}-${CUDA_MINOR}"
+  ],
+  "rhel_only": [
+    "gds-tools-${CUDA_MAJOR}-${CUDA_MINOR}",
+    "libcufile-${CUDA_MAJOR}-${CUDA_MINOR}"
   ]
 }
