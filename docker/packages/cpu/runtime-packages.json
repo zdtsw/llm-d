@@ -1,0 +1,14 @@
+{
+  "rhel_to_ubuntu": {
+  },
+  "ubuntu_only": [
+    "ca-certificates",
+    "libtcmalloc-minimal4",
+    "ffmpeg",
+    "libsm6",
+    "libxext6",
+    "libgl1",
+    "lsof",
+    "pkg-config"
+  ]
+}

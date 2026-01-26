@@ -1,0 +1,43 @@
+{
+  "rhel_to_ubuntu": {
+    "which": null,
+    "procps": "procps",
+    "findutils": "findutils",
+    "tar": "tar",
+    "gzip": "gzip",
+    "gcc": "gcc",
+    "gcc-c++": "g++",
+    "make": "make",
+    "autoconf": "autoconf",
+    "automake": "automake",
+    "libtool": "libtool",
+    "zlib-devel": "zlib1g-dev",
+    "openssl-devel": "libssl-dev",
+    "pkg-config": "pkg-config",
+    "ninja-build": "ninja-build",
+    "xz": "xz-utils",
+    "rsync": "rsync",
+    "hwloc": "hwloc",
+    "hwloc-devel": "libhwloc-dev",
+    "libuuid-devel": "uuid-dev",
+    "glibc-devel": null,
+    "rdma-core-devel": "librdmacm-dev",
+    "libibverbs": "libibverbs1",
+    "libibverbs-devel": "libibverbs-dev",
+    "numactl-libs": "libnuma1",
+    "subunit": null,
+    "pciutils": "pciutils",
+    "pciutils-libs": null,
+    "libaio-devel": "libaio-dev"
+  },
+  "ubuntu_only": [
+    "debhelper",
+    "libnuma-dev",
+    "environment-modules",
+    "tcl",
+    "ethtool",
+    "iproute2",
+    "dmidecode",
+    "udev"
+  ]
+}

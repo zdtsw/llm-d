@@ -1,0 +1,10 @@
+{
+  "rhel_to_ubuntu": {
+  },
+  "ubuntu_only": [
+    "gcc-12",
+    "g++-12",
+    "ccache",
+    "libnuma-dev"
+  ]
+}

@@ -2,6 +2,16 @@
   "rhel_to_ubuntu": {
     "cuda-nvcc-${CUDA_MAJOR}-${CUDA_MINOR}": "cuda-nvcc-${CUDA_MAJOR}-${CUDA_MINOR}",
     "cuda-cuobjdump-${CUDA_MAJOR}-${CUDA_MINOR}": "cuda-cuobjdump-${CUDA_MAJOR}-${CUDA_MINOR}",
-    "cuda-nvrtc-${CUDA_MAJOR}-${CUDA_MINOR}": "cuda-nvrtc-${CUDA_MAJOR}-${CUDA_MINOR}"
-  }
+    "cuda-nvrtc-${CUDA_MAJOR}-${CUDA_MINOR}": "cuda-nvrtc-${CUDA_MAJOR}-${CUDA_MINOR}",
+    "rdma-core-devel": "librdmacm-dev",
+    "numactl-libs": "libnuma1",
+    "pciutils": "pciutils",
+    "libatomic": "libatomic1",
+    "libaio": null
+  },
+  "ubuntu_only": [
+    "gcc",
+    "hwloc",
+    "libhwloc15"
+  ]
 }

@@ -5,37 +5,36 @@ ARG VLLM_COMMIT_SHA="72506c98349d6bcd32b4e33eec7b5513453c1502"
 FROM intel/deep-learning-essentials:${ONEAPI_VERSION}-devel-ubuntu24.04 AS vllm-base
 
 ARG CACHE_BUSTER
+ARG PYTHON_VERSION=3.12
+ARG TARGETOS=ubuntu
+ARG ACCELERATOR=xpu
+# These env variables are set to satisfy lint on dockerfile
+ARG CUDA_MAJOR
+ARG CUDA_MINOR
+ARG TARGETPLATFORM
+
 RUN if [ -n "${CACHE_BUSTER}" ]; then \
         echo "$CACHE_BUSTER" > /tmp/builder-buster; \
     fi;
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Setup Intel repositories
 RUN wget -O- https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | gpg --dearmor | tee /usr/share/keyrings/oneapi-archive-keyring.gpg > /dev/null && \
     echo "deb [signed-by=/usr/share/keyrings/oneapi-archive-keyring.gpg] https://apt.repos.intel.com/oneapi all main" | tee /etc/apt/sources.list.d/oneAPI.list && \
     add-apt-repository -y ppa:kobuk-team/intel-graphics
 
-RUN apt-get clean && apt-get update -y && \
-    apt-get install -y --no-install-recommends --fix-missing \
-    curl \
-    ffmpeg \
-    git \
-    libsndfile1 \
-    libsm6 \
-    libxext6 \
-    libgl1 \
-    lsb-release \
-    libaio-dev \
-    numactl \
-    wget \
-    vim \
-    python3.12 \
-    python3.12-dev \
-    python3-pip
+# Install base packages using manifest system
+COPY docker/scripts/common/package-utils.sh /tmp/package-utils.sh
+COPY docker/packages /tmp/packages
+COPY docker/scripts/common/builder/install-builder-packages.sh /tmp/install-builder-packages.sh
+RUN TARGETOS=${TARGETOS} ACCELERATOR=${ACCELERATOR} PYTHON_VERSION=${PYTHON_VERSION} /tmp/install-builder-packages.sh && \
+    rm -f /tmp/install-builder-packages.sh /tmp/package-utils.sh && \
+    rm -rf /tmp/packages
 
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
-
-RUN apt install -y libze1 libze-dev libze-intel-gpu1 intel-opencl-icd libze-intel-gpu-raytracing intel-ocloc
+# Configure Python alternatives
+RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.12 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.12 1
 
 # This oneccl contains the BMG support which is not the case for default version of oneapi 2025.2.
 RUN wget https://github.com/uxlfoundation/oneCCL/releases/download/2021.15.6/intel-oneccl-2021.15.6.9_offline.sh
@@ -43,8 +42,8 @@ RUN bash intel-oneccl-2021.15.6.9_offline.sh -a --silent --eula accept && \
     echo "source /opt/intel/oneapi/setvars.sh --force" >> /root/.bashrc && \
     echo "source /opt/intel/oneapi/ccl/2021.15/env/vars.sh --force" >> /root/.bashrc
 
-SHELL ["bash", "-c"]
-CMD ["bash", "-c", "source /root/.bashrc && exec bash"]
+SHELL ["/bin/bash", "-c"]
+CMD ["/bin/bash", "-c", "source /root/.bashrc && exec bash"]
 
 # Clone vLLM and build for XPU
 WORKDIR /workspace

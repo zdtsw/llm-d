@@ -1,0 +1,23 @@
+{
+  "rhel_to_ubuntu": {
+  },
+  "ubuntu_only": [
+    "libsndfile1",
+    "lsb-release",
+    "libaio-dev",
+    "numactl",
+    "python3.12",
+    "python3.12-dev",
+    "python3-pip",
+    "libze1",
+    "libze-dev",
+    "libze-intel-gpu1",
+    "intel-opencl-icd",
+    "libze-intel-gpu-raytracing",
+    "intel-ocloc",
+    "ffmpeg",
+    "libsm6",
+    "libxext6",
+    "libgl1"
+  ]
+}
