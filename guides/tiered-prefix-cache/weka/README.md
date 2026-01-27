@@ -122,8 +122,7 @@ Deploy the InferencePool and inference scheduler:
 helm install weka-vllm \
     -n ${NAMESPACE} \
     -f ./manifests/inferencepool.values.yaml \
-    oci://us-central1-docker.pkg.dev/k8s-staging-images/gateway-api-inference-extension/charts/inferencepool \
-    --version v1.2.0-rc.1
+    oci://registry.k8s.io/gateway-api-inference-extension/charts/inferencepool --version v1.2.0
 ```
 
 This creates:
