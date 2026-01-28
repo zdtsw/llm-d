@@ -140,25 +140,16 @@ helmfile apply -f istio.helmfile.yaml --selector kind=gateway-control-plane
 
 ## Step 5: Deploy Intel XPU PD Disaggregation
 
-⚠️ **Important - For Intel BMG GPU Users**: Before running `helmfile apply`, you must update the accelerator type in `ms-pd/values_xpu.yaml`:
+The Intel XPU configuration in `ms-pd/values_xpu.yaml` uses a unified accelerator type that works with all Intel GPU drivers:
 
 ```yaml
-# Edit ms-pd/values_xpu.yaml
-# For Intel Data Center GPU Max 1550 (i915 driver):
+# Unified configuration for all Intel GPUs
 accelerator:
-  type: intel-i915
-  dra: true
-
-# For Intel BMG GPU (Battlemage G21, Xe driver):
-accelerator:
-  type: intel-xe
+  type: intel
   dra: true
 ```
 
-**Accelerator Type by GPU:**
-
-* **Intel Data Center GPU Max 1550**: Use `type: intel-i915` (maps to `gpu.intel.com/i915`)
-* **Intel BMG GPU (Battlemage G21)**: Use `type: intel-xe` (maps to `gpu.intel.com/xe`)
+**Note:** The unified `intel` type works with both Intel Data Center GPU Max 1550 (i915 driver) and Intel BMG GPUs (Battlemage G21, xe driver). Dynamic Resource Allocation (DRA) automatically handles driver selection.
 
 ```shell
 # Navigate to PD disaggregation guide directory
@@ -270,6 +261,7 @@ If no HTTPRoute was found, create one manually:
 **_IMPORTANT:_** If you used a custom `$RELEASE_NAME_POSTFIX` environment variable during deployment, you **must** update the HTTPRoute file to match your custom release names before applying it. The HTTPRoute references the Gateway and InferencePool names which include the release name postfix.
 
 For example, if you set `RELEASE_NAME_POSTFIX=pd-xpu`, you need to update the HTTPRoute:
+
 ```shell
 # Update the HTTPRoute to match your release names
 sed -e "s/infra-pd-inference-gateway/infra-pd-xpu-inference-gateway/g" \
@@ -281,6 +273,7 @@ kubectl apply -f httproute-custom.yaml -n llm-d-pd
 ```
 
 If using default release names (no custom `RELEASE_NAME_POSTFIX`), simply apply:
+
 ```shell
 # Apply the HTTPRoute configuration from the PD disaggregation guide
 kubectl apply -f httproute.yaml
