@@ -53,7 +53,7 @@ Choose the main branch if you want the latest llm-d.
 
 ```
 branch="main"
-# Clone the repo and switch to the desired branch 
+# Clone the repo and switch to the desired branch
 git clone https://github.com/llm-d/llm-d.git && cd llm-d && git checkout ${branch}
 ```
 
@@ -64,7 +64,7 @@ Choose the latest release of llm-d with a high qualification standard.
 
 ```
 branch=$(curl -s https://api.github.com/repos/llm-d/llm-d/releases/latest | jq -r '.tag_name')
-# Clone the repo and switch to the desired branch 
+# Clone the repo and switch to the desired branch
 git clone https://github.com/llm-d/llm-d.git && cd llm-d && git checkout ${branch}
 ```
 
@@ -75,7 +75,7 @@ Choose this when you need a specific feature/bug fix, and lock your environment 
 
 ```
 branch=<commit_sha>
-# Clone the repo and switch to the desired branch 
+# Clone the repo and switch to the desired branch
 git clone https://github.com/llm-d/llm-d.git && cd llm-d && git checkout ${branch}
 ```
 

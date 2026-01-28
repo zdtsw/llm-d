@@ -10,7 +10,7 @@ This guide demonstrates how to configure the inference scheduler to use the new 
 - Configure and deploy your [Gateway control plane](../prereq/gateway-provider/README.md).
 - Have the [Monitoring stack](../../docs/monitoring/README.md) installed on your system.
 - Create a namespace for installation.
-  
+
   ```
   export NAMESPACE=llm-d-precise # or any other namespace (shorter names recommended)
   kubectl create namespace ${NAMESPACE}
@@ -82,8 +82,8 @@ kubectl apply -f httproute.gke.yaml -n ${NAMESPACE}
 helm list -n ${NAMESPACE}
 NAME            NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                           APP VERSION
 gaie-kv-events  llm-d-precise   1               2025-09-25 21:36:52.452999581 +0000 UTC deployed        inferencepool-v1.2.0            v1.2.0
-infra-kv-events llm-d-precise   1               2025-09-25 21:36:50.848300265 +0000 UTC deployed        llm-d-infra-v1.3.6              v0.3.0     
-ms-kv-events    llm-d-precise   1               2025-09-25 21:36:55.955958022 +0000 UTC deployed        llm-d-modelservice-v0.3.17      v0.3.0 
+infra-kv-events llm-d-precise   1               2025-09-25 21:36:50.848300265 +0000 UTC deployed        llm-d-infra-v1.3.6              v0.3.0
+ms-kv-events    llm-d-precise   1               2025-09-25 21:36:55.955958022 +0000 UTC deployed        llm-d-modelservice-v0.3.17      v0.3.0
 ```
 
 - Out of the box with this example you should have the following resources:

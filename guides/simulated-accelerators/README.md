@@ -12,7 +12,7 @@ This guide demonstrates how to deploy the simulator `ghcr.io/llm-d/llm-d-inferen
 - Configure and deploy your [Gateway control plane](../prereq/gateway-provider/README.md).
 - Have the [Monitoring stack](../../docs/monitoring/README.md) installed on your system.
 - Create a namespace for installation.
-  
+
   ```
   export NAMESPACE=llm-d-sim # or any other namespace (shorter names recommended)
   kubectl create namespace ${NAMESPACE}
