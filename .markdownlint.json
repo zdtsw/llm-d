@@ -11,8 +11,6 @@
     "strict": false,
     "stern": false
   },
-  "MD033": {
-    "allowed_elements": ["details", "summary", "img", "br"]
-  },
+  "MD033": false,
   "MD041": false
 }

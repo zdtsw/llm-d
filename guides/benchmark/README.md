@@ -11,10 +11,12 @@ For full, customizable benchmarking, please refer to [llm-d-benchmark](https://g
 - Install `yq` (YAML processor) - version>=4 (see [Client Setup](../prereq/client-setup/README.md))
 - For MacOS users: if `timeout` utility is not present, install it with `brew install coreutils` command.
 - Download the benchmark script [run_only.sh](https://github.com/llm-d/llm-d-benchmark/blob/main/existing_stack/run_only.sh) and make it executable.
+
     ```bash
     curl -L -O https://raw.githubusercontent.com/llm-d/llm-d-benchmark/main/existing_stack/run_only.sh
     chmod u+x run_only.sh
     ```
+
 - Prepare a Persistent Volume Claim (PVC) to store the benchmark results. The PVC must have `RWX` write permissions and be large enough (`200Gi` recommended).
 
   <details>
@@ -63,15 +65,15 @@ For full, customizable benchmarking, please refer to [llm-d-benchmark](https://g
 > <details>
 > <summary><b>Intelligent Inference Scheduling</b></summary>
 >
->   ```bash
->   export GATEWAY_SVC=$(kubectl get svc -n "${NAMESPACE}" \
->     -l gateway.networking.k8s.io/gateway-name=infra-inference-scheduling-inference-gateway \
->     --no-headers  -o=custom-columns=:metadata.name \
->     | head -1
->   )
->   export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/inference_scheduling_template.yaml
->   # export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/inference_scheduling_guidellm_template.yaml
->   # export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/inference_scheduling_shared_prefix_template.yaml
+> ```bash
+> export GATEWAY_SVC=$(kubectl get svc -n "${NAMESPACE}" \
+>   -l gateway.networking.k8s.io/gateway-name=infra-inference-scheduling-inference-gateway \
+>   --no-headers  -o=custom-columns=:metadata.name \
+>   | head -1
+> )
+> export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/inference_scheduling_template.yaml
+> # export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/inference_scheduling_guidellm_template.yaml
+> # export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/inference_scheduling_shared_prefix_template.yaml
 >   ```
 >
 > </details>
@@ -81,15 +83,15 @@ For full, customizable benchmarking, please refer to [llm-d-benchmark](https://g
 > <details>
 > <summary><b>Prefill/Decode Disaggregation</b></summary>
 >
->   ```bash
->   export GATEWAY_SVC=$(kubectl get svc -n "${NAMESPACE}" \
->     -l gateway.networking.k8s.io/gateway-name=infra-pd-inference-gateway \
->     --no-headers  -o=custom-columns=:metadata.name \
->     | head -1
->   )
->   export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/pd_template.yaml
->   #export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/pd_vllm_bench_random_concurrent_template.yaml
->   #export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/pd_shared_prefix_template.yaml
+> ```bash
+> export GATEWAY_SVC=$(kubectl get svc -n "${NAMESPACE}" \
+>   -l gateway.networking.k8s.io/gateway-name=infra-pd-inference-gateway \
+>   --no-headers  -o=custom-columns=:metadata.name \
+>   | head -1
+> )
+> export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/pd_template.yaml
+> #export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/pd_vllm_bench_random_concurrent_template.yaml
+> #export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/pd_shared_prefix_template.yaml
 >   ```
 >
 > </details>
@@ -101,13 +103,13 @@ For full, customizable benchmarking, please refer to [llm-d-benchmark](https://g
 > <details>
 > <summary><b>Wide Expert-Parallelism</b></summary>
 >
->   ```bash
->   export GATEWAY_SVC=$(kubectl get svc -n "${NAMESPACE}" \
->     -l gateway.networking.k8s.io/infra-wide-wp-inference-gateway \
->     --no-headers  -o=custom-columns=:metadata.name \
->     | head -1
->   )
->   export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/wide_ep_template.yaml
+> ```bash
+> export GATEWAY_SVC=$(kubectl get svc -n "${NAMESPACE}" \
+>   -l gateway.networking.k8s.io/infra-wide-wp-inference-gateway \
+>   --no-headers  -o=custom-columns=:metadata.name \
+>   | head -1
+> )
+> export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/wide_ep_template.yaml
 >   ```
 >
 > </details>
@@ -125,15 +127,15 @@ For full, customizable benchmarking, please refer to [llm-d-benchmark](https://g
 > <details>
 > <summary><b>Precise Prefix Caching</b></summary>
 >
->   ```bash
->   export GATEWAY_SVC=$(kubectl get svc -n "${NAMESPACE}" \
->     -l gateway.networking.k8s.io/gateway-name=infra-kv-events-inference-gateway \
->     --no-headers  -o=custom-columns=:metadata.name \
->     | head -1
->   )
->   export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/precise_template.yaml
->   # export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/precise_guidellm_template.yaml
->   # export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/precise_shared_prefix_template.yaml
+> ```bash
+> export GATEWAY_SVC=$(kubectl get svc -n "${NAMESPACE}" \
+>   -l gateway.networking.k8s.io/gateway-name=infra-kv-events-inference-gateway \
+>   --no-headers  -o=custom-columns=:metadata.name \
+>   | head -1
+> )
+> export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/precise_template.yaml
+> # export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/precise_guidellm_template.yaml
+> # export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/precise_shared_prefix_template.yaml
 >   ```
 >
 > </details>
@@ -142,6 +144,7 @@ For full, customizable benchmarking, please refer to [llm-d-benchmark](https://g
 > </table>
 
 Check your env:
+
   ```bash
   echo "Using NAMESPACE=${NAMESPACE:?Missing}, GATEWAY_SVC=${GATEWAY_SVC:?Missing}, BENCHMARK_PVC=${BENCHMARK_PVC:?Missing}, BENCHMARK_TEMPLATE=${BENCHMARK_TEMPLATE:?Missing}"
   ```
@@ -149,6 +152,7 @@ Check your env:
 ## Run
 
 Create a yaml configuration file for the benchmark and run.
+
   ```bash
   envsubst < ${BENCHMARK_TEMPLATE} > config.yaml
   ./run_only.sh -c config.yaml
@@ -160,25 +164,30 @@ You can try running with different workload configuration. Just edit the `worklo
 ## Analyze Results
 
 You can access the results PVC through the benchmark launcher pod.
+
   ```bash
   export HARNESS_POD=$(kubectl get pods -n ${NAMESPACE} -l app --show-labels | awk -v p='lmdbench-.*-launcher' '$0~p {print $1; exit}')
   kubectl exec $HARNESS_POD -n $NAMESPACE -- ls /requests
   ```
 
 To copy a results directory to your local machine use:
+
   ```bash
   kubectl cp ${NAMESPACE}/${HARNESS_POD}:/requests/<results-folder> <destination-path>
   ```
 
-# Results Examples
+## Results Examples
 
 ### Terminal output
+
 `run_only.sh` prints progress messages to the terminal. The stdout and stderr of the harness itself is printed to the terminal as well as captured in the results.
 
 This example uses `guidellm` with a [`rate_comparison`](./inference_scheduling_guidellm_template.yaml) workload:
+
   ```bash
   export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/inference_scheduling_guidellm_template.yaml
   ```
+
 <details>
 
 <summary><b><i>Click</i></b> to view the terminal output of <code>run_only.sh</code> using <code>guidellm</code></summary>
@@ -523,17 +532,21 @@ This example uses `guidellm` with a [`rate_comparison`](./inference_scheduling_g
 The output files are saved on the benchmark PVC. They are accessible through the launcher pod in the `/requests` folder. Each experiment is saved under its own sub directory.
 
 This example uses `inference-perf` with a [`shared-prefix`](./inference_scheduling_shared_prefix_template.yaml) workload:
+
   ```bash
   export BENCHMARK_TEMPLATE="${BENCH_TEMPLATE_DIR}"/inference_scheduling_shared_prefix_template.yaml
   ```
 
 After running With this template, the `/requests` folder will include a `<results-folder>` named
+
 ```bash
 inference-perf_1765442721_shared_prefix_synthetic_inference-scheduling-Qwen3-0.6B
 ```
+
 The name indicates `inference-perf` was used as harness, the workload was `shared_prefix_synthetic` and the user-defined stack name was `inference-scheduling-Qwen3-0.6B`.
 
 ### Workload file
+
 The harness workload configuration file, as was used, is copied into the the experiment results directory; in this case, `shared_prefix_synthetic.yaml`.
 
 <details>
@@ -591,9 +604,7 @@ The harness workload configuration file, as was used, is copied into the the exp
 
 All harnesses capture, more or less, the same metrics (e.g., TTFT, TPOT, ITL). However, differet harnesses produce different result files. In our case, `inference-perf` creates a results file for each stage (6 files), a summary file for all stages, and a (huge) details file with per-request metrics.
 
-
 In this example there are 6 workload stages. For each of these stages, there is a results `json` file in harness-specific format and a standardized benchmark `yaml` report in a harness-agnostic format. In this case, the `inference-perf` benchmark also creates a summary report and a (huge) detailed per-request report. The `analysis` folder includes plots of the same data.
-
 
 <details>
 <summary><b><i>Click</i></b> to view the contents of the experiment directory (after being copied to <code>destination-path=/tmp/test</code>)</summary>
@@ -801,9 +812,9 @@ Some harnesses also generate plots of the results. In our example, `inference-pe
 
 ---
 
-# Advanced
+## Advanced
 
-## Customizing the config file
+### Customizing the config file
 
 This section describes the details of the configuration `config.yaml` file. You may edit it as needed to match your stack (e.g., to change the model name). If you followed the guideline to create your stack then you should be able to run without any modification.
 **Do not edit** unless you know what you are doing.
@@ -813,6 +824,7 @@ The configuration is divided into sections, each with a different scope.
 ### Endpoint
 
 These are the properties of the stack (`envsubst` would replace `NAMESPACE` and `GATEWAY_SVC` to match your env). Gated models need a Hugging Face token to access. Your stack should already have a token secret under the name `llm-d-hf-token`. `stack_name` is a user-defined arbitrary name that will be attached to the benchmark results. You can use `stack_name` to help you identify the results of different experiments. The `model` must match your stack. Please note the `yaml` tags -- other section of this `yaml` reference them (e.g., the tokenizer reference the model).
+
   ```yaml
   endpoint:
     stack_name: &stack_name inference-scheduling-Qwen3-0.6B  # user defined name for the stack (results prefix)
@@ -837,7 +849,15 @@ The `kubectl` entry allows you to change the k8s control command (e.g., to `oc`)
 
 ### Harness
 
-Harness refers to the specific benchmarking tool used. Several harnesses are supported, including [inference-perf](https://github.com/kubernetes-sigs/inference-perf), [guidellm](https://github.com/vllm-project/guidellm), [InferenceMAX](https://github.com/InferenceMAX/InferenceMAX) and [vLLM Benchmarks](https://github.com/vllm-project/vllm/tree/main/benchmarks). The `results_pvc` should be set to the PVC you created above. The benchmark is run from one or more pods inside the cluster. The image for this pod is from [llm-d-benchmark](https://github.com/llm-d/llm-d-benchmark). Typically, you do not have to change the `namespace` or the `image`
+Harness refers to the specific benchmarking tool used. Several harnesses are supported, including
+[inference-perf](https://github.com/kubernetes-sigs/inference-perf),
+[guidellm](https://github.com/vllm-project/guidellm),
+[InferenceMAX](https://github.com/InferenceMAX/InferenceMAX) and
+[vLLM Benchmarks](https://github.com/vllm-project/vllm/tree/main/benchmarks).
+The `results_pvc` should be set to the PVC you created above.
+The benchmark is run from one or more pods inside the cluster.
+The image for this pod is from [llm-d-benchmark](https://github.com/llm-d/llm-d-benchmark).
+Typically, you do not have to change the `namespace` or the `image`
 
   ```yaml
   harness:
@@ -866,10 +886,11 @@ This sections allows you to add arbitrary environment variable to the harness po
 These settings characterize of the workload used to benchmark the stack. Each harness supports different configuration parameters for setting the workload. These are described in detail in their documentations (see, e.g., [inference-perf configuration guide](https://github.com/kubernetes-sigs/inference-perf/blob/main/docs/config.md)).
 While the details are different for each harness, the concepts are similar.
 A workload specification typically includes:
- - **Data specification**: How to generated the contents of the inference queries. For example, the distribution of input and output lengths or a path to a HF trace.
- - **Load specification**: Timing for sending queries. E.g., rate and duration. Some harnesses support "stages", each with its own load specification.
- - **Control**: Which API to use, target endpoint, tokenizers, etc.
- - **Output**: The types of reports to produce and where to store them. **Do not change** -- the benchmark tools will set these automatically.
+
+- **Data specification**: How to generated the contents of the inference queries. For example, the distribution of input and output lengths or a path to a HF trace.
+- **Load specification**: Timing for sending queries. E.g., rate and duration. Some harnesses support "stages", each with its own load specification.
+- **Control**: Which API to use, target endpoint, tokenizers, etc.
+- **Output**: The types of reports to produce and where to store them. **Do not change** -- the benchmark tools will set these automatically.
 
 Several workload can be specified, each with a different name. The benchmark would run all the workloads against the stack.
 

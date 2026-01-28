@@ -23,7 +23,7 @@ This example out of the box uses 16 GPUs (8 replicas x 2 GPUs each) of any suppo
 - Have the [Monitoring stack](../../docs/monitoring/README.md) installed on your system.
 - Create a namespace for installation.
 
-  ```
+  ```bash
   export NAMESPACE=llm-d-inference-scheduler # or any other namespace (shorter names recommended)
   kubectl create namespace ${NAMESPACE}
   ```
@@ -47,14 +47,15 @@ cd guides/inference-scheduling
 <!-- TABS:START -->
 <!-- TAB:GPU deployment  -->
 
-**GPU deployment**
+#### GPU deployment
 
 ```bash
 helmfile apply -n ${NAMESPACE}
 ```
 
 <!-- TAB:CPU deployment  -->
-**CPU-only deployment:**
+
+#### CPU-only deployment
 
 ```bash
 helmfile apply -e cpu -n ${NAMESPACE}
@@ -247,7 +248,6 @@ The benchmark launches a pod (`llmdbench-harness-launcher`) that, in this case, 
 
 Several results files will be created (see [Benchmark doc](../benchmark/README.md)), including a yaml file in a "standard" benchmark report format (see [Benchmark Report](https://github.com/llm-d/llm-d-benchmark/blob/main/docs/benchmark_report.md)).
 
-
   ```bash
   curl -L -O https://raw.githubusercontent.com/llm-d/llm-d-benchmark/main/existing_stack/run_only.sh
   chmod u+x run_only.sh
@@ -270,6 +270,7 @@ Choose the `inference_scheduling_guide_template.yaml` template, then run:
   ```
 
 Edit `config.yaml` if further customization is needed, and then run the command
+
   ```bash
   ./run_only.sh -c config.yaml
   ```
@@ -278,7 +279,7 @@ The output will show the progress of the `inference-perf` benchmark as it runs
 <details>
 <summary><b><i>Click</i></b> here to view the expected output</summary>
 
-  ```
+  ```text
   ...
   2026-01-14 12:58:15,472 - inference_perf.client.filestorage.local - INFO - Report files will be stored at: /requests/inference-perf_1768395442_shared_prefix_synthetic_inference-scheduling-Qwen3-0.6B
   2026-01-14 12:58:18,414 - inference_perf.loadgen.load_generator - INFO - Stage 0 - run started
@@ -307,7 +308,6 @@ The output will show the progress of the `inference-perf` benchmark as it runs
   ```
 
 </details>
-
 
 ### Benchmarking Report
 
@@ -596,7 +596,6 @@ For comparison, we ran the same workload on a k8s service endpoint that directly
 | Time/output token (ms)                                           | 52.91     | 79.24     | +0.02633         | +49.8%     |
 | Inter-token latency (ms)                                         | 32.01     | 51.32     | +0.01930         | +60.3%     |
 
-
 <!--
 #### More
 
@@ -619,7 +618,6 @@ For comparison, we ran the same workload on a k8s service endpoint that directly
 | Time per output token min (s/token)                              | 0.016120  | 0.015833  | -0.000288        | -1.8%       |
 | Time per output token max (s/token)                              | 0.091111  | 0.171244  | 0.080133         | 88.0%       |
 -->
-
 
 ## Cleanup
 

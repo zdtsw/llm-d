@@ -11,7 +11,7 @@ This guide demonstrates how to configure the inference scheduler to use the new 
 - Have the [Monitoring stack](../../docs/monitoring/README.md) installed on your system.
 - Create a namespace for installation.
 
-  ```
+  ```bash
   export NAMESPACE=llm-d-precise # or any other namespace (shorter names recommended)
   kubectl create namespace ${NAMESPACE}
   ```
