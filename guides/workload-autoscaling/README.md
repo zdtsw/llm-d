@@ -49,7 +49,7 @@ The workload-autoscaling helmfile supports two installation modes (see [Step 5](
 1. **Full Installation**: Installs the complete llm-d [Intelligent Inference Scheduling](../inference-scheduling/README.md) stack (infra, gaie, modelservice) plus WVA in a single `helmfile apply` command.
 2. **WVA-Only Installation**: Installs only WVA, connecting to an existing [Intelligent Inference Scheduling](../inference-scheduling/README.md) deployment.
 
-**Install Prometheus Adapter separately in [Step 6](#step-6-install-prometheus-adapter-required-dependency) after WVA installation.** 
+**Install Prometheus Adapter separately in [Step 6](#step-6-install-prometheus-adapter-required-dependency) after WVA installation.**
 
 ### Step 1: Configure WVA Values
 
@@ -421,7 +421,7 @@ See [WVA chart documentation](https://github.com/llm-d-incubation/workload-varia
    ```bash
    # List all VariantAutoscalings
    kubectl get variantautoscalings -A
-   
+
    # For each VariantAutoscaling, add scaleTargetRef
    kubectl edit variantautoscaling <name> -n <namespace>
    ```

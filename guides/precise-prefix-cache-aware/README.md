@@ -10,7 +10,7 @@ This guide demonstrates how to configure the inference scheduler to use the new 
 - Configure and deploy your [Gateway control plane](../prereq/gateway-provider/README.md).
 - Have the [Monitoring stack](../../docs/monitoring/README.md) installed on your system.
 - Create a namespace for installation.
-  
+
   ```
   export NAMESPACE=llm-d-precise # or any other namespace (shorter names recommended)
   kubectl create namespace ${NAMESPACE}

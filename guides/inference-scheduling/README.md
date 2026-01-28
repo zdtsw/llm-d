@@ -237,13 +237,13 @@ For instructions on getting started making inference requests see [our docs](../
 
 ## Benchmarking
 
-To run benchmarks against the installed llm-d stack, you need [run_only.sh](https://github.com/llm-d/llm-d-benchmark/blob/main/existing_stack/run_only.sh), a template file from [guides/benchmark](../benchmark/), and a Persistent Volume Claim (PVC) to store the results. Follow the instructions in the [benchmark doc](../benchmark/README.md). 
+To run benchmarks against the installed llm-d stack, you need [run_only.sh](https://github.com/llm-d/llm-d-benchmark/blob/main/existing_stack/run_only.sh), a template file from [guides/benchmark](../benchmark/), and a Persistent Volume Claim (PVC) to store the results. Follow the instructions in the [benchmark doc](../benchmark/README.md).
 
 ### Example
 
 This example uses [run_only.sh](https://github.com/llm-d/llm-d-benchmark/blob/main/existing_stack/run_only.sh) with the template [inference_scheduling_guide_template.yaml](../benchmark/inference_scheduling_guide_template.yaml).
 
-The benchmark launches a pod (`llmdbench-harness-launcher`) that, in this case, uses `inference-perf` with a shared prefix synthetic workload named `shared_prefix_synthetic`. This workload runs several stages with different rates. The results will be stored on the provided PVC, accessible through the `llmdbench-harness-launcher` pod. Each experiment is saved under the `requests` folder, e.g.,/`requests/inference-perf_<experiment ID>_shared_prefix_synthetic_inference-scheduling_<model name>` folder. 
+The benchmark launches a pod (`llmdbench-harness-launcher`) that, in this case, uses `inference-perf` with a shared prefix synthetic workload named `shared_prefix_synthetic`. This workload runs several stages with different rates. The results will be stored on the provided PVC, accessible through the `llmdbench-harness-launcher` pod. Each experiment is saved under the `requests` folder, e.g.,/`requests/inference-perf_<experiment ID>_shared_prefix_synthetic_inference-scheduling_<model name>` folder.
 
 Several results files will be created (see [Benchmark doc](../benchmark/README.md)), including a yaml file in a "standard" benchmark report format (see [Benchmark Report](https://github.com/llm-d/llm-d-benchmark/blob/main/docs/benchmark_report.md)).
 
@@ -252,14 +252,14 @@ Several results files will be created (see [Benchmark doc](../benchmark/README.m
   curl -L -O https://raw.githubusercontent.com/llm-d/llm-d-benchmark/main/existing_stack/run_only.sh
   chmod u+x run_only.sh
   select f in $(
-      curl -s https://api.github.com/repos/llm-d/llm-d/contents/guides/benchmark?ref=main | 
+      curl -s https://api.github.com/repos/llm-d/llm-d/contents/guides/benchmark?ref=main |
       sed -n '/[[:space:]]*"name":[[:space:]][[:space:]]*"\(inference_scheduling.*\_template\.yaml\)".*/ s//\1/p'
-    ); do 
+    ); do
     curl -LJO "https://raw.githubusercontent.com/llm-d/llm-d/main/guides/benchmark/$f"
     break
   done
   ```
-  
+
 Choose the `inference_scheduling_guide_template.yaml` template, then run:
 
   ```bash
@@ -274,7 +274,7 @@ Edit `config.yaml` if further customization is needed, and then run the command
   ./run_only.sh -c config.yaml
   ```
 
-The output will show the progress of the `inference-perf` benchmark as it runs 
+The output will show the progress of the `inference-perf` benchmark as it runs
 <details>
 <summary><b><i>Click</i></b> here to view the expected output</summary>
 
@@ -282,25 +282,25 @@ The output will show the progress of the `inference-perf` benchmark as it runs
   ...
   2026-01-14 12:58:15,472 - inference_perf.client.filestorage.local - INFO - Report files will be stored at: /requests/inference-perf_1768395442_shared_prefix_synthetic_inference-scheduling-Qwen3-0.6B
   2026-01-14 12:58:18,414 - inference_perf.loadgen.load_generator - INFO - Stage 0 - run started
-  Stage 0 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.06s/it] 
+  Stage 0 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.06s/it]
   2026-01-14 12:59:10,503 - inference_perf.loadgen.load_generator - INFO - Stage 0 - run completed
   2026-01-14 12:59:11,504 - inference_perf.loadgen.load_generator - INFO - Stage 1 - run started
-  Stage 1 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]   
+  Stage 1 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]
   2026-01-14 13:00:03,566 - inference_perf.loadgen.load_generator - INFO - Stage 1 - run completed
   2026-01-14 13:00:04,569 - inference_perf.loadgen.load_generator - INFO - Stage 2 - run started
-  Stage 2 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]   
+  Stage 2 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]
   2026-01-14 13:00:56,620 - inference_perf.loadgen.load_generator - INFO - Stage 2 - run completed
   Stage 3 progress:   0%|          | 0/1.0 [00:00<?, ?it/s]2026-01-14 13:00:57,621 - inference_perf.loadgen.load_generator - INFO - Stage 3 - run started
   Stage 3 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.14s/it]  2026-01-14 13:01:49,675 - inference_perf.loadgen.load_generator - INFO - Stage 3 - run completed
   Stage 3 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]
   2026-01-14 13:01:50,677 - inference_perf.loadgen.load_generator - INFO - Stage 4 - run started
   Stage 4 progress:  98%|█████████▊| 0.975/1.0 [00:51<00:01, 53.81s/it]2026-01-14 13:02:42,726 - inference_perf.loadgen.load_generator - INFO - Stage 4 - run completed
-  Stage 4 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]  
+  Stage 4 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]
   2026-01-14 13:02:43,727 - inference_perf.loadgen.load_generator - INFO - Stage 5 - run started
   Stage 5 progress:  98%|█████████▊| 0.976/1.0 [00:51<00:01, 47.18s/it]             2026-01-14 13:03:35,770 - inference_perf.loadgen.load_generator - INFO - Stage 5 - run completed
-  Stage 5 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.04s/it]  
+  Stage 5 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.04s/it]
   2026-01-14 13:03:36,771 - inference_perf.loadgen.load_generator - INFO - Stage 6 - run started
-  Stage 6 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]   
+  Stage 6 progress: 100%|██████████| 1.0/1.0 [00:52<00:00, 52.05s/it]
   2026-01-14 13:04:28,826 - inference_perf.loadgen.load_generator - INFO - Stage 6 - run completed
   2026-01-14 13:04:29,932 - inference_perf.reportgen.base - INFO - Generating Reports...
   ...
@@ -310,11 +310,11 @@ The output will show the progress of the `inference-perf` benchmark as it runs
 
 
 ### Benchmarking Report
-  
-There is a report for each stage. 
+
+There is a report for each stage.
 <details>
 <summary><b><i>Click</i></b> here to view the report for `rate=10` from the above example</summary>
-  
+
   ```yaml
   metrics:
     latency:
@@ -576,8 +576,8 @@ There is a report for each stage.
 
 ### Comparing LLM-d scheduling to a simple kubernetes service
 
-We examine the overall behavior of the entire workload of the example above, using the `summary_lifecycle_metrics.json` produced by 
-`inference-perf`.   
+We examine the overall behavior of the entire workload of the example above, using the `summary_lifecycle_metrics.json` produced by
+`inference-perf`.
 For comparison, we ran the same workload on a k8s service endpoint that directly uses the vLLM pods as backends.
 
 - **Throughput**: Requests/sec 38.9% ; Output tokens/sec 38.8%
@@ -597,8 +597,8 @@ For comparison, we ran the same workload on a k8s service endpoint that directly
 | Inter-token latency (ms)                                         | 32.01     | 51.32     | +0.01930         | +60.3%     |
 
 
-<!-- 
-#### More 
+<!--
+#### More
 
 | Metric                                                           | k8s       | llmd      | Δ (llmd - k8s)   | Δ% vs k8s   |
 |:-----------------------------------------------------------------|:----------|:----------|:-----------------|:------------|
@@ -662,4 +662,3 @@ kubectl delete -f httproute.yaml -n ${NAMESPACE}
 ## Customization
 
 For information on customizing a guide and tips to build your own, see [our docs](../../docs/customizing-a-guide.md)
-
