@@ -4,9 +4,9 @@
 multinode: false
 
 # Configure accelerator type for Intel XPU via DRA
-dra:
-  enabled: true
-  type: intel
+accelerator:
+  type: "intel-i915"
+  dra: true
 
 modelArtifacts:
   uri: "hf://deepseek-ai/DeepSeek-R1-Distill-Qwen-1.5B"
@@ -29,7 +29,7 @@ decode:
   monitoring:
     podmonitor:
       enabled: true
-      portName: "vllm" # decode vLLM service port (from routing.proxy.targetPort)
+      portName: "vllm"  # decode vLLM service port (from routing.proxy.targetPort)
       path: "/metrics"
       interval: "30s"
   containers:
@@ -86,7 +86,7 @@ prefill:
   monitoring:
     podmonitor:
       enabled: true
-      portName: "vllm" # prefill vLLM service port (from routing.servicePort)
+      portName: "vllm"  # prefill vLLM service port (from routing.servicePort)
       path: "/metrics"
       interval: "30s"
   containers:

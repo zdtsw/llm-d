@@ -3,7 +3,6 @@
 # Models are used from prepopulated model-pvc PVC using Hugging Face Hub.
 # Gaudi warmup is skipped for startup speed.
 # Custom vLLM image for Gaudi is used for now.
-# Use DRA instead of device plugins.
 
 modelArtifacts:
   name: meta-llama/Llama-3.1-8B-Instruct
@@ -11,14 +10,14 @@ modelArtifacts:
   size: 50Gi
   authSecretName: "llm-d-hf-token"
 
-dra:
-  enabled: true
+accelerator:
   type: "intel-gaudi"
+  dra: true   # Use DRA instead of device plugins.
 
 routing:
   proxy:
-    enabled: false # removes sidecar from deployment - no PD in inference scheduling
-    targetPort: 8000 # controlls vLLM port to matchup with sidecar if deployed
+    enabled: false  # removes sidecar from deployment - no PD in inference scheduling
+    targetPort: 8000  # controlls vLLM port to matchup with sidecar if deployed
 
 # Decode pod configuration for Intel Gaudi - simplified with imageDefault
 decode:
@@ -42,7 +41,7 @@ decode:
     env:
     - name: OMPI_MCA_btl_vader_single_copy_mechanism
       value: "none"
-    - name: HABANA_LOGS # For OpenShift compatibility, set log path to writable location
+    - name: HABANA_LOGS  # For OpenShift compatibility, set log path to writable location
       value: "/tmp/habana_logs"
     - name: VLLM_SKIP_WARMUP
       value: "true"

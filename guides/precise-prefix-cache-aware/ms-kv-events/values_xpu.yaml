@@ -9,9 +9,9 @@ modelArtifacts:
   size: 10Gi
   authSecretName: "llm-d-hf-token"
 
-dra:
-  enabled: true
-  type: intel
+accelerator:
+  type: "intel-i915"
+  dra: true
 
 routing:
   proxy:
@@ -50,12 +50,12 @@ decode:
       supplementalGroups:
         - 107
     env:
-      - name: GAIE_RELEASE_NAME_POSTFIX # index 0 matters because of set in helmfile
+      - name: GAIE_RELEASE_NAME_POSTFIX  # index 0 matters because of set in helmfile
         value: "default"
       - name: NAMESPACE
         valueFrom:
           fieldRef:
-            fieldPath: metadata.namespace # assumed to be the same as the EPP's
+            fieldPath: metadata.namespace  # assumed to be the same as the EPP's
       - name: PYTHONHASHSEED
         value: "42"
       - name: POD_IP
