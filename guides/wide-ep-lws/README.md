@@ -91,7 +91,7 @@ helm install llm-d-infpool \
   --set "provider.name=gke" \
   --set "inferenceExtension.monitoring.gke.enabled=true" \
   oci://registry.k8s.io/gateway-api-inference-extension/charts/inferencepool \
-  --version v1.2.0
+  --version v1.3.0
 ```
 
 <!-- TAB:Istio -->
@@ -104,7 +104,7 @@ helm install llm-d-infpool \
   --set "provider.name=istio" \
   --set "inferenceExtension.monitoring.prometheus.enabled=true" \
   oci://registry.k8s.io/gateway-api-inference-extension/charts/inferencepool \
-  --version v1.2.0
+  --version v1.3.0
 ```
 
 <!-- TAB:Kgateway -->
@@ -115,7 +115,7 @@ helm install llm-d-infpool \
   -n ${NAMESPACE} \
   -f ./manifests/inferencepool.values.yaml \
   oci://registry.k8s.io/gateway-api-inference-extension/charts/inferencepool \
-  --version v1.2.0
+  --version v1.3.0
 ```
 
 <!-- TABS:END -->
