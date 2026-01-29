@@ -32,7 +32,7 @@ decode:
       args:
         - "--block-size=64"
         - "--kv-events-config"
-        - |- 
+        - |-
           {
             "enable_kv_cache_events": true,
             "publisher": "zmq",
@@ -71,14 +71,14 @@ decode:
           memory: 100Gi
       mountModelVolume: true
       volumeMounts:
-      - name: metrics-volume
-        mountPath: /.config
-      - name: shm
-        mountPath: /dev/shm
-      - name: torch-compile-cache
-        mountPath: /.cache
-      - name: triton-cache
-        mountPath: /.triton-cache
+        - name: metrics-volume
+          mountPath: /.config
+        - name: shm
+          mountPath: /dev/shm
+        - name: torch-compile-cache
+          mountPath: /.cache
+        - name: triton-cache
+          mountPath: /.triton-cache
       startupProbe:
         httpGet:
           path: /v1/models
