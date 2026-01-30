@@ -115,7 +115,7 @@ pod/ms-kv-events-llm-d-modelservice-decode-548bfbc7d6-t8srp   1/1     Running   
 pod/ms-kv-events-llm-d-modelservice-decode-548bfbc7d6-vnnnv   1/1     Running     0          16h
 
 NAME                                              TYPE           CLUSTER-IP   EXTERNAL-IP   PORT(S)                        AGE
-service/gaie-kv-events-epp                        ClusterIP   172.30.193.29    <none>        9002/TCP,9090/TCP,5557/TCP   16h
+service/gaie-kv-events-epp                        ClusterIP   172.30.193.29    <none>        9002/TCP,9090/TCP,5600/TCP   16h
 service/gaie-kv-events-ip-805c964d                ClusterIP   None             <none>        54321/TCP                    16h
 service/infra-kv-events-inference-gateway-istio   ClusterIP   172.30.18.110    <none>        15021/TCP,80/TCP             16h
 
