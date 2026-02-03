@@ -18,6 +18,8 @@ ARG VLLM_CPU_DISABLE_AVX512=0
 ARG VLLM_CPU_AVX512BF16=0
 # Support for building with AVX512VNNI ISA
 ARG VLLM_CPU_AVX512VNNI=0
+# Support for building with AMXBF16 ISA
+ARG VLLM_CPU_AMXBF16=1
 
 # Install system dependencies and uv
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -69,6 +71,7 @@ ENV TARGETARCH=${TARGETARCH}
 ENV VLLM_CPU_DISABLE_AVX512=${VLLM_CPU_DISABLE_AVX512}
 ENV VLLM_CPU_AVX512BF16=${VLLM_CPU_AVX512BF16}
 ENV VLLM_CPU_AVX512VNNI=${VLLM_CPU_AVX512VNNI}
+ENV VLLM_CPU_AMXBF16=${VLLM_CPU_AMXBF16}
 
 ######################### x86_64 BASE IMAGE #########################
 FROM base-common AS base-amd64
