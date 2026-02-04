@@ -15,9 +15,9 @@ modelArtifacts:
     llm-d.ai/accelerator-vendor: "intel"
     llm-d.ai/model: "Qwen3-0.6B"
 
-dra:
-  enabled: true
+accelerator:
   type: intel
+  dra: true
 
 routing:
   proxy:
@@ -121,4 +121,3 @@ decode:
 # Disable prefill for XPU example
 prefill:
   create: false
-
