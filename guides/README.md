@@ -43,6 +43,36 @@ The following guides have been provided by the community but do not fully integr
 > [!NOTE]
 > New guides added to this list enable at least one of the core well-lit paths but may directly include prerequisite steps specific to new hardware or infrastructure providers without full abstraction. A guide added here is expected to eventually become part of an existing well-lit path.
 
+## Label Schema
+
+The llm-d guides use a standardized set of Kubernetes labels for resource identification, selection, and operational purposes.
+These core labels above are set via the `modelArtifacts.labels` section in the modelservice chart values.
+
+### Core Labels
+
+| Label | Purpose | Valid Values | Required |
+| ------- | --------- | -------------- | ---------- |
+| `llm-d.ai/inference-serving` | Identifies inference serving resources | `"true"` | Yes |
+| `llm-d.ai/guide` | Identifies which guide deployed the resource | `"inference-scheduling"`, `"pd-disaggregation"`, `"wide-ep-lws"`, `"precise-prefix-cache-aware"`, `"workload-autoscaling"`, `"simulated-accelerators"`, `"tiered-prefix-cache"` | Yes |
+| `llm-d.ai/accelerator-variant` | Hardware accelerator type | `"gpu"`, `"cpu"`, `"xpu"`, `"tpu"`, `"hpu"` | Yes |
+| `llm-d.ai/accelerator-vendor` | Hardware vendor | `"nvidia"`, `"intel"`, `"google"`, `"amd"` | Yes |
+| `llm-d.ai/model` | Model identifier | Model name (e.g., `"Qwen3-32B"`, `"Llama-3.1-8B-Instruct"`) | Yes |
+| `llm-d.ai/role` | Pod role in P/D disaggregated deployments. Only required when using Prefill/Decode (P/D) disaggregation | `"prefill"`, `"decode"` | No* |
+
+### Accelerator Variant Details
+
+* **`gpu`**: NVIDIA, AMD, or generic GPU accelerators
+* **`cpu`**: CPU-only inference (no accelerators)
+* **`xpu`**: Intel Data Center GPUs (Max series, Arc series)
+* **`tpu`**: Google Tensor Processing Units
+* **`hpu`**: Intel Gaudi Habana Processing Units
+
+### Additional Labels
+
+**Workload Variant Autoscaler:**
+
+* `inference.optimization/acceleratorName`: GPU model name (e.g., `"H100"`, `"L40S"`, `"A100"`) used for cost-based autoscaling decisions. This label is set via `va.accelerator` in the workload-variant-autoscaler chart values
+
 ## Known Issues
 
 * In Release v0.4.0, the `wide-ep-lws` will crash loop due to a deprecated logging flag on the `routing-proxy` sidecar. This is fixed in [commit 83dd587](https://github.com/llm-d/llm-d/commit/83dd587dd847498820314e8144aadb4fa90d451f).

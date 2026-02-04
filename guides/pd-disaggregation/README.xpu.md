@@ -140,25 +140,20 @@ helmfile apply -f istio.helmfile.yaml --selector kind=gateway-control-plane
 
 ## Step 5: Deploy Intel XPU PD Disaggregation
 
-⚠️ **Important - For Intel BMG GPU Users**: Before running `helmfile apply`, you must update the accelerator type in `ms-pd/values_xpu.yaml`:
+ℹ️ **Note**: Intel XPU configuration uses Dynamic Resource Allocation (DRA) with the unified `intel` resource claim template. The `ms-pd/values_xpu.yaml` file is already configured correctly with:
 
 ```yaml
-# Edit ms-pd/values_xpu.yaml
-# For Intel Data Center GPU Max 1550 (i915 driver):
 accelerator:
-  type: intel-i915
-  dra: true
-
-# For Intel BMG GPU (Battlemage G21, Xe driver):
-accelerator:
-  type: intel-xe
+  type: intel  # value 'intel' unifies 'intel-i915' and 'intel-xe'
   dra: true
 ```
 
-**Accelerator Type by GPU:**
+**DRA automatically handles both Intel GPU types:**
 
-* **Intel Data Center GPU Max 1550**: Use `type: intel-i915` (maps to `gpu.intel.com/i915`)
-* **Intel BMG GPU (Battlemage G21)**: Use `type: intel-xe` (maps to `gpu.intel.com/xe`)
+* **Intel Data Center GPU Max 1550** (i915 driver)
+* **Intel BMG GPU / Battlemage G21** (xe driver)
+
+No manual resource specification is required - DRA manages GPU allocation transparently.
 
 ```shell
 # Navigate to PD disaggregation guide directory

@@ -18,5 +18,5 @@ patches:
         template:
           metadata:
             labels:
-              llm-d.ai/hardware-variant: "gpu"
+              llm-d.ai/accelerator-variant: "gpu"
               llm-d.ai/accelerator-vendor: "nvidia"
