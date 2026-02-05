@@ -53,7 +53,7 @@ ARG LMCACHE_VERSION="v0.3.13"
 ARG DEEPEP_REPO="https://github.com/smarterclayton/DeepEP"
 # ARG DEEPEP_VERSION="nic_pe_alignment"
 # Use clayton's pre-rebase commit head
-ARG DEEPEP_VERSION="c66b1463601af5d127027fb459517fb97adab30d" 
+ARG DEEPEP_VERSION="c66b1463601af5d127027fb459517fb97adab30d"
 
 ARG DEEPGEMM_REPO="https://github.com/deepseek-ai/DeepGEMM"
 ARG DEEPGEMM_VERSION="v2.1.0"
@@ -415,6 +415,9 @@ RUN export UV_INSTALL_DIR=/usr/local/bin && \
     ln -s /opt/vllm/bin/python3-config /usr/bin/python3-config && \
     ln -s /opt/vllm/bin/pip /usr/bin/pip && \
     uv pip install --no-cache -U wheel
+
+# Ensure CUDA compatibility library is loaded
+RUN echo "/usr/local/cuda-${CUDA_MAJOR}.${CUDA_MINOR}/compat/" > /etc/ld.so.conf.d/00-cuda-compat.conf && ldconfig
 
 # Copy compiled wheels
 COPY --from=builder /wheels/*.whl /tmp/wheels/
