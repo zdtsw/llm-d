@@ -1,10 +1,9 @@
 #!/bin/bash
 set -Eeu
-# special logging exception - do not use high level logging with EFA installer + entitlement
 
 # purpose: Install EFA
 # -------------------------------
-# Required docker secret mounts:
+# Optional docker secret mounts:
 # - /run/secrets/subman_org: Subscription Manager Organization - used if on a ubi based image for entitlement
 # - /run/secrets/subman_activation_key: Subscription Manager Activation key - used if on a ubi based image for entitlement
 # -------------------------------
@@ -43,11 +42,47 @@ if [ "$TARGETOS" = "ubuntu" ]; then
     apt update -y
 fi
 
+# EFA installation on RHEL may require subscription for certain packages
+ensure_registered() {
+  if [ "$TARGETOS" != "rhel" ]; then
+    return 0
+  fi
+  install -d -m0755 /etc/pki/consumer /etc/pki/entitlement /etc/rhsm
+  subscription-manager clean || true
+  if [ ! -f /etc/pki/consumer/cert.pem ]; then
+    # Only register if subscription secrets are provided
+    if [ -f /run/secrets/subman_org ] && [ -f /run/secrets/subman_activation_key ]; then
+      subscription-manager register \
+        --org "$(cat /run/secrets/subman_org)" \
+        --activationkey "$(cat /run/secrets/subman_activation_key)" \
+        --force
+      subscription-manager refresh || true
+    else
+      echo "Note: Subscription Manager secrets not found for EFA installation, skipping registration."
+    fi
+  fi
+}
+
+ensure_unregistered() {
+  if [ "$TARGETOS" != "rhel" ]; then
+    return 0
+  fi
+  echo "beginning un-registration process"
+  if [ -f /etc/pki/consumer/cert.pem ]; then
+    subscription-manager unregister || true
+  fi
+  subscription-manager clean || true
+  rm -rf /etc/pki/entitlement/* /etc/pki/consumer/* /etc/rhsm/* /var/cache/dnf/* || true
+}
+
 EFA_INSTALLER_URL="https://efa-installer.amazonaws.com"
 EFA_TARBALL="aws-efa-installer-${EFA_INSTALLER_VERSION}.tar.gz"
 EFA_WORKDIR="/tmp/efa"
 
 echo "Installing AWS EFA (Elastic Fabric Adapter) ${EFA_INSTALLER_VERSION}"
+
+# Register with subscription manager if needed (RHEL only)
+ensure_registered
 
 mkdir -p "${EFA_WORKDIR}" /etc/ld.so.conf.d/
 curl -fsSL "${EFA_INSTALLER_URL}/${EFA_TARBALL}" -o "${EFA_WORKDIR}/${EFA_TARBALL}"

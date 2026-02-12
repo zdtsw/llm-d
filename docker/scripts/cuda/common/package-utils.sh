@@ -5,33 +5,6 @@
 # - CUDA_MAJOR: CUDA major version (e.g., 12)
 # - CUDA_MINOR: CUDA minor version (e.g., 9)
 # - PYTHON_VERSION: Python version (e.g., 3.12)
-# Optional docker secret mounts:
-# - /run/secrets/subman_org: Subscription Manager Organization - used if on a ubi based image for entitlement
-# - /run/secrets/subman_activation_key: Subscription Manager Activation key - used if on a ubi based image for entitlement
-
-# Assumes rhel check in consuming script
-ensure_registered() {
-  install -d -m0755 /etc/pki/consumer /etc/pki/entitlement /etc/rhsm
-  subscription-manager clean || true
-  if [ ! -f /etc/pki/consumer/cert.pem ]; then
-    test -f /run/secrets/subman_org && test -f /run/secrets/subman_activation_key
-    subscription-manager register \
-      --org "$(cat /run/secrets/subman_org)" \
-      --activationkey "$(cat /run/secrets/subman_activation_key)" \
-      --force
-    subscription-manager refresh || true
-  fi
-}
-
-# Assumes rhel check in consuming script
-ensure_unregistered() {
-  echo "beginning un-registration process"
-  if [ -f /etc/pki/consumer/cert.pem ]; then
-    subscription-manager unregister || true
-  fi
-  subscription-manager clean || true
-  rm -rf /etc/pki/entitlement/* /etc/pki/consumer/* /etc/rhsm/* /var/cache/dnf/* || true
-}
 
 # detect architecture for repo URLs
 get_download_arch() {
