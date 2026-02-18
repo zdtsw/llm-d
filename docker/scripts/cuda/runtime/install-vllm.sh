@@ -29,8 +29,11 @@ set -euo pipefail
 # CUDA_MINOR                      - CUDA minor version (e.g., 9)
 # FLASHINFER_VERSION              - FlashInfer version for flashinfer-cubin and flashinfer-jit-cache (e.g., v0.5.2)
 # BUILD_NIXL_FROM_SOURCE          - Whether NIXL was built from source ("true"/"false")
+# SUPPRESS_PYTHON_OUTPUT          - Suppress verbose pip output ("true"/"1", optional)
 #
 # ============================================================================
+
+: "${SUPPRESS_PYTHON_OUTPUT:=}"
 
 . /opt/vllm/bin/activate
 
@@ -100,7 +103,7 @@ else
 
   # MODE 2
   if [ "${VLLM_USE_PRECOMPILED}" = "1" ] && [ -n "${WHEEL_URL}" ]; then
-    echo "Using precompiled binaries and shared libraries from source code commit: ${VLLM_PRECOMPILED_WHEEL_COMMIT} (source: ${VLLM_COMMIT_SHA})."
+    echo "Using precompiled binaries from commit: ${VLLM_PRECOMPILED_WHEEL_COMMIT} (with source code from: ${VLLM_COMMIT_SHA})."
     export VLLM_USE_PRECOMPILED=1      # Do not really need set it here as it is done in vllm envs.py by VLLM_PRECOMPILED_WHEEL_LOCATION
     export VLLM_PRECOMPILED_WHEEL_LOCATION="${WHEEL_URL}"
     INSTALL_PACKAGES+=(-e /opt/vllm-source)
