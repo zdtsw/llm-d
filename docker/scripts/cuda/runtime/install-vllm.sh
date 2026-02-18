@@ -30,6 +30,7 @@ set -euo pipefail
 # FLASHINFER_VERSION              - FlashInfer version for flashinfer-cubin and flashinfer-jit-cache (e.g., v0.5.2)
 # BUILD_NIXL_FROM_SOURCE          - Whether NIXL was built from source ("true"/"false")
 # SUPPRESS_PYTHON_OUTPUT          - Suppress verbose pip output ("true"/"1", optional)
+# NVSHMEM_DIR                      - Path to compiled NVSHMEM installation (optional; triggers uninstall of vLLM's NVSHMEM wheel)
 #
 # ============================================================================
 
@@ -128,7 +129,7 @@ else
   # MODE 2
   if [ "${VLLM_USE_PRECOMPILED}" = "1" ] && [ -n "${WHEEL_URL}" ]; then
     echo "Using precompiled binaries from commit: ${VLLM_PRECOMPILED_WHEEL_COMMIT} (with source code from: ${VLLM_COMMIT_SHA})."
-    export VLLM_USE_PRECOMPILED=1      # Do not really need set it here as it is done in vllm envs.py by VLLM_PRECOMPILED_WHEEL_LOCATION
+    export VLLM_USE_PRECOMPILED=1      # Do not really need to set it here as it is done in vllm envs.py by VLLM_PRECOMPILED_WHEEL_LOCATION
     export VLLM_PRECOMPILED_WHEEL_LOCATION="${WHEEL_URL}"
     INSTALL_PACKAGES+=(-e /opt/vllm-source)
 
@@ -155,7 +156,7 @@ uv pip install ${VERBOSE_FLAG} "${INSTALL_PACKAGES[@]}" \
 # Uninstall the NVSHMEM dependency brought in by vLLM if using a compiled NVSHMEM
 # We built our own NVSHMEM in the dockerfile builder stage, so we don't need the one from vLLM as dependency
 if [[ "${NVSHMEM_DIR-}" != "" ]]; then
-  uv pip uninstall -y nvidia-nvshmem-cu${CUDA_MAJOR}
+  uv pip uninstall "nvidia-nvshmem-cu${CUDA_MAJOR}"
 fi
 
 # Clean up
