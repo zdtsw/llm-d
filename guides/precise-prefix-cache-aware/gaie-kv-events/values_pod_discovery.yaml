@@ -20,8 +20,11 @@ inferenceExtension:
     image: ghcr.io/llm-d/llm-d-uds-tokenizer:v0.5.0
     imagePullPolicy: IfNotPresent
     name: tokenizer-uds
+    # Both HF_HOME and TOKENIZERS_DIR are required to point to the same mounted directory
     env:
       - name: TOKENIZERS_DIR
+        value: /tokenizers
+      - name: HF_HOME
         value: /tokenizers
     volumeMounts:
       - mountPath: /tokenizers
