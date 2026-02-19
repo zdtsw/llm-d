@@ -2,11 +2,16 @@
 
 This guide demonstrates how to deploy llm-d with WEKA storage using GPU
 Direct Storage (GDS) for high-performance data transfer between GPUs and
-storage. It covers both PVC and host-path storage configurations.
+storage. It supports both prefill/decode disaggregation and tiered prefix caching.
 
 ## Overview
 
 WEKA provides high-performance shared storage with GPU Direct Storage (GDS) support, enabling direct data transfer between GPUs and storage, bypassing CPU and system memory for reduced latency.
+
+This deployment uses a MultiConnector configuration that combines:
+
+1. **NIXL** - For prefill/decode disaggregation (KV transfer between pods over the network)
+2. **LMCache** - For tiered prefix caching (KV cache offloading to WEKA storage via GDS)
 
 The WEKA GDS integration includes:
 
@@ -17,11 +22,13 @@ The WEKA GDS integration includes:
 
 ## Architecture
 
-The manifests use a layered kustomize structure for Prefill/Decode disaggregation:
+The manifests use a layered kustomize structure with MultiConnector support:
 
 **Key features:**
 
-- **Prefill/Decode disaggregation**: Separate deployments optimized for each phase
+- **MultiConnector KV transfer**: Combines NIXL (network-based) and LMCache (storage-based) connectors
+- **Prefill/Decode disaggregation**: Separate deployments optimized for each phase via NIXL
+- **Tiered prefix caching**: KV cache offloading to WEKA storage via LMCache with GDS
 - **Decode** has routing-sidecar for coordinating with prefill instances
 - **Prefill** has no routing-sidecar, handles initial prompt processing
 - **Storage organized by type**: Choose `pvc/` or `host/` based on your storage setup
