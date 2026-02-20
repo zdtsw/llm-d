@@ -3,5 +3,8 @@
     "librdmacm": "librdmacm1t64",
     "libibverbs": "libibverbs1",
     "libibumad": "libibumad3"
-  }
+  },
+  "ubuntu_only": [
+    "ibverbs-providers"
+  ]
 }
