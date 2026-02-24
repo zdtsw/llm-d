@@ -1,6 +1,6 @@
 ARG ONEAPI_VERSION=2025.2.2-0
 
-# vLLM build settings - defaults should match docker/vllm-version file
+# vLLM build settings - defaults should match docker/common-versions file
 # Override here for platform-specific testing or via build args
 ARG VLLM_REPO
 ARG VLLM_COMMIT_SHA
