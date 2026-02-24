@@ -465,7 +465,7 @@ ARG SUPPRESS_PYTHON_OUTPUT
 
 # A script that starts if users exec into the image with bash. It warns that vLLM is built with precompiled by default,
 # and so if they change the vLLM version or use their fork, it may no longer work due to the precompiled shared libraries
-# pulled from teh vLLM wheel index.
+# pulled from the vLLM wheel index.
 COPY docker/scripts/cuda/runtime/warn-vllm-precompiled.sh /opt/
 
 # Install cuda-python, nvshmem python bindings, xet
