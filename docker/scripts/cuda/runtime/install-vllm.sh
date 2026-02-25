@@ -11,7 +11,7 @@ set -Eeu
 # - VLLM_COMMIT_SHA: vLLM commit SHA to checkout
 # - VLLM_PREBUILT: whether to use prebuilt wheel (1/0)
 # - VLLM_USE_PRECOMPILED: whether to use precompiled binaries (1/0)
-# - VLLM_PRECOMPILED_WHEEL_COMMIT: commit SHA for precompiled wheel lookup (defaults to VLLM_COMMIT_SHA)
+# - VLLM_PRECOMPILED_WHEEL_COMMIT: full 40-char commit SHA for precompiled wheel URL lookup (defaults to VLLM_COMMIT_SHA)
 # - CUDA_MAJOR: The major CUDA version
 # - BUILD_NIXL_FROM_SOURCE: if nixl should be installed by vLLM or has been built from source in the builder stages
 

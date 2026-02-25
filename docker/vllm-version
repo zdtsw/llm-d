@@ -2,6 +2,7 @@ VLLM_REPO=https://github.com/vllm-project/vllm.git
 VLLM_COMMIT_SHA=1892993bc18e243e2c05841314c5e9c06a80c70d
 
 # Cuda configurations only
-VLLM_PRECOMPILED_WHEEL_COMMIT=1892993bc18e243e2c05841314c5e9c06a80c70d
+# temp. workaround to get fix from PR 33292 before vllm 0.16.0(full 40-char commit SHA)
+VLLM_PRECOMPILED_WHEEL_COMMIT=aca596741673df92922565f08189d01ea228f605
 VLLM_PREBUILT=0
 VLLM_USE_PRECOMPILED=1
