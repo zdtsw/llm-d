@@ -150,7 +150,7 @@ VERBOSE_FLAG="-v"
 if [ "${SUPPRESS_PYTHON_OUTPUT}" = "true" ] || [ "${SUPPRESS_PYTHON_OUTPUT}" = "1" ]; then
   VERBOSE_FLAG=""
 fi
-uv pip install ${VERBOSE_FLAG} "${INSTALL_PACKAGES[@]}" \
+uv pip install "${VERBOSE_FLAG}" "${INSTALL_PACKAGES[@]}" \
   --extra-index-url "https://flashinfer.ai/whl/${CUDA_SHORT_VERSION}"
 
 # Uninstall the NVSHMEM dependency brought in by vLLM if using a compiled NVSHMEM
