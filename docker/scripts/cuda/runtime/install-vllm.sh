@@ -69,7 +69,9 @@ else
     aarch64|arm64) PLATFORM_TAG="manylinux_2_35_aarch64" ;;
     *) echo "ERROR: Unsupported architecture: ${MACHINE}"; exit 1 ;;
   esac
-  WHEEL_FILENAME=$(echo "${WHEEL_INDEX_HTML}" | grep -oE "vllm-[^\"]+${PLATFORM_TAG}\.whl" | head -1)
+
+  # If no wheel found, set to empty string and fall to WHEEL_URL=""
+  WHEEL_FILENAME=$(echo "${WHEEL_INDEX_HTML}" | grep -oE "vllm-[^\"]+${PLATFORM_TAG}\.whl" | head -1 || echo "")
 
   if [ -n "${WHEEL_FILENAME}" ]; then
     # note: vllm wheel index structure isn't pip-compatible, so we scrape the HTML directly
@@ -150,7 +152,8 @@ VERBOSE_FLAG="-v"
 if [ "${SUPPRESS_PYTHON_OUTPUT}" = "true" ] || [ "${SUPPRESS_PYTHON_OUTPUT}" = "1" ]; then
   VERBOSE_FLAG=""
 fi
-uv pip install "${VERBOSE_FLAG}" "${INSTALL_PACKAGES[@]}" \
+# shellcheck disable=SC2086
+uv pip install ${VERBOSE_FLAG} "${INSTALL_PACKAGES[@]}" \
   --extra-index-url "https://flashinfer.ai/whl/${CUDA_SHORT_VERSION}"
 
 # Uninstall the NVSHMEM dependency brought in by vLLM if using a compiled NVSHMEM
