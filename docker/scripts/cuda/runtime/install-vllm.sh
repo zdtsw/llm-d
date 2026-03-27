@@ -159,7 +159,7 @@ uv pip install ${VERBOSE_FLAG} "${INSTALL_PACKAGES[@]}" \
 # Uninstall the NVSHMEM dependency brought in by vLLM if using a compiled NVSHMEM
 # We built our own NVSHMEM in the dockerfile builder stage, so we don't need the one from vLLM as dependency
 if [[ "${NVSHMEM_DIR-}" != "" ]]; then
-  uv pip uninstall -y "nvidia-nvshmem-cu${CUDA_MAJOR}"
+  uv pip uninstall "nvidia-nvshmem-cu${CUDA_MAJOR}"
 fi
 
 # Clean up
