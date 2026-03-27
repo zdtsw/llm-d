@@ -71,7 +71,7 @@ else
   esac
 
   # If no wheel found, set to empty string and fall to WHEEL_URL=""
-  WHEEL_FILENAME=$(echo "${WHEEL_INDEX_HTML}" | grep -oE "vllm-[^\"]+${PLATFORM_TAG}\.whl" | head -1 || echo "")
+  WHEEL_FILENAME=$(echo "${WHEEL_INDEX_HTML}" | { grep -oE "vllm-[^\"]+${PLATFORM_TAG}\.whl" || true; } | head -1)
 
   if [ -n "${WHEEL_FILENAME}" ]; then
     # note: vllm wheel index structure isn't pip-compatible, so we scrape the HTML directly
@@ -159,7 +159,7 @@ uv pip install ${VERBOSE_FLAG} "${INSTALL_PACKAGES[@]}" \
 # Uninstall the NVSHMEM dependency brought in by vLLM if using a compiled NVSHMEM
 # We built our own NVSHMEM in the dockerfile builder stage, so we don't need the one from vLLM as dependency
 if [[ "${NVSHMEM_DIR-}" != "" ]]; then
-  uv pip uninstall "nvidia-nvshmem-cu${CUDA_MAJOR}"
+  uv pip uninstall -y "nvidia-nvshmem-cu${CUDA_MAJOR}"
 fi
 
 # Clean up
