@@ -51,7 +51,7 @@ fi
     "${EFA_FLAG}" \
     --enable-mt
 
-make -j$(nproc)
+make -j"$(nproc)"
 make install-strip
 ldconfig
 

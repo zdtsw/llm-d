@@ -31,7 +31,7 @@ The Workload Variant Autoscaler (WVA) is designed for operators running multiple
 ## Choosing a Path
 
 | Feature | HPA + EPP Metrics | Workload Variant Autoscaler (WVA) |
-|---|---|---|
+| --- | --- | --- |
 | **Primary Goal** | Load-based scaling | Cost-optimized scaling across hardware |
 | **Heterogeneous Support** | Limited | Native |
 | **Complexity** | Low (standard K8s) | Medium (requires WVA controller) |

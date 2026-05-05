@@ -15,14 +15,13 @@ This guide explains how to offload the vLLM prefix cache (KV cache) to shared st
 
 ### Supported Connectors
 
-| Connector             | Directory                                                              |
-| --------------------- | ---------------------------------------------------------------------- |
-| llm-d FS Connector    | `modelserver/gpu/vllm/llm-d-fs-connector/`                              |
-| LMCache Connector     | `modelserver/gpu/vllm/lmcache-connector/`                              |
-
+| Connector             | Directory                                    |
+| --------------------- | -------------------------------------------- |
+| llm-d FS Connector    | `modelserver/gpu/vllm/llm-d-fs-connector/`   |
+| LMCache Connector     | `modelserver/gpu/vllm/lmcache-connector/`    |
 
 <details>
-<summary><h4>Aboutllm-d FS Connector</h4></summary>
+<summary><b>About llm-d FS Connector</b></summary>
 
 The **llm-d FS connector** integrates with vLLM's native OffloadingConnector and stores KV blocks on shared storage that exposes a POSIX-compatible file API (for example IBM Storage Scale, CephFS, GCP Lustre, AWS Lustre).
 
@@ -42,9 +41,8 @@ For advanced configuration options and implementation details, see the [llm-d FS
 
 </details>
 
-
 <details>
-<summary><h4>About LMCache Connector</h4></summary>
+<summary><b>About LMCache Connector</b></summary>
 
 [LMCache](https://lmcache.ai) is an extension for LLM serving engines that enhances performance by reducing "Time to First Token" (TTFT) and increasing throughput, particularly for long-context scenarios. It provides integration to various storage backends. For more information, visit the [LMCache website](https://lmcache.ai).
 
@@ -54,27 +52,30 @@ For advanced configuration options and implementation details, see the [llm-d FS
 
 ## Prerequisites
 
-- Have the [proper client tools installed on your local system](../../../helpers/client-setup/README.md) to use this guide.
-- Checkout llm-d repo:
+* Have the [proper client tools installed on your local system](../../../helpers/client-setup/README.md) to use this guide.
+* Checkout llm-d repo:
 
   ```bash
     export branch="main" # branch, tag, or commit hash
     git clone https://github.com/llm-d/llm-d.git && cd llm-d && git checkout ${branch}
   ```
 
-- Set the following environment variables:
+* Set the following environment variables:
+
   ```bash
     export GAIE_VERSION=v1.5.0
     export GUIDE_NAME="tiered-prefix-cache-storage"
     export NAMESPACE=llm-d-${GUIDE_NAME}
   ```
-- Install the Gateway API Inference Extension CRDs:
+
+* Install the Gateway API Inference Extension CRDs:
 
   ```bash
     kubectl apply -k "https://github.com/kubernetes-sigs/gateway-api-inference-extension/config/crd?ref=${GAIE_VERSION}"
   ```
 
-- Create a target namespace for the installation:
+* Create a target namespace for the installation:
+
   ```bash
     kubectl create namespace ${NAMESPACE}
   ```
@@ -94,7 +95,6 @@ export STORAGE_CLASS="" # leave empty to use the cluster default StorageClass; o
 To provision a managed GCP Lustre instance on GKE and configure the corresponding `StorageClass`, follow the [GCP Lustre guide](./manifests/backends/lustre/README.md).
 
 To provision AWS EFS and configure the corresponding `StorageClass`, follow the [EFS guide](./manifests/backends/aws/README.md).
-
 
 Create a PVC using the selected storage class:
 
@@ -117,7 +117,7 @@ helm install ${GUIDE_NAME} \
 ```
 
 <details>
-<summary><h4>Gateway Mode</h4></summary>
+<summary><b>Gateway Mode</b></summary>
 
 To use a Kubernetes Gateway managed proxy instead of standalone:
 
@@ -141,10 +141,10 @@ helm install llm-d-infpool \
 
 ### 3. Deploy the Model Server
 
-Apply the Kustomize overlay corresponding to your desired connector backend. 
+Apply the Kustomize overlay corresponding to your desired connector backend.
 
 <details>
-<summary><h4>Click here for GCP Lustre</h4></summary>
+<summary><b>Click here for GCP Lustre</b></summary>
 For GCP lustre, please apply `llm-d-fs-connector-lustre` or `llm-d-fs-connector-lustre` which contains a patch to allow vLLM to write to Lustre.
 </details>
 
@@ -157,8 +157,8 @@ kubectl apply -n ${NAMESPACE} -k guides/tiered-prefix-cache/storage/modelserver/
 
 ### 4. (Optional) Enable monitoring
 
-- Install the [Monitoring stack](../../../docs/monitoring/README.md).
-- Deploy the monitoring resources for this guide:
+* Install the [Monitoring stack](../../../docs/monitoring/README.md).
+* Deploy the monitoring resources for this guide:
 
 ```bash
 kubectl apply -n ${NAMESPACE} -k guides/recipes/modelserver/components/monitoring
@@ -176,14 +176,14 @@ kubectl get pvc -n ${NAMESPACE}
 
 Output should show the PVC as `Bound`:
 
-```
+```text
 NAME         STATUS   VOLUME                  CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
 <pvc-name>   Bound    pvc-3c793698-XXXXXXX    18000Gi    RWX            <storage-class>   <unset>              6d
 ```
 
 ### 2. Get the IP of the Proxy
 
-**Standalone Mode**
+**Standalone Mode:**
 
 ```bash
 export IP=$(kubectl get service ${GUIDE_NAME}-epp -n ${NAMESPACE} -o jsonpath='{.spec.clusterIP}')
@@ -220,7 +220,8 @@ curl -X POST http://${IP}/v1/completions \
         "prompt": "How are you today?"
     }' | jq
 ```
-### 4. Verify KV cache is offloaded to storage 
+
+### 4. Verify KV cache is offloaded to storage
 
 **Send a long prompt (one that crosses several `block_size` boundaries) to trigger offload**
 
@@ -257,7 +258,7 @@ The following benchmark results demonstrate the performance improvements of offl
 #### Benchmark Setup
 
 > [!NOTE]
-> The following benchmark results were from a previous release and does not match the deployment of the current release. A follow up benchmark will be conducted and the results will be updated accordingly. See https://github.com/llm-d/llm-d/issues/680.
+> The following benchmark results were from a previous release and does not match the deployment of the current release. A follow up benchmark will be conducted and the results will be updated accordingly. See <https://github.com/llm-d/llm-d/issues/680>.
 
 * **Hardware:**
   * A total of 16 H100 GPUs, each with 80GB of HBM, were used.
@@ -308,7 +309,6 @@ In both scenarios, the total KV cache size significantly exceeds the combined ca
 
 * **50K system prompt length (KVCache size 994 GiB):** While CPU RAM provides 320GB for KV cache offloading, adding Lustre significantly enhances performance compared to relying on CPU offloading alone.
 * **70K system prompt length (KVCache size 1.3 TiB):** As the KV cache footprint grows to 1.3 TiB, the memory pressure intensifies. In this heavier scenario, Lustre delivers even greater performance gains, demonstrating its ability to seamlessly scale with demanding long-context use cases.
-
 
 #### 50K system prompt length (KVCache size 994 GiB) — KV Cache > (HBM + CPU RAM)
 

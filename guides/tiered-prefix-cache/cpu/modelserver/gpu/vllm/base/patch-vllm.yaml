@@ -47,4 +47,4 @@ spec:
           emptyDir:
             medium: Memory
         - name: torch-compile-cache
-          emptyDir: {}  
+          emptyDir: {}

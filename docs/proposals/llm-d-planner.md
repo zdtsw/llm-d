@@ -156,7 +156,7 @@ configuration search and deployment lifecycle. The table below summarizes the
 capabilities that each project owns.
 
 | Capability | Config Explorer | NeuralNav |
-|---|:---:|:---:|
+| --- | :---: | :---: |
 | Architecture-aware memory estimation (attention, MoE vs. dense vs. multimodal, quantization sizing, parallelism strategy evaluation) | ✔ | |
 | Roofline-based throughput/latency profiling | ✔ | |
 | Performance- and cost-optimized GPU recommendation | ✔ | |
@@ -192,7 +192,7 @@ user-facing orchestration layer. Data flows bidirectionally between systems
 while preserving modular independence.
 
 | Layer | Component | Source | Function |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | Presentation | Conversational UI | _NeuralNav_ | Requirements gathering + better user experience |
 | Orchestration | Specification service | _NeuralNav_ | Intent to SLO and traffic profile mapping |
 | Recommendation | Config Explorer API | _NeuralNav_ and _Config Explorer_ | _NeuralNav_ for existing benchmarks; _Config Explorer_ for un-benchmarked configurations |
@@ -229,7 +229,7 @@ quantization-aware sizing, parallelism strategy evaluation and roofline-based
 throughput/latency modeling.
 
 | Milestone | Description | Deliverable |
-|---|---|---|
+| --- | --- | --- |
 | Extract _Config Explorer_ into standalone repo | Separate from llm-d-benchmark monorepo into standalone package with versioned releases | llm-d/llm-d-planner repo with _Config Explorer_ as standalone package |
 | Move _NeuralNav_ into _llm-d-planner_ | Integrate _NeuralNav_ alongside _Config Explorer_ as a separate component | `llm-d/llm-d-planner` repo with _NeuralNav_ integrated |
 | UI and API integration | Bridge a single interface from business intent extraction to llm-d deployment | Unified frontend and API server backend |
@@ -242,12 +242,12 @@ throughput/latency modeling.
 
 ### Mid-term: expand knob-space search and real benchmarking
 
-<u>Objective</u>: expand the recommendation surface from hardware selection to full
+**Objective**: expand the recommendation surface from hardware selection to full
 serving-stack tuning including vLLM knobs, inference-scheduler knobs, and P/D
 disaggregation, backed by real vLLM or llm-d benchmark runs.
 
 | Milestone | Description | Deliverable |
-|---|---|---|
+| --- | --- | --- |
 | Inference scheduler and scoring search (estimation engine phase 2) | Extend configuration search to inference scheduler and scoring weights | Present performance data (real or estimated) for optimized baseline-driven configuration comparison |
 | Benchmark-backed validation | Run llm-d benchmark sweeps for each recommendation configuration. Stores results (local or publicly managed DB by llm-d) | Closes feedback loop. Estimations are compared to real throughput/latency |
 | Multi-model and agentic workflow support | Support more complex use cases such as multi-model and agentic workflows | Recommendation engine handles multi-model topologies with per-model configuration and cross-model resource optimization |
@@ -256,7 +256,7 @@ disaggregation, backed by real vLLM or llm-d benchmark runs.
 ### Long-term: simulation-driven dynamic tuning
 
 | Milestone | Deliverable | Impact |
-|---|---|---|
+| --- | --- | --- |
 | Improve accuracy and quality scoring into recommendation engine | Incorporate _NeuralNav_'s scoring algorithm and enable data-driven discovery of optimal scoring strategies | Consumable scoring for llm-d-planner users |
 | Dynamic tuning for workload adaptation | Estimation-engine-trained tuning algorithm adapts scheduler parameters to shifting workload patterns in real time | Deployments self-optimize as traffic changes |
 | Dynamic tuning for PD adaptation | Extend dynamic tuning to PD, adapting on request shape | Handles mixed short/long context traffic without manual retuning |

@@ -1,4 +1,3 @@
-
 inferenceExtension:
   extraServicePorts:
     - name: http

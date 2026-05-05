@@ -8,7 +8,7 @@ This sub-guide switches the guide to **active-active HA**: two scheduler replica
 
 The [standalone inference-scheduler chart](https://github.com/kubernetes-sigs/gateway-api-inference-extension/tree/main/config/charts/standalone) bundles the scheduler (EPP) **and** its Envoy gateway sidecar into a single pod template. Setting `replicas: 2` gives you:
 
-```
+```text
          ┌──────────────────────────┐
 Client ──▶  svc/<release>-epp (ClusterIP)
          └───────────┬──────────────┘
@@ -30,6 +30,7 @@ Client ──▶  svc/<release>-epp (ClusterIP)
 ```
 
 Each replica pod runs three containers:
+
 - The **scheduler** (`epp`) — scoring and routing decisions.
 - An **Envoy gateway sidecar** — the public-facing proxy that clients connect to on port 8081.
 - The **UDS tokenizer sidecar** (`tokenizer-uds`) — appended by the helm post-renderer; serves the `tokenizer` plugin over a Unix socket so tokenization runs out-of-process.
@@ -44,16 +45,16 @@ Each scheduler replica has its own in-memory prefix-cache index. To populate eve
 
 ## Two things flip together
 
-| Component                              | Default (central) mode                                   | Active-active mode                                  |
-| -------------------------------------- | -------------------------------------------------------- | --------------------------------------------------- |
-| Scheduler `replicas`                   | `1`                                                      | `2` (or more)                                       |
-| Scheduler `--ha-enable-leader-election`| (flag not added)                                         | explicitly `false` so all replicas serve            |
-| Scheduler `discoverPods`               | `false`                                                  | `true` (+ `podDiscoveryConfig.socketPort: 5556`)    |
-| Scheduler `zmqEndpoint`                | `tcp://*:5556`                                           | unset (scheduler dials per pod instead)             |
-| Scheduler data-layer sources           | —                                                        | `endpoint-notification-source` → scorer             |
-| Scheduler extra plugins                | —                                                        | `endpoint-notification-source`, `metrics-data-source`, `core-metrics-extractor` |
-| vLLM `--kv-events-config` endpoint     | `tcp://<release>-epp.<ns>.svc.cluster.local:5556`        | `tcp://*:5556` (bind per-pod)                       |
-| vLLM pod port `5556`                   | (not exposed)                                            | exposed as `kv-events`                              |
+| Component                               | Default (central) mode                                   | Active-active mode                                                              |
+| --------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Scheduler `replicas`                    | `1`                                                      | `2` (or more)                                                                   |
+| Scheduler `--ha-enable-leader-election` | (flag not added)                                         | explicitly `false` so all replicas serve                                        |
+| Scheduler `discoverPods`                | `false`                                                  | `true` (+ `podDiscoveryConfig.socketPort: 5556`)                                |
+| Scheduler `zmqEndpoint`                 | `tcp://*:5556`                                           | unset (scheduler dials per pod instead)                                         |
+| Scheduler data-layer sources            | —                                                        | `endpoint-notification-source` → scorer                                         |
+| Scheduler extra plugins                 | —                                                        | `endpoint-notification-source`, `metrics-data-source`, `core-metrics-extractor` |
+| vLLM `--kv-events-config` endpoint      | `tcp://<release>-epp.<ns>.svc.cluster.local:5556`        | `tcp://*:5556` (bind per-pod)                                                   |
+| vLLM pod port `5556`                    | (not exposed)                                            | exposed as `kv-events`                                                          |
 
 Flipping the scheduler side alone won't help — without the modelserver change, vLLM is still pushing to the central service and per-pod scorers see nothing. Both sides must move together.
 
@@ -114,6 +115,7 @@ A second identical completion request through the same Service should bump `kvca
 ## Tradeoffs vs. the default
 
 Active-active costs you:
+
 - **1 ZMQ socket per (replica × vLLM pod)** — with N replicas × M pods, that's N×M sockets across the cluster. Negligible at normal scales.
 - **Duplicate index memory** — each replica maintains its own KV-block index. Real-world index size is small relative to pod memory.
 - **A deploy-time constraint** — the standalone chart hardcodes `strategy: Recreate`, so rolling updates take both replicas down briefly. For rolling-friendly HA, deploy two separate releases and front them with a custom Service.

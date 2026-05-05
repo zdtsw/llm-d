@@ -12,22 +12,22 @@ This guide demonstrates how to deploy DeepSeek-R1-0528 using vLLM's P/D disaggre
 
 ## Default Configuration
 
-| Parameter                | Value                                                   |
-| ------------------------ | ------------------------------------------------------- |
-| Model                    | [DeepSeek-R1-0528](https://huggingface.co/deepseek-ai/DeepSeek-R1-0528) |
-| Prefill Data Parallelism | 16                                                      |
-| Decode Data Parallelism  | 16                                                      |
-| Total GPUs               | 32                                                      |
+| Parameter                | Value                                                                     |
+| ------------------------ | ------------------------------------------------------------------------- |
+| Model                    | [DeepSeek-R1-0528](https://huggingface.co/deepseek-ai/DeepSeek-R1-0528)   |
+| Prefill Data Parallelism | 16                                                                        |
+| Decode Data Parallelism  | 16                                                                        |
+| Total GPUs               | 32                                                                        |
 
 ### Tested Hardware Backends
 
 This guide includes configurations for the following accelerators:
 
-| Backend             | Directory                  | Notes                                      |
-| ------------------- | -------------------------- | ------------------------------------------ |
-| NVIDIA GPU (GKE)    | `modelserver/gke/`         | GKE deployment (H200)                      |
-| NVIDIA GPU (GKE A4) | `modelserver/gke-a4/`      | GKE deployment (B200)                      |
-| NVIDIA GPU (CoreWeave)| `modelserver/coreweave/`   | CoreWeave deployment                     |
+| Backend                | Directory                | Notes                  |
+| ---------------------- | ------------------------ | ---------------------- |
+| NVIDIA GPU (GKE)       | `modelserver/gke/`       | GKE deployment (H200)  |
+| NVIDIA GPU (GKE A4)    | `modelserver/gke-a4/`    | GKE deployment (B200)  |
+| NVIDIA GPU (CoreWeave) | `modelserver/coreweave/` | CoreWeave deployment   |
 
 > [!NOTE]
 > The pods leveraging inter-node EP must be deployed in a cluster environment with full mesh
@@ -38,31 +38,37 @@ This guide includes configurations for the following accelerators:
 
 ## Prerequisites
 
-- Have the [proper client tools installed on your local system](../../helpers/client-setup/README.md) to use this guide.
-- Checkout llm-d repo:
+* Have the [proper client tools installed on your local system](../../helpers/client-setup/README.md) to use this guide.
+* Checkout llm-d repo:
 
   ```bash
   export branch="main" # branch, tag, or commit hash
   git clone https://github.com/llm-d/llm-d.git && cd llm-d && git checkout ${branch}
   ```
-- Set the following environment variables:
+
+* Set the following environment variables:
+
   ```bash
   export GAIE_VERSION=v1.5.0
   export GUIDE_NAME="wide-ep-lws"
   export NAMESPACE=llm-d-wide-ep
   export MODEL=deepseek-ai/DeepSeek-R1-0528
   ```
-- Install the Gateway API Inference Extension CRDs:
+
+* Install the Gateway API Inference Extension CRDs:
 
   ```bash
   kubectl apply -k "https://github.com/kubernetes-sigs/gateway-api-inference-extension/config/crd?ref=${GAIE_VERSION}"
   ```
-- You have deployed the [LeaderWorkerSet controller](https://lws.sigs.k8s.io/docs/installation/)
-- Create a target namespace for the installation:
+
+* You have deployed the [LeaderWorkerSet controller](https://lws.sigs.k8s.io/docs/installation/)
+* Create a target namespace for the installation:
+
   ```bash
   kubectl create namespace ${NAMESPACE}
   ```
-- [Create the `llm-d-hf-token` secret in your target namespace with the key `HF_TOKEN` matching a valid HuggingFace token](../../helpers/hf-token.md) to pull models.
+
+* [Create the `llm-d-hf-token` secret in your target namespace with the key `HF_TOKEN` matching a valid HuggingFace token](../../helpers/hf-token.md) to pull models.
 
 ## Installation Instructions
 
@@ -81,7 +87,7 @@ helm install ${GUIDE_NAME} \
 ```
 
 <details>
-<summary><h4>Gateway Mode</h4></summary>
+<summary>Gateway Mode</summary>
 
 To use a Kubernetes Gateway managed proxy rather than the standalone version, follow these steps instead of applying the previous Helm chart:
 
@@ -102,7 +108,6 @@ helm install ${GUIDE_NAME} \
 
 </details>
 
-
 ### 2. Deploy the Model Server
 
 Apply the Kustomize overlays for your specific backend:
@@ -112,14 +117,13 @@ export INFRA_PROVIDER=gke # options: gke (H200), gke-a4 (B200), coreweave
 kubectl apply -n ${NAMESPACE} -k guides/${GUIDE_NAME}/modelserver/gpu/vllm/${INFRA_PROVIDER}
 ```
 
-
 ### 3. (Optional) Enable monitoring
 
 > [!NOTE]
 > GKE provides [automatic application monitoring](https://docs.cloud.google.com/kubernetes-engine/docs/how-to/configure-automatic-application-monitoring) out of the box. The llm-d [Monitoring stack](../../docs/monitoring/README.md) is not required for GKE, but it is available if you prefer to use it.
 
-- Install the [Monitoring stack](../../docs/monitoring/README.md).
-- Deploy the monitoring resources for this guide.
+* Install the [Monitoring stack](../../docs/monitoring/README.md).
+* Deploy the monitoring resources for this guide.
 
 ```bash
 kubectl apply -n ${NAMESPACE} -k guides/recipes/modelserver/components/monitoring-pd
@@ -140,7 +144,7 @@ kubectl apply -n ${NAMESPACE} -k guides/${GUIDE_NAME}/modelserver/gpu/vllm/topol
 
 ### 1. Get the IP of the Proxy
 
-**Standalone Mode**
+Standalone Mode:
 
 ```bash
 export IP=$(kubectl get service ${GUIDE_NAME}-epp -n ${NAMESPACE} -o jsonpath='{.spec.clusterIP}')
@@ -152,6 +156,7 @@ export IP=$(kubectl get service ${GUIDE_NAME}-epp -n ${NAMESPACE} -o jsonpath='{
 ```bash
 export IP=$(kubectl get gateway llm-d-inference-gateway -n ${NAMESPACE} -o jsonpath='{.status.addresses[0].value}')
 ```
+
 </details>
 
 ### 2. Send Test Requests
@@ -183,7 +188,7 @@ The benchmark launches a pod (`llmdbench-harness-launcher`) that uses `inference
 
 ### 1. Prepare the Benchmarking Suite
 
-- Download the benchmark script:
+* Download the benchmark script:
 
   ```bash
   curl -L -O https://raw.githubusercontent.com/llm-d/llm-d-benchmark/main/existing_stack/run_only.sh
@@ -242,4 +247,3 @@ At request rate 250, we achieved the max throughput:
 ```
 
 This equals to 3200 input tokens/s/GPU and 3100 output tokens/s/GPU.
-

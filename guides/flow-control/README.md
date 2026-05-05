@@ -111,7 +111,7 @@ helm install ${GUIDE_NAME} \
 ```
 
 <details>
-<summary><h4>Gateway Mode</h4></summary>
+<summary><b>Gateway Mode</b></summary>
 
 To use a Kubernetes Gateway managed proxy rather than the standalone version, follow these steps instead of applying the previous Helm chart:
 
@@ -160,7 +160,7 @@ kubectl apply -n ${NAMESPACE} -k guides/recipes/modelserver/components/monitorin
 
 ### 1. Get the IP of the Proxy
 
-**Standalone Mode**
+**Standalone Mode:**
 
 ```bash
 export IP=$(kubectl get service ${GUIDE_NAME}-epp -n ${NAMESPACE} -o jsonpath='{.spec.clusterIP}')

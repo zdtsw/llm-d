@@ -16,6 +16,7 @@ This guide provides recipes to offload prefix cache to CPU RAM via the vLLM nati
 | CPU Cache Offload Size    | 100 GB                                                  |
 
 ### Supported Hardware Backends
+
 This guide defaults to NVIDIA H100 GPUs. The Kustomize overlays are available in `modelserver/gpu/vllm/`.
 
 ---
@@ -31,11 +32,13 @@ This guide defaults to NVIDIA H100 GPUs. The Kustomize overlays are available in
   ```
 
 - Set the following environment variables:
+
   ```bash
     export GAIE_VERSION=v1.5.0
     export GUIDE_NAME="tiered-prefix-cache-cpu"
     export NAMESPACE=llm-d-${GUIDE_NAME}
   ```
+
 - Install the Gateway API Inference Extension CRDs:
 
   ```bash
@@ -43,6 +46,7 @@ This guide defaults to NVIDIA H100 GPUs. The Kustomize overlays are available in
   ```
 
 - Create a target namespace for the installation
+
   ```bash
     kubectl create namespace ${NAMESPACE}
   ```
@@ -64,7 +68,7 @@ helm install ${GUIDE_NAME} \
 ```
 
 <details>
-<summary><h4>Gateway Mode</h4></summary>
+<summary><b>Gateway Mode</b></summary>
 
 To use a Kubernetes Gateway managed proxy rather than the standalone version, follow these steps instead of applying the previous Helm chart:
 
@@ -115,7 +119,7 @@ kubectl apply -n ${NAMESPACE} -k guides/recipes/modelserver/components/monitorin
 
 ### 1. Get the IP of the Proxy
 
-**Standalone Mode**
+#### Standalone Mode
 
 ```bash
 export IP=$(kubectl get service ${GUIDE_NAME}-epp -n ${NAMESPACE} -o jsonpath='{.spec.clusterIP}')
@@ -175,10 +179,8 @@ For instructions on setting up standard workloads and running performance analys
 
 The current weight configuration defaults to `2:2:1:1` (Queue Scorer : KV Cache Utilization Scorer : GPU Prefix Cache Scorer : CPU Prefix Cache Scorer). This configuration defaults to a safe performance profile.
 
-
 > [!NOTE]
-> The following benchmark results were from a previous release and does not match the deployment of the current release. A follow up benchmark will be conducted and the results will be updated accordingly. See https://github.com/llm-d/llm-d/issues/680.
-
+> The following benchmark results were from a previous release and does not match the deployment of the current release. A follow up benchmark will be conducted and the results will be updated accordingly. See <https://github.com/llm-d/llm-d/issues/680>.
 
 ### High Cache Scenario (HBM < KVCache < HBM + CPU RAM)
 

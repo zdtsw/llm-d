@@ -19,6 +19,7 @@ if [ ! -f "$UTILS_SCRIPT" ]; then
     echo "ERROR: package-utils.sh not found" >&2
     exit 1
 fi
+# shellcheck source=/dev/null
 . "$UTILS_SCRIPT"
 
 DOWNLOAD_ARCH=$(get_download_arch)
@@ -42,7 +43,7 @@ elif [ "$TARGETOS" = "rhel" ]; then
     setup_rhel_repos "$DOWNLOAD_ARCH"
     mapfile -t INSTALL_PKGS < <(load_layered_packages rhel "builder-packages.json" "cuda")
     install_packages rhel "${INSTALL_PKGS[@]}"
-    
+
     # if using efa, we already installed hwloc as part of base RPMs
     if [ "${ENABLE_EFA}" != "true" ]; then
         # Install entitlement RPMs using rpm directly with --nodeps

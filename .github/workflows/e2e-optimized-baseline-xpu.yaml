@@ -213,7 +213,7 @@ jobs:
 
             mv ~/optimized-baseline-xpu-deployment.log . || true
             mv ~/install-deps.log . || true
-            
+
             echo "Log collection completed."
             ls -la
 

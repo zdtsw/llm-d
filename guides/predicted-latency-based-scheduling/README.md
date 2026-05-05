@@ -23,6 +23,7 @@ Skip it when your pool is **heterogeneous** — mixed GPU types, model variants,
     export branch="main" # branch, tag, or commit hash
     git clone https://github.com/llm-d/llm-d.git && cd llm-d && git checkout ${branch}
   ```
+
 - Set the following environment variables:
 
   ```bash
@@ -31,11 +32,13 @@ Skip it when your pool is **heterogeneous** — mixed GPU types, model variants,
     export NAMESPACE=llm-d-predicted-latency
     export MODEL_NAME="Qwen/Qwen3-32B"
   ```
+
 - Install the Gateway API Inference Extension CRDs:
 
   ```bash
     kubectl apply -k "https://github.com/kubernetes-sigs/gateway-api-inference-extension/config/crd?ref=${GAIE_VERSION}"
   ```
+
 - Create a target namespace for the installation:
 
   ```bash
@@ -49,7 +52,7 @@ Skip it when your pool is **heterogeneous** — mixed GPU types, model variants,
 Two ready-to-use values files ship with this guide:
 
 | File | When to use |
-|---|---|
+| --- | --- |
 | [`scheduler/predicted-latency.values.yaml`](./scheduler/predicted-latency.values.yaml) | Default — predictor trains on end-to-end latency. Routing-only, no SLO header support. |
 | [`scheduler/predicted-latency-slo.values.yaml`](./scheduler/predicted-latency-slo.values.yaml) | SLO-aware — Assumes `x-slo-ttft-ms` / `x-slo-tpot-ms` are set on requests. Every request must be sent with `"stream": true`. |
 
@@ -69,7 +72,7 @@ helm install ${GUIDE_NAME} \
 For SLO-aware scheduling, swap the values file: `-f guides/${GUIDE_NAME}/scheduler/predicted-latency-slo.values.yaml`.
 
 <details>
-<summary><h4>Gateway Mode</h4></summary>
+<summary><b>Gateway Mode</b></summary>
 
 To use a Kubernetes Gateway managed proxy rather than the standalone version, follow these steps instead of applying the previous Helm chart:
 
@@ -114,7 +117,7 @@ To opt an individual request into SLO-aware routing, add one or both headers:
 
 ### 1. Get the IP of the Proxy
 
-**Standalone Mode**
+#### Standalone Mode
 
 ```bash
 export IP=$(kubectl get service ${GUIDE_NAME}-epp -n ${NAMESPACE} -o jsonpath='{.spec.clusterIP}')
@@ -126,6 +129,7 @@ export IP=$(kubectl get service ${GUIDE_NAME}-epp -n ${NAMESPACE} -o jsonpath='{
 ```bash
 export IP=$(kubectl get gateway llm-d-inference-gateway -n ${NAMESPACE} -o jsonpath='{.status.addresses[0].value}')
 ```
+
 </details>
 
 ### 2. Send a Test Request
@@ -171,7 +175,7 @@ Once traffic is flowing, confirm three things in Prometheus (see the [architectu
 ## Troubleshooting
 
 | Symptom | Likely cause |
-|---------|--------------|
+| ------- | ------------ |
 | Prediction duration metrics empty | Predictor sidecar unreachable — EPP falls back to composite heuristic scoring. Check sidecar readiness and `PREDICTION_SERVER_URL`. |
 | Large, persistent drift between predicted and actual TTFT | `streamingMode` mismatch (set to `false` on a streaming workload, or vice versa), or workload drifted outside the training window. |
 | High TPOT SLO violation rate at low QPS | `streamingMode: false` — TPOT is not being trained. Flip it to `true` and restart. |

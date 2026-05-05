@@ -5,6 +5,7 @@ This deployment uses **DP-aware scheduling**, where instead of letting vLLM auto
 ## Discussion
 
 vLLM supports multiple "modes" for DP load balancing, including:
+
 - **internal**, where vLLM manages DP-balancedness across all ranks. vLLM exposes a single API server endpoint and spreads load between ranks
 
 ![alt text](images/internal-lb.png)
@@ -15,7 +16,8 @@ vLLM supports multiple "modes" for DP load balancing, including:
 
 vLLM also has a **hybrid** mode, where a single API server is exposed PER-NODE. An external LB balances BETWEEN nodes and vLLM balances WITHIN a node.
 
-In the context of `llm-d`, we want to use **external** load-balancing, so that the `llm-d` EPP is able to properly schedule requests with prefix-cache awareness, which requires targeting a specific DP-rank rather than a particular node. However, WideEP leverages **DeepEP** for the sparse dispatch/combine operations needed for WideEP. DeepEP uses `cuda_ipc` for intra-node traffic, which cannot cross pod-boundaries so using **one-pod-per-dp-rank** is not an option for WideEP deployments - we need to use **one-pod-per-node**. As a result, we have primarily been using vLLM's **hybrid** DP-load balancing mode - meaning `llm-d`'s EPP is unable to schedule onto specific ranks (only can schedule at the node level), meaning that prefix-cache aware routing features from EPP have been incompatible with WideEP deployments.
+In the context of `llm-d`, we want to use **external** load-balancing, so that the `llm-d` EPP is able to properly schedule requests with prefix-cache awareness, which requires targeting a specific DP-rank rather than a particular node. However, WideEP leverages **DeepEP** for the sparse dispatch/combine operations needed for WideEP. DeepEP uses `cuda_ipc` for intra-node traffic, which cannot cross pod-boundaries so using **one-pod-per-dp-rank** is not an option for WideEP deployments - we need to use **one-pod-per-node**.
+As a result, we have primarily been using vLLM's **hybrid** DP-load balancing mode - meaning `llm-d`'s EPP is unable to schedule onto specific ranks (only can schedule at the node level), meaning that prefix-cache aware routing features from EPP have been incompatible with WideEP deployments.
 
 ### Multi-Port Solution
 
@@ -31,14 +33,14 @@ We are currently working on hardening the process management, health checking, a
 
 This guide demonstrates how to deploy DeepSeek-R1-0528 using vLLM's P/D disaggregation support with NIXL in a wide expert parallel pattern with LeaderWorkerSets with DP-aware scheduling. This guide has been validated on:
 
-* a 32xH200 cluster with InfiniBand networking
-* a 32xB200 cluster with InfiniBand networking
-* Istio 1.29.1 (required for multi-port support)
+- a 32xH200 cluster with InfiniBand networking
+- a 32xB200 cluster with InfiniBand networking
+- Istio 1.29.1 (required for multi-port support)
 
 In this example, we will demonstrate a deployment of `DeepSeek-R1-0528` with:
 
-* 2 DP=8 Prefill Worker
-* 1 DP=16 Decode Worker
+- 2 DP=8 Prefill Worker
+- 1 DP=16 Decode Worker
 
 ## Hardware Requirements
 
@@ -53,18 +55,18 @@ This guide requires 32 Nvidia H200 or B200 GPUs and InfiniBand or RoCE RDMA netw
 
 ## Prerequisites
 
-* Have the [proper client tools installed on your local system](../../../helpers/client-setup/README.md) to use this guide.
-* You have deployed the [LeaderWorkerSet controller](https://lws.sigs.k8s.io/docs/installation/)
-* Configure and deploy your [Gateway control plane](../../prereq/gateway-provider/README.md). Note that the Gateway must support multi-port (e.g. Istio 1.29.1)
-* Have the [Monitoring stack](../../../docs/monitoring/README.md) installed on your system.
-* Create a namespace for installation.
+- Have the [proper client tools installed on your local system](../../../helpers/client-setup/README.md) to use this guide.
+- You have deployed the [LeaderWorkerSet controller](https://lws.sigs.k8s.io/docs/installation/)
+- Configure and deploy your [Gateway control plane](../../prereq/gateway-provider/README.md). Note that the Gateway must support multi-port (e.g. Istio 1.29.1)
+- Have the [Monitoring stack](../../../docs/monitoring/README.md) installed on your system.
+- Create a namespace for installation.
 
   ```bash
   export NAMESPACE=llm-d-wide-ep # or any other namespace (shorter names recommended)
   kubectl create namespace ${NAMESPACE}
   ```
 
-* [Create the `llm-d-hf-token` secret in your target namespace with the key `HF_TOKEN` matching a valid HuggingFace token](../../../helpers/hf-token.md) to pull models.
+- [Create the `llm-d-hf-token` secret in your target namespace with the key `HF_TOKEN` matching a valid HuggingFace token](../../../helpers/hf-token.md) to pull models.
 
 ## Installation
 
@@ -87,7 +89,6 @@ You can also customize your gateway, for more information on how to do that see 
 CoreWeave are tested Kubernetes providers for this well-lit path. You can customize the manifests if you run on other Kubernetes providers.
 
 <!-- TABS:START -->
-
 
 <!-- TAB:CoreWeave -->
 #### CoreWeave
@@ -113,7 +114,7 @@ helm install llm-d-infpool \
 
 ## Verifying the installation
 
-* Firstly, you should be able to list all helm releases installed into your chosen namespace:
+- Firstly, you should be able to list all helm releases installed into your chosen namespace:
 
 ```bash
 helm list -n ${NAMESPACE}
@@ -121,7 +122,7 @@ NAME            NAMESPACE       REVISION    UPDATED                             
 llm-d-infpool   llm-d-wide-ep   1           2025-08-24 13:14:53.355639 -0700 PDT    deployed    inferencepool-v1.5.0   v0.3.0
 ```
 
-* Out of the box with this example you should have the following resources (if using Istio):
+- Out of the box with this example you should have the following resources (if using Istio):
 
 ```bash
 kubectl get all -n ${NAMESPACE}

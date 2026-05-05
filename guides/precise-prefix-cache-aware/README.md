@@ -25,21 +25,25 @@ Two scorers make up the routing decision alongside the load-aware stack:
 
 ### Supported Hardware Backends
 
-| Backend              | Directory                  | Default model                           | Notes                                      |
-| -------------------- | -------------------------- | --------------------------------------- | ------------------------------------------ |
-| NVIDIA GPU           | `modelserver/gpu/vllm/`    | Qwen/Qwen3-32B                          | Default configuration                      |
-| AMD GPU              | `modelserver/amd/vllm/`    | Qwen/Qwen3-32B                          | AMD GPU                                    |
-| Intel XPU            | `modelserver/xpu/vllm/`    | Qwen/Qwen3-0.6B                         | CI-sized; update scheduler `modelName` for real use |
-| Intel Gaudi (HPU)    | `modelserver/hpu/vllm/`    | Qwen/Qwen3-8B                           | `--block-size=128`; update scorer `blockSize` to match |
-| Google TPU v6e       | `modelserver/tpu-v6/vllm/` | Llama-3.1-70B-Instruct                  | GKE TPU                                    |
-| Google TPU v7        | `modelserver/tpu-v7/vllm/` | Qwen3-Coder-480B-FP8                    | GKE TPU                                    |
-| CPU                  | `modelserver/cpu/vllm/`    | Llama-3.2-3B-Instruct                   | CI-sized                                   |
+| Backend              | Directory                  | Default model                           | Notes                                                    |
+| -------------------- | -------------------------- | --------------------------------------- | -------------------------------------------------------- |
+| NVIDIA GPU           | `modelserver/gpu/vllm/`    | Qwen/Qwen3-32B                          | Default configuration                                    |
+| AMD GPU              | `modelserver/amd/vllm/`    | Qwen/Qwen3-32B                          | AMD GPU                                                  |
+| Intel XPU            | `modelserver/xpu/vllm/`    | Qwen/Qwen3-0.6B                         | CI-sized; update scheduler `modelName` for real use      |
+| Intel Gaudi (HPU)    | `modelserver/hpu/vllm/`    | Qwen/Qwen3-8B                           | `--block-size=128`; update scorer `blockSize` to match   |
+| Google TPU v6e       | `modelserver/tpu-v6/vllm/` | Llama-3.1-70B-Instruct                  | GKE TPU                                                  |
+| Google TPU v7        | `modelserver/tpu-v7/vllm/` | Qwen3-Coder-480B-FP8                    | GKE TPU                                                  |
+| CPU                  | `modelserver/cpu/vllm/`    | Llama-3.2-3B-Instruct                   | CI-sized                                                 |
 
 > [!NOTE]
-> Some hardware variants use reduced configurations (fewer replicas, smaller models) to enable CI testing for compatibility and regression checks. 
+> Some hardware variants use reduced configurations (fewer replicas, smaller models) to enable CI testing for compatibility and regression checks.
+
+<!-- -->
 
 > [!NOTE]
 > For precise prefix cache scoring to match reality, the `tokenizer` `modelName` and the scorer's `indexerConfig.tokenizersPoolConfig.modelName` in [`scheduler/precise-prefix-cache-aware.values.yaml`](scheduler/precise-prefix-cache-aware.values.yaml) must match the model the overlay deploys. HPU and anything that tunes `--block-size` also requires updating `tokenProcessorConfig.blockSize` on the scheduler side.
+
+<!-- -->
 
 > [!NOTE]
 > The `gpu/vllm/` overlay defaults to 8 replicas to match the canonical 16×H100 benchmark. For smaller fleets (or quick smoke tests), reduce `replicas` in the deployment patch (`modelserver/gpu/vllm/patch-vllm.yaml`) before applying.
@@ -86,17 +90,21 @@ helm install precise-prefix-cache-aware \
   -n ${NAMESPACE} --version v1.5.0
 ```
 
-The release name `precise-prefix-cache-aware` is mandatory for standard deployments. The vLLM patches hardcode the endpoint as `KV_EVENTS_ENDPOINT=tcp://<release>-epp.<ns>.svc.cluster.local:5556`. If you choose a custom release name, you must manually update the `KV_EVENTS_ENDPOINT` environment variable in your modelserver overlay to match `<your-release-name>-epp`.
+The release name `precise-prefix-cache-aware` is mandatory for standard deployments.
+The vLLM patches hardcode the endpoint as `KV_EVENTS_ENDPOINT=tcp://<release>-epp.<ns>.svc.cluster.local:5556`.
+If you choose a custom release name, you must manually update the `KV_EVENTS_ENDPOINT` environment variable in your modelserver overlay to match `<your-release-name>-epp`.
 
 <details>
 <summary><b>Why a helm post-renderer is required (chart limitation)</b></summary>
 
-The standalone chart's `sidecar.*` slot is occupied by its Envoy proxy — overriding it would lose HTTP serving — so the UDS tokenizer container is appended via a helm post-render hook instead. The post-renderer runs `kustomize build` on the chart's rendered manifests with a strategic merge patch that adds the `tokenizer-uds` container (image `ghcr.io/llm-d/llm-d-uds-tokenizer:v0.7.1`), two `emptyDir` volumes (`tokenizers`, `tokenizer-uds`), and a `/tmp/tokenizer` volumeMount on the existing `epp` container so the `tokenizer` plugin can reach the UDS socket. Tracking removal of this workaround upstream — once the chart supports multiple sidecars natively, the post-renderer goes away.
+The standalone chart's `sidecar.*` slot is occupied by its Envoy proxy -- overriding it would lose HTTP serving -- so the UDS tokenizer container is appended via a helm post-render hook instead.
+The post-renderer runs `kustomize build` on the chart's rendered manifests with a strategic merge patch that adds the `tokenizer-uds` container (image `ghcr.io/llm-d/llm-d-uds-tokenizer:v0.7.1`), two `emptyDir` volumes (`tokenizers`, `tokenizer-uds`), and a `/tmp/tokenizer` volumeMount on the existing `epp` container so the `tokenizer` plugin can reach the UDS socket.
+Tracking removal of this workaround upstream -- once the chart supports multiple sidecars natively, the post-renderer goes away.
 
 </details>
 
 <details>
-<summary><h4>Gateway Mode</h4></summary>
+<summary><b>Gateway Mode</b></summary>
 
 To use a Kubernetes Gateway managed proxy instead of the standalone Envoy sidecar, do **not** apply the standalone chart above. Instead:
 
@@ -138,6 +146,7 @@ kubectl apply -n ${NAMESPACE} -k guides/precise-prefix-cache-aware/modelserver/g
   ```bash
   kubectl apply -n ${NAMESPACE} -k guides/recipes/modelserver/components/monitoring
   ```
+
 - Enable Prometheus scrape for the scheduler by layering `-f guides/recipes/scheduler/features/monitoring.values.yaml` onto the helm command in step 2.
 
 ### 5. (Optional) Enable Active-Active High Availability
@@ -148,7 +157,7 @@ The default single-replica install uses central ZMQ — vLLM publishers connect 
 
 ### 1. Get the IP of the Proxy
 
-**Standalone Mode**
+**Standalone Mode:**
 
 ```bash
 export IP=$(kubectl get service precise-prefix-cache-aware-epp -n ${NAMESPACE} -o jsonpath='{.spec.clusterIP}')

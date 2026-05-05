@@ -27,7 +27,7 @@ set -Eeux
 cd /tmp
 
 if [ "${BUILD_DEBUG}" = "true" ]; then
-    # Disable sccache for nvshmem build in debug mode for nvcc + sccache + cmake weirdness. 
+    # Disable sccache for nvshmem build in debug mode for nvcc + sccache + cmake weirdness.
     # Not an issue for regular builds, only for BUILD_DEBUG=true
     export USE_SCCACHE="false"
 fi
@@ -110,8 +110,8 @@ CMAKE_EXTRA_FLAGS+=(
 )
 
 # Build the core library / SDK without the NVSHMEM4PY bindings
-BUILD_NVSHMEM4PY_BINDINGS="OFF"
-BUILD_PYTHON_DEVICE_LIB="OFF"
+export BUILD_NVSHMEM4PY_BINDINGS="OFF"
+export BUILD_PYTHON_DEVICE_LIB="OFF"
 cmake -S . -B build -G Ninja \
     -DNVSHMEM_PREFIX="${NVSHMEM_DIR}" \
     -DCMAKE_CUDA_ARCHITECTURES="${NVSHMEM_CUDA_ARCHITECTURES}" \

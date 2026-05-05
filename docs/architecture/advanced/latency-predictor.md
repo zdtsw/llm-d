@@ -19,7 +19,7 @@ The Latency Predictor closes those gaps by learning the mapping from `(pod state
 
 The predictor ships as a set of sidecars colocated with the EPP in the same pod. A **training server** continuously retrains on completed requests, and one or more **prediction servers** that read the latest model from a shared volume and answer predictions from the EPP on the hot path.
 
-```
+```text
                 ┌──────────────────────────────────────────────────────┐
                 │                      EPP Pod                         │
                 │                                                      │
@@ -59,10 +59,10 @@ Training uses **stratified bucketing** — samples are partitioned by KV cache u
 
 The predictor assumes a **homogeneous inference pool** — every pod in the pool must share the same GPU type, model weights, and serving configuration. The features the model is trained on describe pod state (KV cache utilization, queue depth, running requests, prefix hit rate) without encoding pod shape, so predictions across heterogeneous hardware or serving configs would conflate regimes the model treats as identical. Heterogeneous pools are not yet modeled.
 
-**TTFT features**
+### TTFT features
 
 | Feature | What it captures |
-|---------|------------------|
+| ------- | ---------------- |
 | KV Cache Usage % | Memory saturation and its effect on prefill scheduling |
 | Input Length | Prefill cost proxy — longer prompts dominate TTFT |
 | Queue Depth | Backlog before scheduling — more waiting requests delay first token |
@@ -70,10 +70,10 @@ The predictor assumes a **homogeneous inference pool** — every pod in the pool
 | Prefix Cache Match % | KV reuse potential — high match rates collapse prefill work |
 | Input Tokens In Flight | Tokens dispatched but not yet prefilled, plus tokens still resident in KV — captures incoming prefill pressure |
 
-**TPOT features**
+### TPOT features
 
 | Feature | What it captures |
-|---------|------------------|
+| ------- | ---------------- |
 | KV Cache Usage % | Memory pressure during decode |
 | Input Length | Input token count (affects attention cost) |
 | Queue Depth | Queue contention that leaks into decode batching |
@@ -133,7 +133,7 @@ Three plugins handle scoring and final selection.
 When the latency predictor is enabled, the EPP exposes Prometheus metrics for actual vs. predicted latency, prediction duration, and SLO violation tracking. The primary series are:
 
 | Metric | Description |
-|--------|-------------|
+| ------ | ----------- |
 | `inference_objective_request_ttft_seconds` | Actual TTFT distribution, per model / target model. |
 | `inference_objective_request_predicted_ttft_seconds` | Predicted TTFT distribution, per model / target model. |
 | `inference_objective_request_ttft_prediction_duration_seconds` | Time spent generating TTFT predictions. |

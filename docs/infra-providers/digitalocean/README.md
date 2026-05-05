@@ -144,7 +144,7 @@ The DigitalOcean deployment uses smaller, optimized models:
 
 | Architecture         | Original Model          | DigitalOcean Model      | Benefits                   |
 |----------------------|-------------------------|-------------------------|----------------------------|
-| optimized baseline | `Qwen3-0.6B` + HF Token | `Qwen3-0.6B` (no token) | No authentication required |
+| optimized baseline   | `Qwen3-0.6B` + HF Token | `Qwen3-0.6B` (no token) | No authentication required |
 
 ### Resource Optimization
 

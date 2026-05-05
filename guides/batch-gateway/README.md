@@ -22,7 +22,7 @@
 Batch Gateway uses pluggable storage backends. Each function is backed by a single plug-in, chosen at deployment time:
 
 | Function | Available plug-ins |
-|----------|-------------------|
+| --- | --- |
 | Jobs and files metadata | PostgreSQL, Redis/Valkey (development/test only) |
 | Priority queue, events, status updates | Redis/Valkey |
 | File storage (input/output) | S3, Filesystem |

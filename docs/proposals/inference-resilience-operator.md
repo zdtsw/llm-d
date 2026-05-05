@@ -72,7 +72,7 @@ resolved recovery action. IRO watches `RecoveryRequest`, coordinates the
 engine-side response, and restores serving capacity once infrastructure
 recovery completes.
 
-```
+```text
 ┌──────────────────────────────────────────────────────────────────────┐
 │                        Infrastructure layer                          │
 │     Cloud agents · on-prem monitors · hardware fault detectors       │

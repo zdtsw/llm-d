@@ -21,6 +21,7 @@ llm-d uses a layered networking stack for KV Cache transfers and inter-node comm
 NIXL operates in a **pull-based model**: the decode pod fetches KV Cache blocks directly from the prefill pod's GPU memory using one-sided RDMA reads, without requiring active participation from the prefill pod. This reduces synchronization overhead.
 
 Key capabilities:
+
 - Works across InfiniBand, RoCE, EFA, and TCP
 - Supports GPU VRAM, CPU DRAM, and storage backends
 - Plugin architecture for adding new transport backends
@@ -37,6 +38,7 @@ UCX is a good default: it is battle-tested, widely supported, and works across m
 [UCCL](https://github.com/ai-dynamo/uccl) (Unified Cloud Communication Library) is a newer transport backend integrated into NIXL as of llm-d v0.5. It implements a host-resident software transport stack — managing transport logic on the CPU rather than relying solely on hardware offload. This enables fine-grained flow splitting and adaptive congestion control.
 
 UCCL currently supports:
+
 - Native RDMA (IB/RoCE)
 - GPUDirect TCP-X (Google Cloud)
 - TCP
@@ -52,7 +54,7 @@ On AWS, NIXL uses [libfabric](https://ofiwg.github.io/libfabric/) as the transpo
 ### Choosing a Transport Backend
 
 | Environment | Backend | Rationale |
-|---|---|---|
+| --- | --- | --- |
 | On-premise InfiniBand / RoCE | UCX | Mature, battle-tested on HPC fabrics with dedicated, uncongested paths |
 | Cloud with RoCE (GKE, Azure, etc.) | UCCL | Software packet spraying avoids single-path congestion on shared fabric |
 | GKE with GPUDirect TCP-X | UCCL | Native support for Google's GPU-initiated TCP transport |
@@ -105,7 +107,7 @@ vllm serve <model> \
 NIXL uses a side channel for metadata exchange between pods. Configure with:
 
 | Variable | Description | Default |
-|---|---|---|
+| --- | --- | --- |
 | `VLLM_NIXL_SIDE_CHANNEL_HOST` | Pod IP (use `status.podIP` fieldRef) | Required |
 | `VLLM_NIXL_SIDE_CHANNEL_PORT` | Metadata exchange port | `5557` |
 
@@ -114,7 +116,7 @@ NIXL uses a side channel for metadata exchange between pods. Configure with:
 UCX transport is configured via environment variables:
 
 | Variable | Description | Example |
-|---|---|---|
+| --- | --- | --- |
 | `UCX_TLS` | Transport layers to use | `sm,cuda_ipc,cuda_copy,rc,tcp` |
 | `UCX_SOCKADDR_TLS_PRIORITY` | Priority for socket-based transports | `tcp` |
 | `UCX_PROTO_INFO` | Check transport selection | `y` |
@@ -165,11 +167,13 @@ For wide-EP (DeepEP), map GPUs to specific HCAs for optimal topology:
 #### GKE
 
 - Use GKE multi-NIC annotations for RDMA interfaces:
+
   ```yaml
   annotations:
     networking.gke.io/default-interface: eth0
     networking.gke.io/interfaces: '[{"interfaceName":"eth0","network":"default"}, ...]'
   ```
+
 - Source `set_nccl_env.sh` from `/usr/local/gib/scripts/` at container startup
 - Set `NVSHMEM_DISABLED_GDRCOPY=true` (GKE recommendation)
 - Use pod affinity on `cloud.google.com/gce-topology-block` for topology-aware placement
@@ -178,10 +182,12 @@ For wide-EP (DeepEP), map GPUs to specific HCAs for optimal topology:
 #### OpenShift / OCP
 
 - Use Multus CNI for secondary RDMA networks:
+
   ```yaml
   annotations:
     k8s.v1.cni.cncf.io/networks: "multi-nic-compute"
   ```
+
 - Request `rdma/roce_gdr` device resources as shown above
 
 #### AWS (EFA)
@@ -234,7 +240,7 @@ etcd --listen-client-urls http://0.0.0.0:2379 \
 
 From the prefill/decode pods, run:
 
-```
+```bash
 nixlbench --etcd_endpoints http://<ETCD_SERVER_IP>:2379 --backend <UCX/UCCL/LIBFABRIC> --op_type=READ --check-consistency --start_batch_size=100 --max_batch_size=100 --max-block-size=85899340
 ```
 

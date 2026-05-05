@@ -19,7 +19,7 @@ Async Processor integrates with llm-d to:
 
 Before installing Async Processor, ensure you have:
 
-1. **Kubernetes cluster**: A running Kubernetes cluster (v1.31+). 
+1. **Kubernetes cluster**: A running Kubernetes cluster (v1.31+).
    - For local development, you can use **Kind** or **Minikube**.
    - For production, GKE, AKS, or OpenShift are supported.
 2. **Gateway control plane**: Configure and deploy your [Gateway control plane](../prereq/gateway-provider/README.md) (e.g., Istio) before installation.
@@ -31,9 +31,9 @@ Async Processor can be installed via Helm. We provide a `helmfile` for easy depl
 
 ### Step 1: Configure llm-d Router URL
 
-The Async Processor needs to know where to send the requests it pulls from the queue. This is configured via the `IGW_BASE_URL` environment variable. 
+The Async Processor needs to know where to send the requests it pulls from the queue. This is configured via the `IGW_BASE_URL` environment variable.
 
-By default, it is set to `http://infra-optimized-baseline-inference-gateway-istio.llm-d-inference-scheduler.svc.cluster.local:80`, which assumes you have deployed the [optimized baseline](../optimized-baseline/README.md) stack in the `llm-d-inference-scheduler` namespace. 
+By default, it is set to `http://infra-optimized-baseline-inference-gateway-istio.llm-d-inference-scheduler.svc.cluster.local:80`, which assumes you have deployed the [optimized baseline](../optimized-baseline/README.md) stack in the `llm-d-inference-scheduler` namespace.
 
 If your llm-d router is deployed elsewhere, or if you are using a different service name (e.g., based on the [Gateway Provider](../prereq/gateway-provider/README.md) guide), export the variable before running helmfile:
 
@@ -73,10 +73,3 @@ Testing instructions vary depending on the chosen queue implementation. Please r
 cd guides/asynchronous-processing
 helmfile destroy -n ${NAMESPACE}
 ```
-
-
-
-
-
-
-

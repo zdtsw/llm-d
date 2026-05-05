@@ -13,6 +13,7 @@ This guide shows how to collect and visualize metrics from an llm-d deployment u
 
 > [!NOTE]
 > Commands in this guide use `${NAMESPACE}` for the namespace where your llm-d workload runs. Set it before following along:
+>
 > ```bash
 > export NAMESPACE=<your-llm-d-namespace>
 > ```
@@ -61,11 +62,11 @@ OpenShift provides a built-in Prometheus stack via User Workload Monitoring. Ena
 
 #### GKE
 
-**Option 1 — Google Managed Prometheus (recommended)**
+Option 1 -- Google Managed Prometheus (recommended):
 
 GKE clusters include [Google Managed Prometheus (GMP)](https://cloud.google.com/stackdriver/docs/managed-prometheus) by default. To use GMP as a Grafana data source, follow the [GMP Grafana integration guide](https://docs.cloud.google.com/stackdriver/docs/managed-prometheus/query#ui-grafana).
 
-**Option 2 — In-cluster Prometheus**
+Option 2 -- In-cluster Prometheus:
 
 If you need direct HTTP API access or prefer a standalone instance:
 
@@ -143,7 +144,7 @@ prefill-podmonitor      5m
 ### Key vLLM Metrics
 
 | Metric | What it measures | Why it matters |
-|--------|-----------------|----------------|
+| --- | --- | --- |
 | `vllm:num_requests_running` | Active requests being processed | High values indicate GPU saturation; new requests will queue. Watch for sustained spikes |
 | `vllm:num_requests_waiting` | Requests queued, waiting to be processed | Non-zero means pods are saturated. Primary signal for autoscaling decisions |
 | `vllm:kv_cache_usage_perc` | KV cache utilization (0.0 to 1.0) | Above 0.9 means GPU memory is nearly full and requests may get preempted or rejected |
@@ -182,7 +183,7 @@ epp-servicemonitor      5m
 ### Key EPP Metrics
 
 | Metric | What it measures | Why it matters |
-|--------|-----------------|----------------|
+| --- | --- | --- |
 | `inference_objective_request_total` | Total request count per model | Baseline for calculating error rate and throughput per model |
 | `inference_objective_request_error_total` | Total error count per model | Rising errors signal backend failures. Alert when error rate exceeds 5% |
 | `inference_objective_request_duration_seconds` | End-to-end response latency | The SLO metric. Tracks full round-trip time from request to response |
@@ -200,7 +201,7 @@ epp-servicemonitor      5m
 When flow control is enabled, these additional metrics are exposed:
 
 | Metric | What it measures | Why it matters |
-|--------|-----------------|----------------|
+| --- | --- | --- |
 | `inference_extension_flow_control_queue_size` | Requests currently queued | Growing queue means the pool cannot keep up. Consider scaling or adjusting priority bands |
 | `inference_extension_flow_control_queue_bytes` | Total size of queued requests in bytes | Large queued payloads can exhaust EPP memory. Monitor alongside `maxBytes` config |
 | `inference_extension_flow_control_request_queue_duration_seconds` | Time a request spends in the queue | Directly impacts user-perceived latency. High values mean flow control is holding requests too long |
@@ -249,7 +250,7 @@ llmd-pd-coordinator-metrics                       1      30s
 Or import individual dashboard JSON files manually from `docs/monitoring/grafana/dashboards/`:
 
 | Dashboard | What it shows |
-|-----------|--------------|
+| --- | --- |
 | `llm-d-vllm-overview.json` | General vLLM metrics overview |
 | `llm-d-failure-saturation-dashboard.json` | Failure and saturation indicators |
 | `llm-d-diagnostic-drilldown-dashboard.json` | Detailed diagnostic metrics for troubleshooting |

@@ -2,7 +2,6 @@
 
 llm-d uses the **llm-d Router** to make intelligent request routing decisions for inference requests. There are two deployment modes:
 
-
 ## Standalone (Default)
 
 Use this when you **do not** want to deploy a proxy via Kubernetes Gateway APIs. The standalone chart deploys the **llm-d Router** with an Envoy sidecar to proxy the traffic directly.
@@ -45,7 +44,7 @@ helm install <release-name> \
 
 Both modes share a common `base.values.yaml` containing the scheduler image, ports, and common pod selector labels. Feature values (monitoring, tracing) and guide-specific values are layered on top:
 
-```
+```text
 base.values.yaml                              # shared defaults (this directory)
   + features/monitoring.values.yaml           # optional feature toggles
   + <guide>/scheduler/<guide>.values.yaml     # guide-specific overrides

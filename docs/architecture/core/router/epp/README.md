@@ -49,6 +49,7 @@ The Ext-Proc Server protocol is very well defined & specific, deviations could c
 #### Data Layer (Extensible)
 
 The **Data Layer** operates asynchronously, consuming and storing data from a variety of sources:
+
 - Kube API Server about which pods are active in the InferencePool
 - Model Servers about the current internal state (running requests, kv cache utilization)
 - In-memory data structures, such as prefix cache trees for prefix-aware routing
@@ -71,7 +72,7 @@ See [Request Handling](request-handling.md) for more details on the design.
 Flow control's primary purpose is to manage the admission, queuing, and dispatching of requests to prevent overloading backend model servers while ensuring fairness and priority. Specifically:
 
 - Admission Control & Throttling: Rather than allowing the inference pool to be overwhelmed, it intercepts incoming requests and holds them in an in-memory queue if saturation is reached. This is configurable via `SaturationDetector` plugins (such as the Concurrency plugin, which is based on active in-flight requests accounting per endpoint).
-- Priority-Based Queuing: It categorizes traffic into "Priority Bands." Real-time, latency-sensitive tasks (like chat) are prioritized over batch background tasks (like summarization). 
+- Priority-Based Queuing: It categorizes traffic into "Priority Bands." Real-time, latency-sensitive tasks (like chat) are prioritized over batch background tasks (like summarization).
 
 - Resource Fairness: It prevents "noisy neighbor" scenarios by isolating traffic streams, ensuring a single flow (e.g., a user or application) cannot monopolize all available inference slots. Fairness is configurable via two pluggable policies: FairnessPolicy governs the distribution of dispatch opportunities among competing Flows within the same priority band (e.g., Round Robin), and OrderingPolicy plugins customize ordering of requests within a flow (e.g., FIFO, SLO-based).
 
@@ -81,7 +82,7 @@ See [Flow Control](flow-control.md) for more details on the design.
 
 #### Request Scheduler (Extensible)
 
-The scheduler acts as the core decision-making engine for intelligent request routing. It operates through a modular Filter → Score → Pick plugins pipeline orchestrated by a ProfileHandler plugin, allowing it to evaluate and select the most suitable model server endpoints for each incoming request. 
+The scheduler acts as the core decision-making engine for intelligent request routing. It operates through a modular Filter → Score → Pick plugins pipeline orchestrated by a ProfileHandler plugin, allowing it to evaluate and select the most suitable model server endpoints for each incoming request.
 
 By leveraging custom plugins at each stage—filtering out unavailable endpoints, scoring them based on metrics like "least-loaded" or "affinity," and picking final candidates—the EPP ensures high performance and efficient resource distribution across inference pools.
 

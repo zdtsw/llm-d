@@ -44,7 +44,7 @@ The steps are:
 Using both metrics in a single HPA creates a more robust autoscaling response:
 
 | Metric | Signal | HPA Target Type | Interpretation |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `igw_queue_depth` | Queue saturation | `Value` (raw total) | A non-zero queue depth means the pool cannot absorb incoming traffic at the current rate. Scale out immediately. |
 | `igw_running_requests` | Active concurrency | `AverageValue` (per pod) | Tracks total in-flight load and drives the HPA to maintain a target concurrency per replica under sustained traffic. |
 
@@ -90,6 +90,8 @@ Two paths are supported to enable scale-to-zero:
 
 > [!NOTE]
 > KEDA ships with its own metrics server (`keda-operator-metrics-apiserver`) and a native Prometheus scaler that queries Prometheus directly via PromQL. When using KEDA, the separate Prometheus Adapter installation step is not required.
+
+<!-- -->
 
 > [!IMPORTANT]
 > EPP Flow Control queues are stored in memory only. If the EPP process restarts while requests are queued, those requests are lost. Clients will receive an HTTP 500 during a graceful EPP shutdown (as requests are evicted) or a hard connection drop on an abrupt crash. Plan EPP replicas and disruption budgets accordingly.

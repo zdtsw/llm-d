@@ -48,7 +48,7 @@ jobs:
           -f guides/optimized-baseline/scheduler/optimized-baseline.values.yaml \
           -n ${NAMESPACE} --version v1.5.0
       accelerator_type: H100
-      required_gpus: 2 
+      required_gpus: 2
       recommended_gpus: 4
       pod_wait_timeout: '30m'
       pod_readiness_delay: 180

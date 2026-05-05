@@ -10,7 +10,7 @@ If gIB is installed, vLLM will try to load the gIB NCCL tuner plugin, which will
 
 To verify gIB is installed on a node, run the following command on the node:
 
-```
+```bash
 ls /home/kubernetes/bin/gib
 ```
 
@@ -18,7 +18,7 @@ If you see the folder is not empty, it means gIB is installed.
 
 To see the NCCL error log, add the following environment variable to your model server deployment:
 
-```
+```yaml
 env:
     - name: NCCL_DEBUG
       value: "INFO"
@@ -26,7 +26,7 @@ env:
 
 You will see NCCL tuner error message like:
 
-```
+```text
 NCCL WARN No NCCL_TUNER_CONFIG_PATH provided. Please populate NCCL_TUNER_CONFIG_PATH to use config-based tuner plugin.
 NCCL INFO plugin/tuner/tuner_v2.cc:50 -> 3
 
@@ -37,7 +37,7 @@ NCCL INFO plugin/tuner/tuner_v2.cc:50 -> 3
 
 Disable the tuner plugin with the following environment variable:
 
-```
+```yaml
 env:
     - name: NCCL_TUNER_PLUGIN
       value: "none"

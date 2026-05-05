@@ -19,9 +19,9 @@ Before installing WVA, ensure you have:
 1. Installed the llm-d inference stack from one of the well-lit path guides.
 
     > **Note**: WVA requires HTTPS connections to Prometheus for metric collection. When installing the [monitoring stack](../../docs/monitoring/README.md), ensure to enable HTTPS/TLS support.
-
+    >
     > **Note**: If selecting namespace-scoped mode below, make sure to install the optimized-baseline stack in the same namespace as WVA (by default `llm-d-autoscaler`).
-
+    >
     > **Note**: Currently, WVA does not support the Wide Expert Parallelism (EP/DP) with LeaderWorkerSet well-lit path. Support for this will be added in a future release.
 
 2. An external metrics provider installed and configured in your cluster (e.g., Prometheus together with Prometheus Adapter or KEDA). WVA relies on external metrics to make scaling decisions. See [Install Prometheus Adapter (Required Dependency)](#install-prometheus-adapter-required-dependency) for installation instructions.
@@ -64,6 +64,7 @@ cat guides/workload-autoscaling/wva-config/platform/ocp/configmap-patch.yaml
 ```
 
 OpenShift defaults are already set in the overlay:
+
 - `PROMETHEUS_BASE_URL=https://thanos-querier.openshift-monitoring.svc.cluster.local:9091`
 - `PROMETHEUS_TLS_INSECURE_SKIP_VERIFY=true`
 
@@ -155,7 +156,7 @@ kubectl apply -k optimized-baseline-autoscaling -n ${NAMESPACE}
 ```
 
 > **Note:** `${NAMESPACE}` should match the namespace where the optimized-baseline stack is running (commonly `llm-d-optimized-baseline`).
-
+>
 > **Note:** If you set the `RELEASE_NAME_POSTFIX` environment variable when installing the optimized-baseline stack, you need to set the same postfix in the `kustomization.yaml` of this overlay to ensure the correct resources are targeted. For example, if you set `RELEASE_NAME_POSTFIX=my-custom` during installation, you should uncomment the line `nameSuffix: -my-custom` in the `kustomization.yaml` of this overlay.
 
 ### Verify
@@ -168,7 +169,7 @@ kubectl get variantautoscaling optimized-baseline-nvidia-gpu-vllm-decode -n ${NA
 
 Expected output:
 
-```
+```text
 NAME                                        TARGET                                      MODEL            OPTIMIZED   METRICSREADY   AGE
 optimized-baseline-nvidia-gpu-vllm-decode   optimized-baseline-nvidia-gpu-vllm-decode   Qwen/Qwen3-32B   1           True           37m
 ```
@@ -329,7 +330,6 @@ helm upgrade -i prometheus-adapter prometheus-community/prometheus-adapter \
 > **Note**: WVA creates the `prometheus-ca` ConfigMap in the monitoring namespace using the configured CA cert settings. This ConfigMap is required for Prometheus Adapter.
 
 **Verify installation**: `kubectl get pods -n ${MON_NS} -l app.kubernetes.io/name=prometheus-adapter`
-
 
 ## FAQ
 

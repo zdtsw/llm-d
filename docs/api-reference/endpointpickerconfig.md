@@ -80,6 +80,12 @@ Configures admission control and queuing.
 | `pluginRef` | `string` <br> **Required** <br> Reference to a plugin providing the data source. |
 | `extractors` | [][DataLayerExtractor](#datalayerextractor) <br> **Required** <br> Plugins that extract specific attributes from the source. |
 
+## DataLayerExtractor
+
+| Field | Description |
+| --- | --- |
+| `pluginRef` | `string` <br> **Required** <br> Reference to a plugin that extracts specific attributes from the data source. |
+
 ## SaturationDetectorConfig
 
 | Field | Description |

@@ -14,7 +14,7 @@ The Async Processor is a lightweight dispatch agent that pulls inference request
 The dispatch gate controls the rate by which the processor sends requests. Each queue can have its own gate, allowing independent dispatch control per workload.
 
 | Gate type | Behavior |
-|-----------|----------|
+| --------- | -------- |
 | `constant` | Always open — no throttling. |
 | `redis` | Reads a budget value from a Redis key, allowing external systems to control dispatch rate. |
 | `prometheus-saturation` | Queries Prometheus for model server saturation metrics. Dispatches when saturation is below a configurable threshold. |
@@ -23,7 +23,7 @@ The dispatch gate controls the rate by which the processor sends requests. Each 
 ## Message Queue Integrations
 
 | Implementation | Characteristics |
-|---------------|-----------------|
+| -------------- | --------------- |
 | Redis Sorted Set | Persisted, priority-ordered by deadline. Supports per-queue gate configuration. |
 | Redis Pub/Sub | Ephemeral, fan-out delivery. Single global gate. |
 | GCP Pub/Sub | Cloud-native, scalable. Supports per-subscription gating. |

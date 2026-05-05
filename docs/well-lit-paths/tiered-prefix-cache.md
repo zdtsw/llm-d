@@ -7,7 +7,8 @@ Model servers hold KV-caches in GPU RAM with an LRU eviction scheme. Once space 
 This increases the **KV-working set size**, growing the **receptive-field** (the amount of time KV caches are retained in the system).
 
 - Without KV offloading:
-```
+
+```text
    ┌───────┐           ┌─────────┐            ┌───────────┐
    │user A │           │ user A  │            │  user A   │
    │  req  │           │   KV    │            │ follow-on │
@@ -28,7 +29,7 @@ This increases the **KV-working set size**, growing the **receptive-field** (the
 
 - With KV offloading:
 
-```
+```text
    ┌───────┐           ┌─────────┐            ┌───────────┐
    │user A │           │ user A  │            │  user A   │
    │  req  │           │   KV    │            │ follow-on │
@@ -46,7 +47,6 @@ This increases the **KV-working set size**, growing the **receptive-field** (the
                                               │  CPU RAM   │
                                               └────────────┘
 ```
-
 
 > [!IMPORTANT]
 > CPU KV Cache offloading is low overhead and introduces ~no additional complexity. It can be enabled in almost all deployments. Storage offloading requires additional consideration.

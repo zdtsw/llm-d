@@ -28,7 +28,7 @@ The two integration patterns map to distinct architectures.
 
 The native path lives entirely inside the vLLM stack. The `OffloadingConnector` dispatches blocks to either the CPU tier or the shared-storage tier:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                            vLLM                                 │
 ├─────────────────────────────────────────────────────────────────┤
@@ -71,7 +71,7 @@ Today, the two targets operate as independent options — choose one offloading 
 
 Third-party connectors (see [Other Connectors](#other-connectors)) adapt an external KV-cache engine to the model server through its KV-cache connector API. The same pattern is present across major serving stacks — vLLM's V1 Connector API, SGLang's HiCache, and TensorRT-LLM's KV Cache Connector API. Unlike the native path, the cache logic — indexing, memory management, tiering, eviction, and remote storage — lives in a separate engine, often a distinct process or service:
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │               Model Server (vLLM / SGLang / TRT-LLM)            │
 ├─────────────────────────────────────────────────────────────────┤
@@ -217,6 +217,7 @@ The FS backend populates vLLM's built-in offloading metrics (`vllm:kv_offload_*`
 **Storage offloading:** Best when cache working set exceeds single-node capacity, when cross-node sharing is valuable (repeated system prompts across replicas, agentic workflows), or when persistence across restarts matters. Storage offloading is most effective when the storage network is fast enough to allow low-latency loads and stores.
 
 **Storage selection:** The FS backend works with any POSIX-compliant filesystem and is not tied to a specific vendor. Your choice trades off:
+
 - **Sharing scope** — local media (e.g., NVMe SSDs) are per-node only; networked or distributed filesystems (e.g., NFS, CephFS, Lustre, IBM Storage Scale, Weka, cloud file services) enable cross-node reuse.
 - **Throughput and latency** — depend on the underlying hardware, network, and filesystem configuration rather than the KV-cache layer; parallel and distributed filesystems generally scale best for large deployments.
 

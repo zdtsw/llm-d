@@ -30,10 +30,10 @@ workload:                         # yaml configuration for harness workload(s)
     load:
       type: constant
       stages:
-      - rate: 1
-        duration: 120
-        num_requests: null
-        concurrency_level: null
+        - rate: 1
+          duration: 120
+          num_requests: null
+          concurrency_level: null
       num_workers: 100
       worker_max_concurrency: 100
     api:

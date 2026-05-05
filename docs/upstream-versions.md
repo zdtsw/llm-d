@@ -10,7 +10,7 @@
 Pinned in `docker/Dockerfile.cuda` (and variants):
 
 | Dependency | Current Pin | Pin Type | File Location | Upstream Repo |
-|-----------|-------------|----------|---------------|---------------|
+| --- | --- | --- | --- | --- |
 | **vLLM** | `d7de043d55d1dd629554467e23874097e1c48993` | commit SHA | `docker/Dockerfile.cuda` line 68 (`VLLM_COMMIT_SHA`) | [vllm-project/vllm](https://github.com/vllm-project/vllm) |
 | **CUDA** | `12.9.1` | version | `docker/Dockerfile.cuda` lines 17-19 | [NVIDIA CUDA](https://developer.nvidia.com/cuda-toolkit) |
 | **Python** | `3.12` | version | `docker/Dockerfile.cuda` line 23 | [python/cpython](https://github.com/python/cpython) |
@@ -30,7 +30,7 @@ Pinned in `docker/Dockerfile.cuda` (and variants):
 Pinned in guide helmfiles (`guides/*/helmfile.yaml.gotmpl`):
 
 | Dependency | Current Pin | File Location | Upstream Repo / Registry |
-|-----------|-------------|---------------|--------------------------|
+| --- | --- | --- | --- |
 | **llm-d-infra chart** | `v1.4.0` | All `helmfile.yaml.gotmpl` files | [llm-d-incubation/llm-d-infra](https://github.com/llm-d-incubation/llm-d-infra) (`https://llm-d-incubation.github.io/llm-d-infra/`) |
 | **InferencePool chart** | `v1.5.0` | All `helmfile.yaml.gotmpl` files | [kubernetes-sigs/gateway-api-inference-extension](https://github.com/kubernetes-sigs/gateway-api-inference-extension) (`oci://registry.k8s.io/gateway-api-inference-extension/charts/inferencepool`) |
 | **llm-d-modelservice chart** | `v0.4.7` | All `helmfile.yaml.gotmpl` files | [llm-d-incubation/llm-d-modelservice](https://github.com/llm-d-incubation/llm-d-modelservice) (`https://llm-d-incubation.github.io/llm-d-modelservice/`) |
@@ -42,7 +42,7 @@ Pinned in `guides/prereq/gateway-provider/`:
 > `kgateway` support in llm-d is deprecated and will be removed in the next release. Prefer `agentgateway` for new self-installed inference deployments.
 
 | Dependency | Current Pin | File Location | Upstream Repo |
-|-----------|-------------|---------------|---------------|
+| --- | --- | --- | --- |
 | **Gateway API CRDs** | `v1.5.1` | `install-gateway-provider-dependencies.sh` line 39 | [kubernetes-sigs/gateway-api](https://github.com/kubernetes-sigs/gateway-api) |
 | **Gateway API Inference Extension CRDs** | `v1.5.0` | `install-gateway-provider-dependencies.sh` line 46 | [kubernetes-sigs/gateway-api-inference-extension](https://github.com/kubernetes-sigs/gateway-api-inference-extension) |
 | **Istio** | `1.29.1` | `istio.helmfile.yaml` | [istio/istio](https://github.com/istio/istio) |
@@ -52,13 +52,13 @@ Pinned in `guides/prereq/gateway-provider/`:
 ## CI Workflow Dependencies
 
 | Dependency | Current Pin | File Location | Notes |
-|-----------|-------------|---------------|-------|
+| --- | --- | --- | --- |
 | **LeaderWorkerSet (LWS)** | `0.7.0` | `e2e-wide-ep-accelerator-test.yaml` line 387 | Also in nightly LWS workflows |
 | **InferencePool (GKE)** | `v1.5.0` | `e2e-wide-ep-accelerator-gke.yaml` line 46 | Also used in the nightly Wide EP and tiered-prefix-cache workflows |
 
 ## Hardware-Specific vLLM Images
 
 | Variant | Current Pin | File Location | Upstream |
-|---------|-------------|---------------|----------|
+| --- | --- | --- | --- |
 | **vLLM Gaudi (HPU)** | `1.22.0` | `guides/*/values_hpu.yaml` | [HabanaAI/vllm-fork](https://github.com/HabanaAI/vllm-fork) |
 | **vLLM TPU** | `v0.13.2-ironwood` | `guides/*/values_tpu.yaml` | [vllm-project/vllm](https://github.com/vllm-project/vllm) |

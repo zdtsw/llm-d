@@ -14,7 +14,7 @@ export NAMESPACE=<your-llm-d-namespace>
 ## What Gets Traced
 
 | Component | Config Method | Traced Operations |
-|-----------|--------------|-------------------|
+| --------- | ------------- | ----------------- |
 | **vLLM** (prefill + decode) | Helm: ModelService `tracing:` / Kustomize: container args + env vars | Inference engine spans |
 | **Routing proxy** (P/D sidecar) | Helm: ModelService `tracing:` / Kustomize: container env vars | KV transfer coordination |
 | **EPP** | Helm: GAIE `inferenceExtension.tracing:` | Request routing, endpoint scoring, KV-cache indexing |
@@ -153,6 +153,7 @@ Expected output:
 ```
 
 If you only see generic `GET` spans, check that:
+
 - The vLLM container args include `--collect-detailed-traces all`
 - The EPP image includes tracing instrumentation (`llm-d-inference-scheduler`, not upstream `epp`)
 
@@ -168,7 +169,7 @@ If you only see generic `GET` spans, check that:
 When tracing is enabled, these environment variables are set on vLLM and routing-proxy containers:
 
 | Variable | Description |
-|----------|-------------|
+| -------- | ----------- |
 | `OTEL_SERVICE_NAME` | Service identifier (e.g., `vllm-decode`, `routing-proxy`) |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Collector endpoint (`http://otel-collector:4317`) |
 | `OTEL_TRACES_SAMPLER` | Sampler type (e.g., `parentbased_traceidratio`) |

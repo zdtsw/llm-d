@@ -9,7 +9,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Optimized Baseline
 
 | Accelerator | vLLM | SGLang |
-|-------------|------|--------|
+| ----------- | ---- | ------ |
 | NVIDIA CUDA | ✅ | ✅ |
 | AMD ROCm | ✅ | — |
 | Intel XPU | ✅ | — |
@@ -22,7 +22,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Precise Prefix-Cache-Aware Routing
 
 | Accelerator | vLLM | SGLang |
-|-------------|------|--------|
+| ----------- | ---- | ------ |
 | NVIDIA CUDA | ✅ | ✅ |
 | Intel XPU | ✅ | — |
 
@@ -31,7 +31,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Prefill/Decode Disaggregation
 
 | Accelerator | vLLM | SGLang |
-|-------------|------|--------|
+| ----------- | ---- | ------ |
 | NVIDIA CUDA | ✅ | ✅ |
 | AMD ROCm | ✅ | — |
 | Intel XPU | ✅ | — |
@@ -42,7 +42,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Wide Expert-Parallelism
 
 | Accelerator | vLLM | SGLang |
-|-------------|------|--------|
+| ----------- | ---- | ------ |
 | NVIDIA CUDA | ✅ | — |
 
 **Nightly CI**: OpenShift (CUDA), GKE (CUDA), CoreWeave (CUDA)
@@ -52,7 +52,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Tiered Prefix Cache
 
 | Accelerator | CPU Offload (vLLM) | Storage Offload (vLLM) | SGLang |
-|-------------|--------------------|-----------------------|--------|
+| ----------- | ------------------ | --------------------- | ------ |
 | NVIDIA CUDA | ✅ | ✅ | — |
 | Intel XPU | — | — | — |
 | Google TPU | Coming soon | — | — |
@@ -62,7 +62,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Workload Autoscaling
 
 | Variant | vLLM | SGLang |
-|---------|------|--------|
+| ------- | ---- | ------ |
 | HPA + IGW Metrics | ✅ | — |
 | Workload Variant Autoscaler (WVA) | ✅ | — |
 
@@ -71,7 +71,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Predicted Latency-Based Scheduling
 
 | Accelerator | vLLM | SGLang |
-|-------------|------|--------|
+| ----------- | ---- | ------ |
 | NVIDIA CUDA | ✅ | ✅ |
 
 **Nightly CI**: OpenShift (CUDA), GKE (CUDA), CoreWeave (CUDA)
@@ -81,7 +81,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Asynchronous Processing
 
 | Backend | vLLM | SGLang |
-|---------|------|--------|
+| ------- | ---- | ------ |
 | Redis | ✅ | — |
 | GCP Pub/Sub | ✅ | — |
 
@@ -90,7 +90,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ### Batch Gateway
 
 | Backend | vLLM | SGLang |
-|---------|------|--------|
+| ------- | ---- | ------ |
 | PostgreSQL + Redis | ✅ | — |
 | S3 + Redis | ✅ | — |
 
@@ -101,7 +101,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ## Infrastructure Providers
 
 | Provider | Optimized Baseline | P/D Disaggregation | Wide EP | Tiered Prefix Cache | Precise Prefix Cache | WVA |
-|----------|---------------------|--------------------|---------|--------------------|-----------------------|-----|
+| -------- | ------------------ | ------------------ | ------- | ------------------- | -------------------- | --- |
 | **OpenShift** | Nightly | Nightly | Nightly | Nightly | Nightly | Nightly |
 | **GKE** | Nightly | Nightly | Nightly | — | Nightly | — |
 | **CoreWeave (CKS)** | Nightly | Nightly | Nightly | — | Nightly | Nightly |
@@ -112,7 +112,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 ## Gateway Providers
 
 | Provider | Status | Notes |
-|----------|--------|-------|
+| -------- | ------ | ----- |
 | **Istio** | Default | Used in all well-lit paths |
 | **AgentGateway** | Supported | Preferred for new self-installed deployments |
 | **GKE Gateway** | Supported | Externally managed, used in GKE guides |
@@ -125,7 +125,7 @@ This page describes the current coverage as validated in the v0.7.0 release and 
 For accelerator maintainer contacts and contribution requirements, see [Accelerator Support](../accelerators/README.md). The information below is also maintained in that document and will be consolidated into this feature matrix in a future docs revision.
 
 | Accelerator | Supported Devices | Notes |
-|-------------|-------------------|-------|
+| ----------- | ----------------- | ----- |
 | NVIDIA CUDA | A100, H100, H200, B200 | Primary platform. All well-lit paths validated. |
 | AMD ROCm | MI250, MI300X | Optimized baseline and P/D disaggregation. |
 | Google TPU | v5e, v6e, v7 | GKE only. P/D and optimized baseline. |
@@ -136,7 +136,7 @@ For accelerator maintainer contacts and contribution requirements, see [Accelera
 ### Software Requirements
 
 | Component | Minimum Version | Notes |
-|-----------|-----------------|-------|
+| --------- | --------------- | ----- |
 | Kubernetes | 1.30+ | Gateway API v1 support required |
 | Gateway API CRDs | v1.5.1 | |
 | Gateway API Inference Extension CRDs | v1.5.0 | |
@@ -150,7 +150,7 @@ For accelerator maintainer contacts and contribution requirements, see [Accelera
 llm-d guides use two deployment methods. Both produce the same Kubernetes resources.
 
 | Method | Notes |
-|--------|-------|
+| ------ | ----- |
 | **Helm** | Used to deploy llm-d router in standalone and gateway modes, async processor, etc. |
 | **Kustomize** | Used to deploy declarative overlays for model servers, gateways, etc. Reusable base layers in `guides/recipes/`. |
 
@@ -161,13 +161,13 @@ llm-d guides use two deployment methods. Both produce the same Kubernetes resour
 Each well-lit path guide is assigned a maturity level reflecting its testing and documentation coverage.
 
 | Level | Definition |
-|-------|------------|
+| ----- | ---------- |
 | **High** | Tested nightly across multiple infrastructure providers (OpenShift, GKE, CoreWeave). Benchmarked and documented. |
 | **Medium** | Tested nightly on at least one infrastructure provider. Documented with deployment guide. |
 | **Experimental** | Functional but not regularly tested by maintainers. May have known limitations. |
 
 | Guide | Maturity | Nightly Providers |
-|-------|----------|-------------------|
+| ----- | -------- | ----------------- |
 | Optimized Baseline (vLLM, CUDA) | High | OpenShift, GKE, CoreWeave |
 | Optimized Baseline (SGLang, CUDA) | Medium | — |
 | Optimized Baseline (AMD, XPU, HPU, TPU, CPU) | Experimental | XPU, HPU (PR-triggered) |

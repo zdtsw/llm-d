@@ -5,7 +5,7 @@ This guide shows how to enable [OpenTelemetry](https://opentelemetry.io/) distri
 ## Components
 
 | Component | Chart / Config | What gets traced |
-|---|---|---|
+| --- | --- | --- |
 | **vLLM** (prefill + decode) | ModelService `tracing:` | Inference engine spans |
 | **Routing proxy** (P/D sidecar) | ModelService `tracing:` | KV transfer coordination |
 | **EPP / Inference Scheduler** | GAIE `inferenceExtension.tracing:` | Request routing, endpoint scoring, KV-cache indexing |
@@ -117,6 +117,7 @@ The collector is deployed by `install-otel-collector-jaeger.sh` and all chart de
 4. You should see spans for inference requests, routing decisions, and KV cache operations
 
 If you only see generic `GET` spans, check that:
+
 - `collectDetailedTraces` is set to `"all"` for vLLM
 - The EPP/inference-scheduler image includes tracing instrumentation (`llm-d-inference-scheduler`, not upstream `epp`)
 
@@ -132,7 +133,7 @@ If you only see generic `GET` spans, check that:
 When tracing is enabled, these environment variables are set on vLLM and routing-proxy containers (automatically by the ModelService chart, or manually for raw manifests):
 
 | Variable | Description |
-|---|---|
+| --- | --- |
 | `OTEL_SERVICE_NAME` | Service identifier (e.g., `vllm-decode`, `routing-proxy`) |
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Collector endpoint (`http://otel-collector:4317`) |
 | `OTEL_TRACES_SAMPLER` | Sampler type (e.g., `parentbased_traceidratio`) |

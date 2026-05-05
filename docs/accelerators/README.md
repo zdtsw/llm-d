@@ -21,6 +21,7 @@ Maintainers for each accelerator type are listed below. See our well-lit path gu
 We welcome contributions from accelerator vendors. To be referenced as a supported hardware vendor we require at minimum a publicly available container image that launches vLLM.
 
 For integration into the well-lit paths our standard for contribution is higher, **requiring**:
+
 - A named maintainer responsible for keeping guide contents up to date
 - Manual or automated verification of the guide deployment for each release
 
@@ -34,14 +35,14 @@ For integration into the well-lit paths our standard for contribution is higher,
 
 NVIDIA GPUs are the default accelerator for all llm-d guides. Any NVIDIA GPU is supported, with the specific capabilities determined by the inference container image used. No special cluster configuration is required beyond the NVIDIA device plugin or DRA driver.
 
-**CUDA Runtime and Driver Requirements**
+### CUDA Runtime and Driver Requirements
 
 llm-d currently ships container images based on the **CUDA 12.9.1** runtime. A future release will move to **CUDA 13.0.2**.
 
 CUDA 12.x and CUDA 13.x have non-overlapping driver compatibility ranges — a given driver version supports one major CUDA family, not both:
 
 | CUDA Version | Minimum Driver | Maximum Driver |
-|---|---|---|
+| --- | --- | --- |
 | CUDA 12.9.1 (current) | 525.60.13 | < 580 |
 | CUDA 13.0.2 (planned) | 580.65.06 | N/A |
 
