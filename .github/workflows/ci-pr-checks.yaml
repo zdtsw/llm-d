@@ -32,5 +32,4 @@ jobs:
       - name: Run pre-commit
         uses: j178/prek-action@v2
         with:
-          extra-args: ''
-
+          extra-args: --all-files
