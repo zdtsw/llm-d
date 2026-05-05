@@ -12,7 +12,7 @@ set -euo pipefail
 #   - Otherwise, clones vLLM source repo but uses precompiled C++/CUDA binaries from wheel
 #
 # MODE 3: Full Build from Source (VLLM_PREBUILT=0, VLLM_USE_PRECOMPILED=0)
-#   - Compiles all C++/CUDA code from vLLM source code from scratch
+#   - Do not care about wheel, just compiles all C++/CUDA code from vLLM source code from scratch
 #
 # ============================================================================
 # Required Environment Variables
@@ -55,35 +55,48 @@ if [ "${BUILD_NIXL_FROM_SOURCE}" = "false" ]; then
   INSTALL_PACKAGES+=(nixl)
 fi
 
-echo "DEBUG: Looking for precompiled wheel at: https://wheels.vllm.ai/${VLLM_PRECOMPILED_WHEEL_COMMIT}/${VLLM_PRECOMPILED_WHEEL_VARIANT}/vllm/"
-WHEEL_INDEX_HTML=$(curl -sf "https://wheels.vllm.ai/${VLLM_PRECOMPILED_WHEEL_COMMIT}/${VLLM_PRECOMPILED_WHEEL_VARIANT}/vllm/" || echo "")
+# resolve VLLM_PRECOMPILED_WHEEL_COMMIT and detect precompiled wheel
+# MODE 1 (Prebuilt) and MODE 2 (Precompiled)
+WHEEL_URL=""
+if [ "${VLLM_PREBUILT}" = "1" ] || [ "${VLLM_USE_PRECOMPILED}" = "1" ]; then
+  # git ls-remote resolves named refs (tags/branches) to full SHAs
+  # if it's already a full SHA, ls-remote won't match and we keep it as-is
+  # note: short SHAs are not supported — always pass full 40-char SHAs or ref names
+  # this is different than clone and rev-parse
+  RESOLVED_SHA=$(git ls-remote "${VLLM_REPO}" "${VLLM_PRECOMPILED_WHEEL_COMMIT}" | cut -f1)
+  if [ -n "${RESOLVED_SHA}" ]; then
+    VLLM_PRECOMPILED_WHEEL_COMMIT="${RESOLVED_SHA}"
+    echo "DEBUG: Resolved wheel commit SHA: ${VLLM_PRECOMPILED_WHEEL_COMMIT}"
+  fi
 
-if [ -z "${WHEEL_INDEX_HTML}" ]; then
-  echo "DEBUG: Failed to fetch wheel index or index does not exist"
-  WHEEL_URL=""
-else
-  echo "DEBUG: Architecture: $(uname -m), Python: $(python3 --version)"
-  MACHINE=$(uname -m)
-  case "${MACHINE}" in
-    x86_64|amd64) PLATFORM_TAG="manylinux_2_35_x86_64" ;;
-    aarch64|arm64) PLATFORM_TAG="manylinux_2_35_aarch64" ;;
-    *) echo "ERROR: Unsupported architecture: ${MACHINE}"; exit 1 ;;
-  esac
+  echo "DEBUG: Looking for precompiled wheel at: https://wheels.vllm.ai/${VLLM_PRECOMPILED_WHEEL_COMMIT}/${VLLM_PRECOMPILED_WHEEL_VARIANT}/vllm/"
+  WHEEL_INDEX_HTML=$(curl -sf "https://wheels.vllm.ai/${VLLM_PRECOMPILED_WHEEL_COMMIT}/${VLLM_PRECOMPILED_WHEEL_VARIANT}/vllm/" || echo "")
 
-  # If no wheel found, set to empty string and fall to WHEEL_URL=""
-  WHEEL_FILENAME=$(echo "${WHEEL_INDEX_HTML}" | { grep -oE "vllm-[^\"]+${PLATFORM_TAG}\.whl" || true; } | head -1)
-
-  if [ -n "${WHEEL_FILENAME}" ]; then
-    # note: vllm wheel index structure isn't pip-compatible, so we scrape the HTML directly
-    # construct full URL (wheels are in parent directory)
-    # URL-encode the + sign in the wheel filename
-    WHEEL_URL="https://wheels.vllm.ai/${VLLM_PRECOMPILED_WHEEL_COMMIT}/${WHEEL_FILENAME}"
-    echo "DEBUG: Found wheel: ${WHEEL_FILENAME}"
-    WHEEL_URL=$(echo "${WHEEL_URL}" | sed -E 's/\+/%2B/g')
-    echo "DEBUG: Wheel URL: ${WHEEL_URL}"
+  if [ -z "${WHEEL_INDEX_HTML}" ]; then
+    echo "DEBUG: Failed to fetch wheel index or index does not exist"
   else
-    WHEEL_URL=""
-    echo "DEBUG: No wheel found for platform: ${PLATFORM_TAG}"
+    echo "DEBUG: Architecture: $(uname -m), Python: $(python3 --version)"
+    MACHINE=$(uname -m)
+    case "${MACHINE}" in
+      x86_64|amd64) PLATFORM_TAG="manylinux_2_35_x86_64" ;;
+      aarch64|arm64) PLATFORM_TAG="manylinux_2_35_aarch64" ;;
+      *) echo "ERROR: Unsupported architecture: ${MACHINE}"; exit 1 ;;
+    esac
+
+    # If no wheel found, set to empty string and fall to WHEEL_URL=""
+    WHEEL_FILENAME=$(echo "${WHEEL_INDEX_HTML}" | { grep -oE "vllm-[^\"]+${PLATFORM_TAG}\.whl" || true; } | head -1)
+
+    if [ -n "${WHEEL_FILENAME}" ]; then
+      # note: vllm wheel index structure isn't pip-compatible, so we scrape the HTML directly
+      # construct full URL (wheels are in parent directory)
+      # URL-encode the + sign in the wheel filename
+      WHEEL_URL="https://wheels.vllm.ai/${VLLM_PRECOMPILED_WHEEL_COMMIT}/${WHEEL_FILENAME}"
+      echo "DEBUG: Found wheel: ${WHEEL_FILENAME}"
+      WHEEL_URL=$(echo "${WHEEL_URL}" | sed -E 's/\+/%2B/g')
+      echo "DEBUG: Wheel URL: ${WHEEL_URL}"
+    else
+      echo "DEBUG: No wheel found for platform: ${PLATFORM_TAG}"
+    fi
   fi
 fi
 
