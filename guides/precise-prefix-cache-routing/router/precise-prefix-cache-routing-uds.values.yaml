@@ -1,9 +1,10 @@
-## precise-prefix-cache-routing guide overrides for the router.
+## precise-prefix-cache-routing guide overrides for the router — legacy UDS variant.
 ## Layer on top of: recipes/router/base.values.yaml
 ##
-## A `vllm launch render` sidecar exposes /v1/completions/render on
-## localhost:8000; the EPP `token-producer` plugin tokenizes prompts via
-## that HTTP endpoint.
+## Uses the chart's built-in UDS tokenizer sidecar (router.tokenizer.uds.enabled: true)
+## together with the EPP `tokenizer` plugin pointed at the shared UDS socket.
+## This is the legacy path retained for compatibility; the default variant uses
+## `vllm launch render` (see precise-prefix-cache-routing.values.yaml).
 ##
 ## Pod-discovery mode with active-active HA (replicas: 2). Each replica dials
 ## every vLLM pod's per-pod ZMQ socket; both indexes converge identically.
@@ -11,10 +12,8 @@
 
 router:
   tokenizer:
-    enabled: true
-    # Required by llm-d-router chart v0 when tokenizer is enabled; 
-    # must match the deployed model server and the token-producer modelName below
-    modelName: Qwen/Qwen3-32B
+    uds:
+      enabled: true
 
   epp:
     replicas: 2
@@ -43,11 +42,11 @@ router:
         apiVersion: llm-d.ai/v1alpha1
         kind: EndpointPickerConfig
         plugins:
-          - type: token-producer
+          - type: tokenizer
             parameters:
               modelName: Qwen/Qwen3-32B
-              vllm:
-                url: "http://localhost:8000"
+              udsTokenizerConfig:
+                socketFile: /tmp/tokenizer/tokenizer-uds.socket
           - type: endpoint-notification-source
           - type: metrics-data-source
           - type: core-metrics-extractor
@@ -56,9 +55,14 @@ router:
           - type: precise-prefix-cache-scorer
             parameters:
               tokenProcessorConfig:
-                blockSize: 64
+                blockSize: 64             # must match vLLM --block-size
               speculativeIndexing: true
               indexerConfig:
+                tokenizersPoolConfig:
+                  modelName: Qwen/Qwen3-32B
+                  workersCount: 24
+                  uds:
+                    socketFile: /tmp/tokenizer/tokenizer-uds.socket
                 kvBlockIndexConfig:
                   enableMetrics: true
               kvEventsConfig:
