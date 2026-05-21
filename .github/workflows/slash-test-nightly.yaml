@@ -18,7 +18,6 @@ name: /test-nightly Slash Command
 # Temp branches are cleaned up by slash-test-nightly-cleanup.yaml.
 #
 # Available nightlies (the part after /test-nightly):
-#   benchmark-cks, build-image,
 #   optimized-baseline-cks, optimized-baseline-gke, optimized-baseline-gke-tpu, optimized-baseline-ocp,
 #   pd-disaggregation-cks, pd-disaggregation-gke, pd-disaggregation-gke-tpu, pd-disaggregation-ocp,
 #   precise-prefix-cache-cks, precise-prefix-cache-gke, precise-prefix-cache-ocp,
@@ -70,7 +69,6 @@ jobs:
               'wide-ep-lws-cks', 'wide-ep-lws-gke', 'wide-ep-lws-ocp',
               'wva-cks', 'wva-ocp',
             ];
-            const OTHER_NIGHTLIES = ['benchmark-cks', 'build-image'];
             const ALL_NIGHTLIES = [...E2E_NIGHTLIES, ...OTHER_NIGHTLIES].sort();
 
             function toWorkflowFile(name) {
