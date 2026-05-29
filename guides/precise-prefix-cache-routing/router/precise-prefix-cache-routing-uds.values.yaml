@@ -58,11 +58,6 @@ router:
                 blockSize: 64             # must match vLLM --block-size
               speculativeIndexing: true
               indexerConfig:
-                tokenizersPoolConfig:
-                  modelName: Qwen/Qwen3-32B
-                  workersCount: 24
-                  uds:
-                    socketFile: /tmp/tokenizer/tokenizer-uds.socket
                 kvBlockIndexConfig:
                   enableMetrics: true
               kvEventsConfig:
