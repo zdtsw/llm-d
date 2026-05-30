@@ -95,8 +95,6 @@ kubectl -n ${NAMESPACE} create secret generic llm-d-hf-token --from-literal=HF_T
 
 This deploys the llm-d Router in the simple [Standalone Mode](placeholder-link). The release name `${GUIDE_NAME}` is mandatory — the inference pool selector matches a guide label that pairs with this release.
 
-##### vllm-render (default)
-
 The chart auto-injects the `vllm-render` sidecar when `router.tokenizer.render.enabled: true` is set in the values file.
 
 ```bash
@@ -106,21 +104,6 @@ helm install ${GUIDE_NAME} \
   -f ${REPO_ROOT}/guides/${GUIDE_NAME}/router/${GUIDE_NAME}.values.yaml \
   -n ${NAMESPACE} --version ${ROUTER_CHART_VERSION}
 ```
-
-<details>
-<summary><b>Legacy UDS tokenizer variant</b></summary>
-
-The legacy UDS variant uses the EPP `tokenizer` plugin together with a UDS tokenizer sidecar, auto-injected by the chart when `router.tokenizer.uds.enabled: true` is set.
-
-```bash
-helm install ${GUIDE_NAME} \
-  oci://ghcr.io/llm-d/charts/llm-d-router-standalone-dev \
-  -f ${REPO_ROOT}/guides/recipes/router/base.values.yaml \
-  -f ${REPO_ROOT}/guides/${GUIDE_NAME}/router/${GUIDE_NAME}-uds.values.yaml \
-  -n ${NAMESPACE} --version ${ROUTER_CHART_VERSION}
-```
-
-</details>
 
 <details>
 <summary><b>Gateway Mode</b></summary>
