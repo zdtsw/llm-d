@@ -29,6 +29,7 @@ Two scorers make up the routing decision alongside the load-aware stack:
 | Backend              | Directory                  | Default model                           | Notes                                                    |
 | -------------------- | -------------------------- | --------------------------------------- | -------------------------------------------------------- |
 | NVIDIA GPU           | `modelserver/gpu/vllm/`    | Qwen/Qwen3-32B                          | Default configuration                                    |
+| NVIDIA GPU (SGLang)  | `modelserver/gpu/sglang/`  | Qwen/Qwen3-32B                          | SGLang; `--page-size=64` matches scorer `blockSize`      |
 | AMD GPU              | `modelserver/amd/vllm/`    | Qwen/Qwen3-32B                          | AMD GPU                                                  |
 | Intel XPU            | `modelserver/xpu/vllm/`    | Qwen/Qwen3-0.6B                         | CI-sized; update router `modelName` for real use         |
 | Intel Gaudi (HPU)    | `modelserver/hpu/vllm/`    | Qwen/Qwen3-8B                           | `--block-size=128`; update scorer `blockSize` to match   |
@@ -111,6 +112,8 @@ helm install ${GUIDE_NAME} \
   -n ${NAMESPACE} --version ${ROUTER_CHART_VERSION}
 ```
 
+The release name `${GUIDE_NAME}` is mandatory for standard deployments — the inference pool selector matches a guide label that pairs with this release.
+
 <details>
 <summary><b>Gateway Mode</b></summary>
 
@@ -142,6 +145,22 @@ Apply the Kustomize overlay for your backend (defaulting to NVIDIA GPU / vLLM):
 export INFRA_PROVIDER=base # base | gke
 kubectl apply -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/vllm/${INFRA_PROVIDER}/
 ```
+
+To run the same model on **SGLang** instead of vLLM, apply the SGLang overlay (the
+router is unchanged; the overlay's `llm-d.ai/engine-type: sglang` pod label selects
+SGLang's metric names):
+
+```bash
+kubectl apply -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/sglang/
+```
+
+To verify that cache-aware routing is active, send a shared-prefix prompt longer than the value set for `--page-size` several times, then check the SGLang pod logs:
+
+```bash
+kubectl logs -n ${NAMESPACE} -l llm-d.ai/engine-type=sglang | grep cached-token
+```
+
+Subsequent requests sharing the same long prefix should show a non-zero `#cached-token` count on the pod the router has pinned them to, confirming the KV-cache index is working.
 
 ### 4. (Optional) Enable Monitoring
 
@@ -287,20 +306,25 @@ llmdbenchmark \
 
 ```bash
 helm uninstall ${GUIDE_NAME} -n ${NAMESPACE}
+# For vLLM (default):
 kubectl delete -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/vllm/${INFRA_PROVIDER}/
+# For SGLang:
+kubectl delete -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/sglang/
 ```
 
 ## How It Works
 
-1. **vLLM pods publish KV-cache events** — each pod runs `vllm serve ... --kv-events-config '{...,"publisher":"zmq","endpoint":"$(KV_EVENTS_ENDPOINT)","topic":"kv@$(POD_IP):$(POD_PORT)@<model>"}'` with `KV_EVENTS_ENDPOINT=tcp://*:5556`, binding its own ZMQ socket. On every KV block allocation/eviction, vLLM emits a ZMQ message.
-2. **Router subscribes per pod** — pod-discovery (`kvEventsConfig.discoverPods: true`) registers the `precise-prefix-cache-producer` as an extractor on the data-layer `endpoint-notification-source`, so each router replica installs a ZMQ subscriber per vLLM pod independently. All replicas converge to the same index.
+1. **Model server pods publish KV-cache events** — each pod (vLLM or SGLang) runs with `--kv-events-config '{...,"publisher":"zmq","endpoint":"$(KV_EVENTS_ENDPOINT)","topic":"kv@$(POD_IP):$(POD_PORT)@<model>"}'` and `KV_EVENTS_ENDPOINT=tcp://*:5556`, binding its own ZMQ socket. On every KV block allocation/eviction, the server emits a ZMQ message.
+2. **Router subscribes per pod** — pod-discovery (`kvEventsConfig.discoverPods: true`) registers the `precise-prefix-cache-producer` as an extractor on the data-layer `endpoint-notification-source`, so each router replica installs a ZMQ subscriber per model server pod independently. All replicas converge to the same index.
 3. **Scoring** — the `prefix-cache-scorer` returns the fraction of the request's prefix blocks that are resident on each candidate pod. The `max-score-picker` routes to the highest-scoring pod.
 
 ## Benchmarking Report
 
+### vLLM
+
 The benchmark runs on 16× H100 GPUs, distributed across 8 model servers (2 H100s per server with TP=2).
 
-### Comparing llm-d Scheduling to a Simple Kubernetes Service
+#### Comparing llm-d Scheduling to a Simple Kubernetes Service
 
 Graphs below compare the precise path to a stock Kubernetes Service that round-robins requests across the same 8 vLLM pods (no EPP, no scoring).
 
@@ -343,3 +367,9 @@ Output tokens/sec — higher is better; TTFT in seconds — lower is better.
 | 60   | 6,551      | 15,733       | 75.586        | 0.214           | 138.663      | 0.300          |
 
 </details>
+
+### SGLang
+
+#### Comparing llm-d Scheduling to a Simple Kubernetes Service
+
+Benchmark comparing SGLang + precise-prefix-cache-routing against a plain Kubernetes Service (round-robin, no EPP) — coming soon.

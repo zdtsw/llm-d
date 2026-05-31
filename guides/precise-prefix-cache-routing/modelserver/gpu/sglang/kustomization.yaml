@@ -3,19 +3,20 @@ kind: Kustomization
 resources:
   - ../../../../recipes/modelserver/base/single-host/default
 
-namePrefix: optimized-baseline-rocm-sglang-
+namePrefix: precise-prefix-cache-routing-gpu-sglang-
 
 images:
   - name: REPLACE_MODEL_SERVER_IMAGE
     newName: docker.io/lmsysorg/sglang
-    newTag: v0.5.10.post1-rocm720-mi30x # TODO: bump version
+    newTag: v0.5.12.post1
 
 labels:
   - pairs:
-      llm-d.ai/guide: optimized-baseline
+      llm-d.ai/guide: precise-prefix-cache-routing
       llm-d.ai/model: Qwen3-32B
       llm-d.ai/accelerator-variant: gpu
-      llm-d.ai/accelerator-vendor: amd
+      llm-d.ai/accelerator-vendor: nvidia
+      llm-d.ai/engine-type: sglang
     includeSelectors: true
     includeTemplates: true
     fields:
@@ -48,6 +49,5 @@ labels:
         kind: PodMonitor
         path: spec/selector/matchLabels
         create: true
-
 patches:
   - path: patch-sglang.yaml
