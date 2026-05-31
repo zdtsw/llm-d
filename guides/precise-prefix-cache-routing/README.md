@@ -24,25 +24,26 @@ Two scorers make up the routing decision alongside the load-aware stack:
 
 ### Supported Hardware Backends
 
-| Backend              | Directory                  | Default model                           | Notes                                      |
-| -------------------- | -------------------------- | --------------------------------------- | ------------------------------------------ |
-| NVIDIA GPU           | `modelserver/gpu/vllm/`    | Qwen/Qwen3-32B                          | Default configuration                      |
-| AMD GPU              | `modelserver/amd/vllm/`    | Qwen/Qwen3-32B                          | AMD GPU                                    |
-| Intel XPU            | `modelserver/xpu/vllm/`    | Qwen/Qwen3-0.6B                         | CI-sized; update router `modelName` for real use |
-| Intel Gaudi (HPU)    | `modelserver/hpu/vllm/`    | Qwen/Qwen3-8B                           | `--block-size=128`; update scorer `blockSize` to match |
-| Google TPU v6e       | `modelserver/tpu-v6/vllm/` | Llama-3.1-70B-Instruct                  | GKE TPU                                    |
-| Google TPU v7        | `modelserver/tpu-v7/vllm/` | Qwen3-Coder-480B-FP8                    | GKE TPU                                    |
-| CPU                  | `modelserver/cpu/vllm/`    | Llama-3.2-3B-Instruct                   | CI-sized                                   |
+| Backend             | Directory                  | Default model          | Notes                                                      |
+| ------------------- | -------------------------- | ---------------------- | ---------------------------------------------------------- |
+| NVIDIA GPU          | `modelserver/gpu/vllm/`    | Qwen/Qwen3-32B         | Default configuration                                      |
+| NVIDIA GPU (SGLang) | `modelserver/gpu/sglang/`  | Qwen/Qwen3-32B         | SGLang engine; `--page-size=64` matches scorer `blockSize` |
+| AMD GPU             | `modelserver/amd/vllm/`    | Qwen/Qwen3-32B         | AMD GPU                                                    |
+| Intel XPU           | `modelserver/xpu/vllm/`    | Qwen/Qwen3-0.6B        | CI-sized; update router `modelName` for real use           |
+| Intel Gaudi (HPU)   | `modelserver/hpu/vllm/`    | Qwen/Qwen3-8B          | `--block-size=128`; update scorer `blockSize` to match     |
+| Google TPU v6e      | `modelserver/tpu-v6/vllm/` | Llama-3.1-70B-Instruct | GKE TPU                                                    |
+| Google TPU v7       | `modelserver/tpu-v7/vllm/` | Qwen3-Coder-480B-FP8   | GKE TPU                                                    |
+| CPU                 | `modelserver/cpu/vllm/`    | Llama-3.2-3B-Instruct  | CI-sized                                                   |
 
 > [!NOTE]
 > Some hardware variants use reduced configurations (fewer replicas, smaller models) to enable CI testing for compatibility and regression checks.
-
+<!-- -->
 > [!NOTE]
 > For precise prefix cache scoring to match reality, the `tokenizer` `modelName` and the scorer's `indexerConfig.tokenizersPoolConfig.modelName` in [`router/precise-prefix-cache-routing.values.yaml`](router/precise-prefix-cache-routing.values.yaml) must match the model the overlay deploys. HPU and anything that tunes `--block-size` also requires updating `tokenProcessorConfig.blockSize` on the router side.
-
+<!-- -->
 > [!NOTE]
 > The `gpu/vllm/` overlay defaults to 8 replicas to match the canonical 16×H100 benchmark. For smaller fleets (or quick smoke tests), reduce `replicas` in the deployment patch (`modelserver/gpu/vllm/patch-vllm.yaml`) before applying.
-
+<!-- -->
 > [!NOTE]
 > The router runs in **active-active HA** by default — two replicas behind one Service, each subscribing to every vLLM pod via pod-discovery so both indexes converge. Scale to a single replica with `--set router.epp.replicas=1` if HA isn't needed (small fleets, smoke tests).
 
@@ -64,6 +65,7 @@ export ROUTER_CHART_VERSION=v0
 export GUIDE_NAME="precise-prefix-cache-routing"
 export NAMESPACE="llm-d-${GUIDE_NAME}"
 ```
+
 - Install the Gateway API Inference Extension CRDs:
 
 ```bash
@@ -76,7 +78,6 @@ kubectl apply -k "https://github.com/kubernetes-sigs/gateway-api-inference-exten
 kubectl create namespace ${NAMESPACE}
 ```
 
-  
 ## Installation Instructions
 
 ### 1. Prepare HF Token
@@ -102,11 +103,10 @@ helm install ${GUIDE_NAME} \
   -n ${NAMESPACE} --version ${ROUTER_CHART_VERSION}
 ```
 
-
 The release name `${GUIDE_NAME}` is mandatory for standard deployments — the inference pool selector matches a guide label that pairs with this release.
 
 <details>
-<summary><h4>Gateway Mode</h4></summary>
+<summary><b>Gateway Mode</b></summary>
 
 To use a Kubernetes Gateway managed proxy instead of the standalone Envoy sidecar, do **not** apply the standalone chart above. Instead:
 
@@ -137,6 +137,14 @@ export INFRA_PROVIDER=base # base | gke
 kubectl apply -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/vllm/${INFRA_PROVIDER}/
 ```
 
+To run the same model on **SGLang** instead of vLLM, apply the SGLang overlay (no
+router changes needed — SGLang publishes the same KV-event wire format as vLLM, and
+the `llm-d.ai/engine-type: sglang` pod label selects the matching metric mappings):
+
+```bash
+kubectl apply -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/sglang/
+```
+
 ### 4. (Optional) Enable Monitoring
 
 > [!NOTE]
@@ -155,7 +163,7 @@ kubectl apply -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/g
 
 ### 1. Get the IP of the Proxy
 
-**Standalone Mode**
+<b>Standalone Mode</b>
 
 ```bash
 export IP=$(kubectl get service ${GUIDE_NAME}-epp -n ${NAMESPACE} -o jsonpath='{.spec.clusterIP}')
@@ -226,12 +234,15 @@ envsubst < guide.yaml > config.yaml
 
 ```bash
 helm uninstall ${GUIDE_NAME} -n ${NAMESPACE}
+# Delete the overlay you deployed — vLLM (default) or SGLang.
 kubectl delete -n ${NAMESPACE} -k guides/${GUIDE_NAME}/modelserver/gpu/vllm/${INFRA_PROVIDER}/
+# For SGLang:
+# kubectl delete -n ${NAMESPACE} -k guides/${GUIDE_NAME}/modelserver/gpu/sglang/
 ```
 
 ## How It Works
 
-1. **vLLM pods publish KV-cache events** — each pod runs `vllm serve ... --kv-events-config '{...,"publisher":"zmq","endpoint":"$(KV_EVENTS_ENDPOINT)","topic":"kv@$(POD_IP):$(POD_PORT)@<model>"}'` with `KV_EVENTS_ENDPOINT=tcp://*:5556`, binding its own ZMQ socket. On every KV block allocation/eviction, vLLM emits a ZMQ message.
+1. **vLLM pods publish KV-cache events** — each pod runs `vllm serve ... --kv-events-config '{...,"publisher":"zmq","endpoint":"$(KV_EVENTS_ENDPOINT)","topic":"kv@$(POD_IP):$(POD_PORT)@<model>"}'` with `KV_EVENTS_ENDPOINT=tcp://*:5556`, binding its own ZMQ socket. On every KV block allocation/eviction, vLLM emits a ZMQ message. **SGLang** uses the same `--kv-events-config` schema and emits the same positional msgpack wire format, so the router consumes both identically; only `attn_tp_rank==0` publishes, so each SGLang pod still binds exactly one socket.
 2. **Router subscribes per pod** — pod-discovery (`kvEventsConfig.discoverPods: true`) wires the data-layer `endpoint-notification-source` into the scorer's `ExtractEndpoint`, so each router replica installs a ZMQ subscriber per vLLM pod independently. All replicas converge to the same index.
 3. **Scoring** — the `precise-prefix-cache-scorer` returns the fraction of the request's prefix blocks that are resident on each candidate pod. The `max-score-picker` routes to the highest-scoring pod.
 
