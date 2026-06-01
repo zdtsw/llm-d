@@ -277,7 +277,7 @@ jobs:
 
       - name: Dry-run router (active-active default)
         # The chart auto-injects the vllm-render sidecar via
-        # `router.tokenizer.render.enabled: true`.
+        # `router.tokenizer.enabled: true`.
         run: |
           CHART_VERSION=v0
           echo ""
@@ -298,32 +298,6 @@ jobs:
             echo "PASS: precise-prefix-cache-routing / router (vllm-render)"
           else
             echo "FAIL: precise-prefix-cache-routing / router (vllm-render)"
-            exit 1
-          fi
-
-      - name: Dry-run router (legacy UDS variant)
-        # The chart auto-injects the UDS tokenizer sidecar via
-        # `router.tokenizer.uds.enabled: true`.
-        run: |
-          CHART_VERSION=v0
-          echo ""
-          echo "========================================"
-          echo "precise-prefix-cache-routing: router (UDS)"
-          echo "========================================"
-          echo "--- helm template ---"
-          if ! helm template precise-prefix-cache-routing \
-            "oci://ghcr.io/llm-d/charts/llm-d-router-standalone-dev" \
-            -f guides/recipes/router/base.values.yaml \
-            -f guides/precise-prefix-cache-routing/router/precise-prefix-cache-routing-uds.values.yaml \
-            --version "${CHART_VERSION}" > /tmp/rendered.yaml; then
-            echo "FAIL: helm template (UDS) failed"
-            exit 1
-          fi
-          echo "--- kubectl apply --dry-run=server ---"
-          if kubectl apply --dry-run=server -f /tmp/rendered.yaml; then
-            echo "PASS: precise-prefix-cache-routing / router (UDS)"
-          else
-            echo "FAIL: precise-prefix-cache-routing / router (UDS)"
             exit 1
           fi
 

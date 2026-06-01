@@ -95,7 +95,7 @@ kubectl -n ${NAMESPACE} create secret generic llm-d-hf-token --from-literal=HF_T
 
 This deploys the llm-d Router in the simple [Standalone Mode](placeholder-link). The release name `${GUIDE_NAME}` is mandatory — the inference pool selector matches a guide label that pairs with this release.
 
-The chart auto-injects the `vllm-render` sidecar when `router.tokenizer.render.enabled: true` is set in the values file.
+The chart auto-injects the `vllm-render` sidecar when `router.tokenizer.enabled: true` is set in the values file.
 
 ```bash
 helm install ${GUIDE_NAME} \

@@ -45,7 +45,7 @@ router:
         plugins:
           - type: token-producer
             parameters:
-              modelName: Qwen/Qwen3-32B
+              modelName: Qwen/Qwen3-32B # Must match router.tokenizer.modelName above
               vllm:
                 url: "http://localhost:8000"
           - type: endpoint-notification-source
