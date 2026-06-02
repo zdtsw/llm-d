@@ -19,9 +19,6 @@ router:
   epp:
     replicas: 2
     image:
-      registry: ghcr.io/llm-d
-      repository: llm-d-router-endpoint-picker-dev  # TODO: drop -dev for release
-      tag: main  # TODO: pin to a released tag (e.g. v0.9.0)
       pullPolicy: Always
     flags:
       # The chart auto-adds `--ha-enable-leader-election` when replicas > 1,
@@ -49,10 +46,6 @@ router:
               vllm:
                 url: "http://localhost:8000"
           - type: endpoint-notification-source
-          - type: metrics-data-source
-          - type: core-metrics-extractor
-          - type: single-profile-handler
-          - type: decode-filter
           - type: precise-prefix-cache-scorer
             parameters:
               tokenProcessorConfig:
@@ -71,18 +64,14 @@ router:
           - type: queue-scorer
           - type: no-hit-lru-scorer
           - type: max-score-picker
-        dataLayer:
+        dataLayer: # metrics-data-source + core-metrics-extractor injected by default
           sources:
-            - pluginRef: metrics-data-source
-              extractors:
-                - pluginRef: core-metrics-extractor
             - pluginRef: endpoint-notification-source
               extractors:
                 - pluginRef: precise-prefix-cache-scorer
         schedulingProfiles:
           - name: default
             plugins:
-              - pluginRef: decode-filter
               - pluginRef: kv-cache-utilization-scorer
                 weight: 2.0
               - pluginRef: queue-scorer

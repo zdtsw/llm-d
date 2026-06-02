@@ -6,8 +6,8 @@ router:
     replicas: 1
     image:
       registry: ghcr.io/llm-d
-      repository: llm-d-router-endpoint-picker-dev
-      tag: main
+      repository: llm-d-router-endpoint-picker-dev  # TODO: drop -dev for release
+      tag: main  # TODO: pin to a released tag (e.g. v0.9.0)
     flags:
       v: 2
     pluginsConfigFile: "default-plugins.yaml"
