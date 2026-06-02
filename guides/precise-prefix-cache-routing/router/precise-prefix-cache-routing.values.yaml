@@ -18,8 +18,6 @@ router:
 
   epp:
     replicas: 2
-    image:
-      pullPolicy: Always
     flags:
       # The chart auto-adds `--ha-enable-leader-election` when replicas > 1,
       # which makes only the leader's readiness probe pass — collapsing to
