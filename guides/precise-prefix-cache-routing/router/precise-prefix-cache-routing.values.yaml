@@ -64,7 +64,6 @@ router:
           - type: kv-cache-utilization-scorer
           - type: queue-scorer
           - type: no-hit-lru-scorer
-          - type: max-score-picker
         dataLayer: # metrics-data-source + core-metrics-extractor injected by default
           sources:
             - pluginRef: endpoint-notification-source
@@ -81,7 +80,6 @@ router:
                 weight: 3.0
               - pluginRef: no-hit-lru-scorer
                 weight: 2.0
-              - pluginRef: max-score-picker
 
   extraServicePorts:
     - name: http
