@@ -17,8 +17,6 @@ plugins:
   - type: prefix-cache-scorer
   - type: no-hit-lru-scorer
 
-  - type: single-profile-handler
-
   - name: metrics-source
     type: metrics-data-source
   - name: metrics-extractor
