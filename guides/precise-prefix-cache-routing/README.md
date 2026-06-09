@@ -372,4 +372,29 @@ Output tokens/sec — higher is better; TTFT in seconds — lower is better.
 
 #### Comparing llm-d Scheduling to a Simple Kubernetes Service
 
-Benchmark comparing SGLang + precise-prefix-cache-routing against a plain Kubernetes Service (round-robin, no EPP) — coming soon.
+Benchmark run with the canonical shared-prefix workload from this guide, comparing the precise path against a plain Kubernetes Service (round-robin, no EPP, no scoring) across the same SGLang pods. llm-d Precise shows a large improvement over the k8s baseline — roughly 2× output throughput with TTFT held near constant while the baseline degrades sharply under load.
+
+<details>
+<summary><b><i>Click</i></b> to view the per-rate breakdown across the full ladder</summary>
+
+Output tokens/sec — higher is better; TTFT in seconds — lower is better.
+
+| Rate | k8s Output | llm-d Output | k8s TTFT mean | llm-d TTFT mean | k8s TTFT p90 | llm-d TTFT p90 |
+| ---: | ---------: | -----------: | ------------: | --------------: | -----------: | -------------: |
+|  3   | 1,752      | 1,690        | 0.629         | 0.213           | 1.014        | 0.243          |
+| 10   | 4,377      | 5,013        | 0.926         | 0.213           | 1.655        | 0.295          |
+| 15   | 4,528      | 6,983        | 3.593         | 0.202           | 5.630        | 0.323          |
+| 20   | 5,799      | 9,439        | 26.500        | 0.529           | 60.170       | 0.511          |
+| 22   | 4,803      | 9,671        | 29.185        | 1.050           | 63.806       | 0.567          |
+| 25   | 5,559      | 9,772        | 29.125        | 0.985           | 63.950       | 0.650          |
+| 30   | 4,967      | 9,976        | 34.295        | 0.759           | 73.831       | 0.573          |
+| 35   | 5,816      | 9,962        | 34.191        | 0.972           | 73.837       | 0.596          |
+| 40   | 5,548      | 11,964       | 84.999        | 15.505          | 152.473      | 44.448         |
+| 43   | 5,374      | 12,049       | 87.271        | 17.201          | 157.532      | 52.145         |
+| 46   | 5,374      | 11,989       | 87.138        | 19.652          | 156.928      | 56.452         |
+| 49   | 5,692      | 11,744       | 85.618        | 18.361          | 157.622      | 52.982         |
+| 52   | 5,326      | 11,933       | 87.259        | 20.287          | 160.448      | 56.957         |
+
+</details>
+
+> Benchmark contributed by @liu-cong.
