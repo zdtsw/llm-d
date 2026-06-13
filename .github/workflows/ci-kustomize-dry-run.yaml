@@ -306,7 +306,7 @@ jobs:
           failed=0
           base=guides/precise-prefix-cache-routing/modelserver
           # Recurse to any depth: overlays nest unevenly (e.g. amd/vllm/ but
-          # gpu/vllm/base/, gpu/vllm/gke/, gpu/sglang/base/). Find every
+          # gpu/vllm/base/, gpu/vllm/gke/, gpu/sglang/). Find every
           # kustomization.yaml so each backend/server overlay is covered.
           while IFS= read -r -d '' kustfile; do
             kust_dir="${kustfile%kustomization.yaml}"
