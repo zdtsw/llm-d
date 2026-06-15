@@ -142,25 +142,10 @@ helm install ${GUIDE_NAME} \
 Apply the Kustomize overlay for your backend (defaulting to NVIDIA GPU / vLLM):
 
 ```bash
+export MODEL_SERVER=vllm # vllm | sglang
 export INFRA_PROVIDER=base # base | gke
-kubectl apply -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/vllm/${INFRA_PROVIDER}/
+kubectl apply -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/${MODEL_SERVER}/${INFRA_PROVIDER}/
 ```
-
-To run the same model on **SGLang** instead of vLLM, apply the SGLang overlay (the
-router is unchanged; the overlay's `llm-d.ai/engine-type: sglang` pod label selects
-SGLang's metric names):
-
-```bash
-kubectl apply -n ${NAMESPACE} -k ${REPO_ROOT}/guides/${GUIDE_NAME}/modelserver/gpu/sglang/
-```
-
-To verify that cache-aware routing is active, send a shared-prefix prompt longer than the value set for `--page-size` several times, then check the SGLang pod logs:
-
-```bash
-kubectl logs -n ${NAMESPACE} -l llm-d.ai/engine-type=sglang | grep cached-token
-```
-
-Subsequent requests sharing the same long prefix should show a non-zero `#cached-token` count on the pod the router has pinned them to, confirming the KV-cache index is working.
 
 ### 4. (Optional) Enable Monitoring
 
