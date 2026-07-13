@@ -58,9 +58,6 @@ spec:
               name: triton-cache
             - mountPath: /.config
               name: vllm-config
-            - mountPath: /model-cache
-              name: model-storage
-              readOnly: true
           startupProbe:
             initialDelaySeconds: 15
             periodSeconds: 30
